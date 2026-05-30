@@ -1,50 +1,25 @@
 <?php
 
-namespace Tests\Unit\Services\Notifications;
-
 use App\Services\Notifications\NotificationRecipientTokenNormalizer;
-use PHPUnit\Framework\TestCase;
 
-class NotificationRecipientTokenNormalizerTest extends TestCase
-{
-    private NotificationRecipientTokenNormalizer $normalizer;
+beforeEach(function () {
+    $this->normalizer = new NotificationRecipientTokenNormalizer;
+});
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+test('normalizes string tokens', function () {
+    expect($this->normalizer->normalizeList(['related:prospect', 'admin@example.com']))->toBe(['related:prospect', 'admin@example.com']);
+});
 
-        $this->normalizer = new NotificationRecipientTokenNormalizer;
-    }
+test('normalizes wp notification repeater objects', function () {
+    expect($this->normalizer->normalizeList([
+        ['type' => 'email', 'recipient' => 'related:prospect'],
+    ]))->toBe(['related:prospect']);
 
-    public function test_normalizes_string_tokens(): void
-    {
-        $this->assertSame(
-            ['related:prospect', 'admin@example.com'],
-            $this->normalizer->normalizeList(['related:prospect', 'admin@example.com']),
-        );
-    }
+    expect($this->normalizer->normalizeList([
+        ['type' => 'email', 'recipient' => 'lead_owner'],
+    ]))->toBe(['related:lead_owner']);
 
-    public function test_normalizes_wp_notification_repeater_objects(): void
-    {
-        $this->assertSame(
-            ['related:prospect'],
-            $this->normalizer->normalizeList([
-                ['type' => 'email', 'recipient' => 'related:prospect'],
-            ]),
-        );
-
-        $this->assertSame(
-            ['related:lead_owner'],
-            $this->normalizer->normalizeList([
-                ['type' => 'email', 'recipient' => 'lead_owner'],
-            ]),
-        );
-
-        $this->assertSame(
-            ['role:administrator'],
-            $this->normalizer->normalizeList([
-                ['type' => 'role', 'recipient' => 'administrator'],
-            ]),
-        );
-    }
-}
+    expect($this->normalizer->normalizeList([
+        ['type' => 'role', 'recipient' => 'administrator'],
+    ]))->toBe(['role:administrator']);
+});

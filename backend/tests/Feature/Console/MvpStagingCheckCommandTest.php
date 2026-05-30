@@ -1,46 +1,35 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Console;
-
+use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-final class MvpStagingCheckCommandTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    public function test_staging_check_passes_in_local_environment(): void
-    {
-        $this->seed(RolesAndPermissionsSeeder::class);
+test('staging check passes in local environment', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
 
-        $admin = \App\Models\User::factory()->create();
-        $admin->assignRole('admin');
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
 
-        $this->artisan('mvp:staging-check')
-            ->assertSuccessful();
-    }
+    $this->artisan('mvp:staging-check')
+        ->assertSuccessful();
+});
+test('staging check reports missing roles without crashing', function () {
+    $this->artisan('mvp:staging-check')
+        ->assertFailed()
+        ->expectsOutputToContain('Roles & permissions');
+});
+test('staging check fails when demo users exist in production', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
 
-    public function test_staging_check_reports_missing_roles_without_crashing(): void
-    {
-        $this->artisan('mvp:staging-check')
-            ->assertFailed()
-            ->expectsOutputToContain('Roles & permissions');
-    }
+    $this->app['env'] = 'production';
+    config(['app.env' => 'production']);
 
-    public function test_staging_check_fails_when_demo_users_exist_in_production(): void
-    {
-        $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create(['email' => 'admin@fil.test']);
+    $admin->assignRole('admin');
 
-        $this->app['env'] = 'production';
-        config(['app.env' => 'production']);
-
-        $admin = \App\Models\User::factory()->create(['email' => 'admin@fil.test']);
-        $admin->assignRole('admin');
-
-        $this->artisan('mvp:staging-check')
-            ->assertFailed();
-    }
-}
+    $this->artisan('mvp:staging-check')
+        ->assertFailed();
+});

@@ -1,7 +1,5 @@
 <?php
 
-namespace Tests\Feature\Auth;
-
 use App\Domain\Contact;
 use App\Domain\Settings;
 use App\Models\Lead;
@@ -10,51 +8,41 @@ use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
-use Tests\TestCase;
 
-class PolicyTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
 
-    public function test_lead_owner_can_view_leads_but_not_stores(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('lead_owner');
+test('lead owner can view leads but not stores', function () {
+    $user = User::factory()->create();
+    $user->assignRole('lead_owner');
 
-        $this->assertTrue(Gate::forUser($user)->allows('viewAny', Lead::class));
-        $this->assertFalse(Gate::forUser($user)->allows('viewAny', Store::class));
-        $this->assertTrue(Gate::forUser($user)->allows('viewAny', Contact::class));
-        $this->assertFalse(Gate::forUser($user)->allows('manage', Settings::class));
-    }
+    expect(Gate::forUser($user)->allows('viewAny', Lead::class))->toBeTrue();
+    expect(Gate::forUser($user)->allows('viewAny', Store::class))->toBeFalse();
+    expect(Gate::forUser($user)->allows('viewAny', Contact::class))->toBeTrue();
+    expect(Gate::forUser($user)->allows('manage', Settings::class))->toBeFalse();
+});
 
-    public function test_franchisor_can_access_royalties_and_ach(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisor');
+test('franchisor can access royalties and ach', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
 
-        $this->assertTrue(Gate::forUser($user)->allows('viewAnyRoyalty'));
-        $this->assertTrue(Gate::forUser($user)->allows('viewAnyAch'));
-    }
+    expect(Gate::forUser($user)->allows('viewAnyRoyalty'))->toBeTrue();
+    expect(Gate::forUser($user)->allows('viewAnyAch'))->toBeTrue();
+});
 
-    public function test_prospect_cannot_access_staff_app(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('prospect');
+test('prospect cannot access staff app', function () {
+    $user = User::factory()->create();
+    $user->assignRole('prospect');
 
-        $this->assertFalse(Gate::forUser($user)->allows('accessStaffApp'));
-    }
+    expect(Gate::forUser($user)->allows('accessStaffApp'))->toBeFalse();
+});
 
-    public function test_admin_can_manage_settings(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('admin');
+test('admin can manage settings', function () {
+    $user = User::factory()->create();
+    $user->assignRole('admin');
 
-        $this->assertTrue(Gate::forUser($user)->allows('manage', Settings::class));
-    }
-}
+    expect(Gate::forUser($user)->allows('manage', Settings::class))->toBeTrue();
+});

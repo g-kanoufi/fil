@@ -12,6 +12,7 @@ abstract class TestCase extends BaseTestCase
 
         if ($this->app !== null) {
             $this->app['env'] = 'testing';
+            config(['session.driver' => 'array']);
         }
     }
 }

@@ -1,9 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Auth;
-
 use App\Models\Area;
 use App\Models\Lead;
 use App\Models\Store;
@@ -12,106 +9,86 @@ use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-final class ResourceScopeServiceTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    private ResourceScopeService $scope;
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $this->scope = app(ResourceScopeService::class);
+});
+test('franchisee cannot list leads', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisee');
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-        $this->scope = app(ResourceScopeService::class);
-    }
+    expect($this->scope->mayListLeads($user))->toBeFalse();
+});
+test('franchisee sees only assigned stores', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisee');
 
-    public function test_franchisee_cannot_list_leads(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisee');
+    $visible = Store::factory()->create(['name' => 'Mine']);
+    $hidden = Store::factory()->create(['name' => 'Other']);
 
-        $this->assertFalse($this->scope->mayListLeads($user));
-    }
+    StoreOwner::query()->create([
+        'store_id' => $visible->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+    ]);
 
-    public function test_franchisee_sees_only_assigned_stores(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisee');
+    expect($this->scope->canViewStore($user, $visible))->toBeTrue();
+    expect($this->scope->canViewStore($user, $hidden))->toBeFalse();
+});
+test('area rep sees leads in assigned area', function () {
+    $user = User::factory()->create();
+    $user->assignRole('area_rep');
 
-        $visible = Store::factory()->create(['name' => 'Mine']);
-        $hidden = Store::factory()->create(['name' => 'Other']);
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $user->id]]);
+    $inArea = Lead::factory()->create(['area_id' => $area->id, 'title' => 'In area']);
+    $outside = Lead::factory()->create(['area_id' => null, 'title' => 'Outside']);
 
-        StoreOwner::query()->create([
-            'store_id' => $visible->id,
-            'user_id' => $user->id,
-            'role' => 'owner',
-        ]);
+    expect($this->scope->canViewLead($user, $inArea))->toBeTrue();
+    expect($this->scope->canViewLead($user, $outside))->toBeFalse();
+});
+test('franchisee grid query returns no leads', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisee');
+    Lead::factory()->count(2)->create();
 
-        $this->assertTrue($this->scope->canViewStore($user, $visible));
-        $this->assertFalse($this->scope->canViewStore($user, $hidden));
-    }
+    $response = $this->actingAs($user)->postJson('/api/v1/query/leads', [
+        'limit' => 10,
+    ]);
 
-    public function test_area_rep_sees_leads_in_assigned_area(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('area_rep');
+    $response->assertForbidden();
+});
+test('franchisee grid query returns scoped stores', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisee');
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $user->id]]);
-        $inArea = Lead::factory()->create(['area_id' => $area->id, 'title' => 'In area']);
-        $outside = Lead::factory()->create(['area_id' => null, 'title' => 'Outside']);
+    $visible = Store::factory()->create(['name' => 'Visible store']);
+    Store::factory()->create(['name' => 'Hidden store']);
 
-        $this->assertTrue($this->scope->canViewLead($user, $inArea));
-        $this->assertFalse($this->scope->canViewLead($user, $outside));
-    }
+    StoreOwner::query()->create([
+        'store_id' => $visible->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+    ]);
 
-    public function test_franchisee_grid_query_returns_no_leads(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisee');
-        Lead::factory()->count(2)->create();
+    $response = $this->actingAs($user)->postJson('/api/v1/query/stores', [
+        'limit' => 50,
+    ]);
 
-        $response = $this->actingAs($user)->postJson('/api/v1/query/leads', [
-            'limit' => 10,
-        ]);
+    $response->assertOk();
+    $titles = collect($response->json('hits.hits'))->map(fn (array $hit) => $hit['_source']['post_title'] ?? null);
 
-        $response->assertForbidden();
-    }
+    expect($titles->contains('Visible store'))->toBeTrue();
+    expect($titles->contains('Hidden store'))->toBeFalse();
+});
+test('staff gate returns machine code', function () {
+    $user = User::factory()->create();
+    $user->assignRole('prospect');
 
-    public function test_franchisee_grid_query_returns_scoped_stores(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisee');
+    $response = $this->actingAs($user)->getJson('/api/v1/session');
 
-        $visible = Store::factory()->create(['name' => 'Visible store']);
-        Store::factory()->create(['name' => 'Hidden store']);
-
-        StoreOwner::query()->create([
-            'store_id' => $visible->id,
-            'user_id' => $user->id,
-            'role' => 'owner',
-        ]);
-
-        $response = $this->actingAs($user)->postJson('/api/v1/query/stores', [
-            'limit' => 50,
-        ]);
-
-        $response->assertOk();
-        $titles = collect($response->json('hits.hits'))->map(fn (array $hit) => $hit['_source']['post_title'] ?? null);
-
-        $this->assertTrue($titles->contains('Visible store'));
-        $this->assertFalse($titles->contains('Hidden store'));
-    }
-
-    public function test_staff_gate_returns_machine_code(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('prospect');
-
-        $response = $this->actingAs($user)->getJson('/api/v1/session');
-
-        $response->assertForbidden()
-            ->assertJsonPath('code', 'staff_required');
-    }
-}
+    $response->assertForbidden()
+        ->assertJsonPath('code', 'staff_required');
+});

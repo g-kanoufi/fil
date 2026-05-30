@@ -1,37 +1,30 @@
 <?php
 
-namespace Tests\Feature\Console;
-
 use App\Models\Lead;
 use App\Models\Store;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class LegacyImportCommandTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    public function test_import_command_executes_fixture_dump(): void
-    {
-        $fixture = base_path('tests/fixtures/legacy-posts.sql');
+test('import command executes fixture dump', function () {
+    $fixture = base_path('tests/fixtures/legacy-posts.sql');
 
-        $this->artisan('legacy:import', [
-            'dump' => $fixture,
-            '--prefix' => 'wp_9_',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $fixture,
+        '--prefix' => 'wp_9_',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $this->assertDatabaseHas('leads', [
-            'legacy_post_id' => 101,
-            'title' => 'Jane Applicant',
-        ]);
+    $this->assertDatabaseHas('leads', [
+        'legacy_post_id' => 101,
+        'title' => 'Jane Applicant',
+    ]);
 
-        $this->assertDatabaseHas('stores', [
-            'legacy_post_id' => 202,
-            'name' => 'PrimeIV Demo',
-        ]);
+    $this->assertDatabaseHas('stores', [
+        'legacy_post_id' => 202,
+        'name' => 'PrimeIV Demo',
+    ]);
 
-        $this->assertSame(1, Lead::query()->count());
-        $this->assertSame(1, Store::query()->count());
-    }
-}
+    expect(Lead::query()->count())->toBe(1);
+    expect(Store::query()->count())->toBe(1);
+});

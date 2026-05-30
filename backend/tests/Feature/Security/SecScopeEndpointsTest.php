@@ -1,12 +1,8 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Security;
-
-use App\Models\Area;
 use App\Models\AchTransfer;
-use App\Models\Closing;
+use App\Models\Area;
 use App\Models\Lead;
 use App\Models\RoyaltyPeriod;
 use App\Models\Store;
@@ -14,169 +10,149 @@ use App\Models\StoreOwner;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-final class SecScopeEndpointsTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
+test('area rep leads index is scoped', function () {
+    $rep = User::factory()->create();
+    $rep->assignRole('area_rep');
 
-    public function test_area_rep_leads_index_is_scoped(): void
-    {
-        $rep = User::factory()->create();
-        $rep->assignRole('area_rep');
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+    $visible = Lead::factory()->create(['area_id' => $area->id, 'title' => 'Visible lead']);
+    Lead::factory()->create(['area_id' => null, 'title' => 'Hidden lead']);
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
-        $visible = Lead::factory()->create(['area_id' => $area->id, 'title' => 'Visible lead']);
-        Lead::factory()->create(['area_id' => null, 'title' => 'Hidden lead']);
+    $response = $this->actingAs($rep)->getJson('/api/v1/leads')->assertOk();
 
-        $response = $this->actingAs($rep)->getJson('/api/v1/leads')->assertOk();
+    $titles = collect($response->json('data'))->pluck('title')->all();
+    expect($titles)->toContain('Visible lead');
+    expect($titles)->not->toContain('Hidden lead');
+});
+test('franchisee store index is scoped', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisee');
 
-        $titles = collect($response->json('data'))->pluck('title')->all();
-        $this->assertContains('Visible lead', $titles);
-        $this->assertNotContains('Hidden lead', $titles);
-    }
+    $visible = Store::factory()->create(['name' => 'My store']);
+    Store::factory()->create(['name' => 'Other store']);
 
-    public function test_franchisee_store_index_is_scoped(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisee');
+    StoreOwner::query()->create([
+        'store_id' => $visible->id,
+        'user_id' => $user->id,
+        'role' => 'owner',
+    ]);
 
-        $visible = Store::factory()->create(['name' => 'My store']);
-        Store::factory()->create(['name' => 'Other store']);
+    $response = $this->actingAs($user)->getJson('/api/v1/stores')->assertOk();
 
-        StoreOwner::query()->create([
-            'store_id' => $visible->id,
-            'user_id' => $user->id,
-            'role' => 'owner',
-        ]);
+    $names = collect($response->json('data'))->pluck('name')->all();
+    expect($names)->toContain('My store');
+    expect($names)->not->toContain('Other store');
+});
+test('activity subject timeline requires lead access', function () {
+    $rep = User::factory()->create();
+    $rep->assignRole('area_rep');
 
-        $response = $this->actingAs($user)->getJson('/api/v1/stores')->assertOk();
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+    $visibleLead = Lead::factory()->create(['area_id' => $area->id]);
+    $hiddenLead = Lead::factory()->create(['area_id' => null]);
 
-        $names = collect($response->json('data'))->pluck('name')->all();
-        $this->assertContains('My store', $names);
-        $this->assertNotContains('Other store', $names);
-    }
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/lead/{$visibleLead->id}")
+        ->assertOk();
 
-    public function test_activity_subject_timeline_requires_lead_access(): void
-    {
-        $rep = User::factory()->create();
-        $rep->assignRole('area_rep');
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/lead/{$hiddenLead->id}")
+        ->assertForbidden();
+});
+test('activity subject timeline requires store access', function () {
+    $rep = User::factory()->create();
+    $rep->assignRole('area_rep');
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
-        $visibleLead = Lead::factory()->create(['area_id' => $area->id]);
-        $hiddenLead = Lead::factory()->create(['area_id' => null]);
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+    $visibleStore = Store::factory()->create(['area_id' => $area->id]);
+    $hiddenStore = Store::factory()->create(['area_id' => null]);
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/lead/{$visibleLead->id}")
-            ->assertOk();
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/store/{$visibleStore->id}")
+        ->assertOk();
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/lead/{$hiddenLead->id}")
-            ->assertForbidden();
-    }
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/store/{$hiddenStore->id}")
+        ->assertForbidden();
+});
+test('activity subject timeline requires contact access', function () {
+    $rep = User::factory()->create();
+    $rep->assignRole('area_rep');
 
-    public function test_activity_subject_timeline_requires_store_access(): void
-    {
-        $rep = User::factory()->create();
-        $rep->assignRole('area_rep');
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+    $visibleStore = Store::factory()->create(['area_id' => $area->id]);
+    $hiddenStore = Store::factory()->create(['area_id' => null]);
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
-        $visibleStore = Store::factory()->create(['area_id' => $area->id]);
-        $hiddenStore = Store::factory()->create(['area_id' => null]);
+    $visibleContact = User::factory()->create();
+    $hiddenContact = User::factory()->create();
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/store/{$visibleStore->id}")
-            ->assertOk();
+    StoreOwner::query()->create([
+        'store_id' => $visibleStore->id,
+        'user_id' => $visibleContact->id,
+        'role' => 'owner',
+    ]);
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/store/{$hiddenStore->id}")
-            ->assertForbidden();
-    }
+    StoreOwner::query()->create([
+        'store_id' => $hiddenStore->id,
+        'user_id' => $hiddenContact->id,
+        'role' => 'owner',
+    ]);
 
-    public function test_activity_subject_timeline_requires_contact_access(): void
-    {
-        $rep = User::factory()->create();
-        $rep->assignRole('area_rep');
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/contact/{$visibleContact->id}")
+        ->assertOk();
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
-        $visibleStore = Store::factory()->create(['area_id' => $area->id]);
-        $hiddenStore = Store::factory()->create(['area_id' => null]);
+    $this->actingAs($rep)
+        ->getJson("/api/v1/activity/subjects/contact/{$hiddenContact->id}")
+        ->assertForbidden();
+});
+test('out of scope store route is forbidden', function () {
+    $rep = User::factory()->create();
+    $rep->assignRole('area_rep');
 
-        $visibleContact = User::factory()->create();
-        $hiddenContact = User::factory()->create();
+    $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+    $visible = Store::factory()->create(['area_id' => $area->id]);
+    $hidden = Store::factory()->create(['area_id' => null]);
 
-        StoreOwner::query()->create([
-            'store_id' => $visibleStore->id,
-            'user_id' => $visibleContact->id,
-            'role' => 'owner',
-        ]);
+    $this->actingAs($rep)
+        ->getJson("/api/v1/stores/{$visible->id}")
+        ->assertOk();
 
-        StoreOwner::query()->create([
-            'store_id' => $hiddenStore->id,
-            'user_id' => $hiddenContact->id,
-            'role' => 'owner',
-        ]);
+    $this->actingAs($rep)
+        ->getJson("/api/v1/stores/{$hidden->id}")
+        ->assertForbidden();
+});
+test('duplicate ach trigger returns existing transfer', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/contact/{$visibleContact->id}")
-            ->assertOk();
+    $store = Store::factory()->create();
+    $period = RoyaltyPeriod::query()->create([
+        'store_id' => $store->id,
+        'frequency' => 'monthly',
+        'period_start' => now()->subMonth(),
+        'period_end' => now(),
+        'recorded_at' => now(),
+        'total_royalties' => 150.00,
+        'status' => 'open',
+    ]);
 
-        $this->actingAs($rep)
-            ->getJson("/api/v1/activity/subjects/contact/{$hiddenContact->id}")
-            ->assertForbidden();
-    }
+    $first = $this->actingAs($user)
+        ->postJson("/api/v1/stores/{$store->id}/royalty-periods/{$period->id}/trigger-ach", [])
+        ->assertCreated()
+        ->json('data.id');
 
-    public function test_out_of_scope_store_route_is_forbidden(): void
-    {
-        $rep = User::factory()->create();
-        $rep->assignRole('area_rep');
+    $second = $this->actingAs($user)
+        ->postJson("/api/v1/stores/{$store->id}/royalty-periods/{$period->id}/trigger-ach", [])
+        ->assertCreated()
+        ->json('data.id');
 
-        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
-        $visible = Store::factory()->create(['area_id' => $area->id]);
-        $hidden = Store::factory()->create(['area_id' => null]);
-
-        $this->actingAs($rep)
-            ->getJson("/api/v1/stores/{$visible->id}")
-            ->assertOk();
-
-        $this->actingAs($rep)
-            ->getJson("/api/v1/stores/{$hidden->id}")
-            ->assertForbidden();
-    }
-
-    public function test_duplicate_ach_trigger_returns_existing_transfer(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisor');
-
-        $store = Store::factory()->create();
-        $period = RoyaltyPeriod::query()->create([
-            'store_id' => $store->id,
-            'frequency' => 'monthly',
-            'period_start' => now()->subMonth(),
-            'period_end' => now(),
-            'recorded_at' => now(),
-            'total_royalties' => 150.00,
-            'status' => 'open',
-        ]);
-
-        $first = $this->actingAs($user)
-            ->postJson("/api/v1/stores/{$store->id}/royalty-periods/{$period->id}/trigger-ach", [])
-            ->assertCreated()
-            ->json('data.id');
-
-        $second = $this->actingAs($user)
-            ->postJson("/api/v1/stores/{$store->id}/royalty-periods/{$period->id}/trigger-ach", [])
-            ->assertCreated()
-            ->json('data.id');
-
-        $this->assertSame($first, $second);
-        $this->assertSame(1, AchTransfer::query()->where('royalty_period_id', $period->id)->count());
-    }
-}
+    expect($second)->toBe($first);
+    expect(AchTransfer::query()->where('royalty_period_id', $period->id)->count())->toBe(1);
+});

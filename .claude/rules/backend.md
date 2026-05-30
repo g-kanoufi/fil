@@ -9,7 +9,7 @@ Write Laravel the way Jeffrey Way teaches on Laracasts: **thin controllers, fat 
 
 ## Stack
 
-- Laravel 13, PHP 8.4, PHPUnit
+- Laravel 13, PHP 8.4, Pest 4 (PHPUnit 12)
 - Sanctum (SPA session), spatie/laravel-permission
 - PostgreSQL; queues on `database` driver
 
@@ -52,7 +52,8 @@ app/
 ## Testing
 
 - Feature tests for every route (happy path + validation + auth failure)
-- Use factories and `RefreshDatabase`
+- Use factories and `RefreshDatabase` via `uses(RefreshDatabase::class)` per file
+- Pest `test()` / `it()` in `backend/tests`; base case in `tests/Pest.php`
 - Run: `php artisan test --compact`
 
 ## Do not

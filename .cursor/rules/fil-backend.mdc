@@ -99,13 +99,14 @@ public function store(StoreLeadRequest $request, CreateLead $createLead): JsonRe
 - Staff routes: `middleware(['auth:sanctum', 'staff'])`; web SPA: `auth` + `staff`
 - Permissions + navigation in `config/fil.php`; seed with `RolesAndPermissionsSeeder`
 
-## Testing (PHPUnit)
+## Testing (Pest)
 
 - **Feature tests** for every route (happy path + validation + auth failure)
-- Use factories and `RefreshDatabase`
-- `assertJsonPath`, `assertJsonStructure`, `assertForbidden`, `assertUnprocessable`
+- Use factories and `RefreshDatabase` via `uses(RefreshDatabase::class)` per file
+- Laravel HTTP assertions on `$this->actingAs(...)->getJson(...)`; use `expect()` for pure values
 - Unit-test Services and Actions with edge cases
-- Run: `php artisan test --compact`
+- Shared helpers: file-local `function` names must be unique across the suite (no duplicate globals)
+- Run: `php artisan test --compact` (Pest 4 on PHPUnit 12; config in `tests/Pest.php` + `phpunit.xml`)
 
 ## Commands & jobs
 

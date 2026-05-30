@@ -1,73 +1,65 @@
 <?php
 
-namespace Tests\Feature\Console;
-
 use App\Models\AchTransfer;
 use App\Models\RoyaltyLineItem;
 use App\Models\RoyaltyPeriod;
 use App\Models\Store;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class LegacyImportFinancialTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    public function test_import_command_imports_royalty_periods_and_line_items(): void
-    {
-        $posts = base_path('tests/fixtures/legacy-posts.sql');
-        $royalties = base_path('tests/fixtures/legacy-royalties.sql');
+test('import command imports royalty periods and line items', function () {
+    $posts = base_path('tests/fixtures/legacy-posts.sql');
+    $royalties = base_path('tests/fixtures/legacy-royalties.sql');
 
-        $this->artisan('legacy:import', [
-            'dump' => $posts,
-            '--prefix' => 'wp_9_',
-            '--only' => 'stores',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $posts,
+        '--prefix' => 'wp_9_',
+        '--only' => 'stores',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $this->artisan('legacy:import', [
-            'dump' => $royalties,
-            '--prefix' => 'wp_9_',
-            '--only' => 'royalties',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $royalties,
+        '--prefix' => 'wp_9_',
+        '--only' => 'royalties',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $store = Store::query()->where('legacy_post_id', 202)->first();
-        $this->assertNotNull($store);
+    $store = Store::query()->where('legacy_post_id', 202)->first();
+    expect($store)->not->toBeNull();
 
-        $this->assertSame(1, RoyaltyPeriod::query()->count());
-        $this->assertSame(1, RoyaltyLineItem::query()->count());
+    expect(RoyaltyPeriod::query()->count())->toBe(1);
+    expect(RoyaltyLineItem::query()->count())->toBe(1);
 
-        $period = RoyaltyPeriod::query()->first();
-        $this->assertSame($store->id, $period->store_id);
-        $this->assertSame('12500.00', $period->gross_revenue);
-    }
+    $period = RoyaltyPeriod::query()->first();
+    expect($period->store_id)->toBe($store->id);
+    expect($period->gross_revenue)->toBe('12500.00');
+});
 
-    public function test_import_command_imports_ach_transfers(): void
-    {
-        $posts = base_path('tests/fixtures/legacy-posts.sql');
-        $ach = base_path('tests/fixtures/legacy-ach.sql');
+test('import command imports ach transfers', function () {
+    $posts = base_path('tests/fixtures/legacy-posts.sql');
+    $ach = base_path('tests/fixtures/legacy-ach.sql');
 
-        $this->artisan('legacy:import', [
-            'dump' => $posts,
-            '--prefix' => 'wp_9_',
-            '--only' => 'stores',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $posts,
+        '--prefix' => 'wp_9_',
+        '--only' => 'stores',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $this->artisan('legacy:import', [
-            'dump' => $ach,
-            '--prefix' => 'wp_9_',
-            '--only' => 'ach',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $ach,
+        '--prefix' => 'wp_9_',
+        '--only' => 'ach',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $this->assertDatabaseHas('ach_transfers', [
-            'legacy_transfer_id' => 9001,
-            'external_transfer_id' => 'transfer-abc',
-            'amount' => 750,
-        ]);
+    $this->assertDatabaseHas('ach_transfers', [
+        'legacy_transfer_id' => 9001,
+        'external_transfer_id' => 'transfer-abc',
+        'amount' => 750,
+    ]);
 
-        $this->assertSame(1, AchTransfer::query()->count());
-    }
-}
+    expect(AchTransfer::query()->count())->toBe(1);
+});

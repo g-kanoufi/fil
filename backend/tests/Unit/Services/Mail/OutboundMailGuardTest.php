@@ -1,78 +1,54 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Unit\Services\Mail;
-
 use App\Services\Mail\OutboundMailGuard;
 use Illuminate\Support\Facades\Config;
-use Tests\TestCase;
 
-final class OutboundMailGuardTest extends TestCase
-{
-    public function test_non_production_never_allows_real_recipients(): void
-    {
-        $this->app['env'] = 'local';
+test('non production never allows real recipients', function () {
+    $this->app['env'] = 'local';
 
-        $guard = app(OutboundMailGuard::class);
+    $guard = app(OutboundMailGuard::class);
 
-        $this->assertFalse($guard->allowsRealRecipients());
-    }
+    expect($guard->allowsRealRecipients())->toBeFalse();
+});
+test('production allows real recipients by default', function () {
+    $this->app['env'] = 'production';
+    Config::set('fil-mail.block_outbound', false);
 
-    public function test_production_allows_real_recipients_by_default(): void
-    {
-        $this->app['env'] = 'production';
-        Config::set('fil-mail.block_outbound', false);
+    $guard = app(OutboundMailGuard::class);
 
-        $guard = app(OutboundMailGuard::class);
+    expect($guard->allowsRealRecipients())->toBeTrue();
+});
+test('production can block outbound mail', function () {
+    $this->app['env'] = 'production';
+    Config::set('fil-mail.block_outbound', true);
 
-        $this->assertTrue($guard->allowsRealRecipients());
-    }
+    $guard = app(OutboundMailGuard::class);
 
-    public function test_production_can_block_outbound_mail(): void
-    {
-        $this->app['env'] = 'production';
-        Config::set('fil-mail.block_outbound', true);
+    expect($guard->allowsRealRecipients())->toBeFalse();
+});
+test('resolve recipients rewrites to sink outside production', function () {
+    $this->app['env'] = 'local';
+    Config::set('fil-mail.sink_addresses', ['dev@fil.test']);
 
-        $guard = app(OutboundMailGuard::class);
+    $guard = app(OutboundMailGuard::class);
 
-        $this->assertFalse($guard->allowsRealRecipients());
-    }
+    expect($guard->resolveRecipients(['prospect@example.com']))->toBe(['dev@fil.test']);
+});
+test('resolve recipients uses placeholder when no sink configured', function () {
+    $this->app['env'] = 'staging';
+    Config::set('fil-mail.sink_addresses', []);
 
-    public function test_resolve_recipients_rewrites_to_sink_outside_production(): void
-    {
-        $this->app['env'] = 'local';
-        Config::set('fil-mail.sink_addresses', ['dev@fil.test']);
+    $guard = app(OutboundMailGuard::class);
 
-        $guard = app(OutboundMailGuard::class);
+    expect($guard->resolveRecipients(['prospect@example.com']))->toBe(['mail-sink@fil.invalid']);
+});
+test('enforce safe mailer downgrades mailgun outside production', function () {
+    $this->app['env'] = 'local';
+    Config::set('mail.default', 'mailgun');
+    Config::set('fil-mail.non_production_mailer', 'log');
 
-        $this->assertSame(
-            ['dev@fil.test'],
-            $guard->resolveRecipients(['prospect@example.com']),
-        );
-    }
+    app(OutboundMailGuard::class)->enforceSafeMailer();
 
-    public function test_resolve_recipients_uses_placeholder_when_no_sink_configured(): void
-    {
-        $this->app['env'] = 'staging';
-        Config::set('fil-mail.sink_addresses', []);
-
-        $guard = app(OutboundMailGuard::class);
-
-        $this->assertSame(
-            ['mail-sink@fil.invalid'],
-            $guard->resolveRecipients(['prospect@example.com']),
-        );
-    }
-
-    public function test_enforce_safe_mailer_downgrades_mailgun_outside_production(): void
-    {
-        $this->app['env'] = 'local';
-        Config::set('mail.default', 'mailgun');
-        Config::set('fil-mail.non_production_mailer', 'log');
-
-        app(OutboundMailGuard::class)->enforceSafeMailer();
-
-        $this->assertSame('log', config('mail.default'));
-    }
-}
+    expect(config('mail.default'))->toBe('log');
+});

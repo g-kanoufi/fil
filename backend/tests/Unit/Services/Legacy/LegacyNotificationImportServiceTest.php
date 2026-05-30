@@ -1,29 +1,25 @@
 <?php
 
-namespace Tests\Unit\Services\Legacy;
-
+use App\Services\Legacy\LegacyNamedTableImporter;
 use App\Services\Legacy\LegacyNotificationImportService;
-use PHPUnit\Framework\TestCase;
-use ReflectionMethod;
+use App\Services\Notifications\NotificationConditionNormalizer;
+use App\Services\Notifications\NotificationRecipientTokenNormalizer;
+use App\Services\Notifications\NotificationScheduleNormalizer;
 
-class LegacyNotificationImportServiceTest extends TestCase
-{
-    public function test_decode_json_handles_sql_escaped_carrier_payload(): void
-    {
-        $service = new LegacyNotificationImportService(
-            new \App\Services\Legacy\LegacyNamedTableImporter,
-            new \App\Services\Notifications\NotificationConditionNormalizer,
-            new \App\Services\Notifications\NotificationScheduleNormalizer,
-            new \App\Services\Notifications\NotificationRecipientTokenNormalizer,
-        );
+test('decode json handles sql escaped carrier payload', function () {
+    $service = new LegacyNotificationImportService(
+        new LegacyNamedTableImporter,
+        new NotificationConditionNormalizer,
+        new NotificationScheduleNormalizer,
+        new NotificationRecipientTokenNormalizer,
+    );
 
-        $method = new ReflectionMethod(LegacyNotificationImportService::class, 'decodeJson');
-        $method->setAccessible(true);
+    $method = new ReflectionMethod(LegacyNotificationImportService::class, 'decodeJson');
+    $method->setAccessible(true);
 
-        $payload = '{\"subject\":\"Welcome\",\"body\":\"<p>Hi</p>\",\"recipients\":[\"related:prospect\"]}';
-        $decoded = $method->invoke($service, $payload);
+    $payload = '{\"subject\":\"Welcome\",\"body\":\"<p>Hi</p>\",\"recipients\":[\"related:prospect\"]}';
+    $decoded = $method->invoke($service, $payload);
 
-        $this->assertSame('Welcome', $decoded['subject'] ?? null);
-        $this->assertSame('<p>Hi</p>', $decoded['body'] ?? null);
-    }
-}
+    expect($decoded['subject'] ?? null)->toBe('Welcome');
+    expect($decoded['body'] ?? null)->toBe('<p>Hi</p>');
+});

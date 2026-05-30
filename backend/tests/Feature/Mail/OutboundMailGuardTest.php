@@ -1,21 +1,14 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Mail;
-
+use App\Services\Mail\OutboundMailGuard;
 use Illuminate\Support\Facades\Config;
-use Tests\TestCase;
 
-final class OutboundMailGuardTest extends TestCase
-{
-    public function test_mailgun_mailer_is_downgraded_to_log_outside_production(): void
-    {
-        $this->app['env'] = 'local';
-        Config::set('mail.default', 'mailgun');
+test('mailgun mailer is downgraded to log outside production', function () {
+    $this->app['env'] = 'local';
+    Config::set('mail.default', 'mailgun');
 
-        app(\App\Services\Mail\OutboundMailGuard::class)->enforceSafeMailer();
+    app(OutboundMailGuard::class)->enforceSafeMailer();
 
-        $this->assertSame('log', config('mail.default'));
-    }
-}
+    expect(config('mail.default'))->toBe('log');
+});

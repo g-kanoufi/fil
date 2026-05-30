@@ -1,99 +1,82 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Webhooks;
-
 use App\Models\Communication;
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\Communications\TwilioSignatureVerifier;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class TwilioWebhookTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
+test('inbound sms creates communication', function () {
+    $this->postJson('/api/webhooks/twilio/inbound', [
+        'From' => '+15551234567',
+        'Body' => 'Reply from prospect',
+        'MessageSid' => 'SM123',
+    ])->assertNoContent();
 
-    public function test_inbound_sms_creates_communication(): void
-    {
-        $this->postJson('/api/webhooks/twilio/inbound', [
-            'From' => '+15551234567',
-            'Body' => 'Reply from prospect',
-            'MessageSid' => 'SM123',
-        ])->assertNoContent();
+    $this->assertDatabaseHas('communications', [
+        'external_message_id' => 'SM123',
+        'direction' => 'inbound',
+        'message' => 'Reply from prospect',
+    ]);
 
-        $this->assertDatabaseHas('communications', [
-            'external_message_id' => 'SM123',
-            'direction' => 'inbound',
-            'message' => 'Reply from prospect',
-        ]);
+    expect(Communication::query()->count())->toBe(1);
+});
+test('inbound sms links matching lead', function () {
+    $prospect = User::factory()->create(['phone' => '+15559876543']);
+    $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
 
-        $this->assertSame(1, Communication::query()->count());
-    }
+    $this->postJson('/api/webhooks/twilio/inbound', [
+        'From' => '+15559876543',
+        'Body' => 'Yes, interested',
+        'MessageSid' => 'SM456',
+    ])->assertNoContent();
 
-    public function test_inbound_sms_links_matching_lead(): void
-    {
-        $prospect = User::factory()->create(['phone' => '+15559876543']);
-        $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
+    $this->assertDatabaseHas('communications', [
+        'lead_id' => $lead->id,
+        'recipient_user_id' => $prospect->id,
+        'external_message_id' => 'SM456',
+    ]);
+});
+test('inbound sms rejects invalid signature when token configured', function () {
+    config(['services.twilio.token' => 'twilio-auth-token']);
 
-        $this->postJson('/api/webhooks/twilio/inbound', [
-            'From' => '+15559876543',
-            'Body' => 'Yes, interested',
-            'MessageSid' => 'SM456',
-        ])->assertNoContent();
+    $this->postJson('/api/webhooks/twilio/inbound', [
+        'From' => '+15551234567',
+        'Body' => 'Forged message',
+        'MessageSid' => 'SM999',
+    ], [
+        'X-Twilio-Signature' => 'invalid',
+    ])->assertForbidden();
 
-        $this->assertDatabaseHas('communications', [
-            'lead_id' => $lead->id,
-            'recipient_user_id' => $prospect->id,
-            'external_message_id' => 'SM456',
-        ]);
-    }
+    $this->assertDatabaseMissing('communications', [
+        'external_message_id' => 'SM999',
+    ]);
+});
+test('inbound sms accepts valid signature when token configured', function () {
+    config(['services.twilio.token' => 'twilio-auth-token']);
 
-    public function test_inbound_sms_rejects_invalid_signature_when_token_configured(): void
-    {
-        config(['services.twilio.token' => 'twilio-auth-token']);
+    $params = [
+        'From' => '+15551234567',
+        'Body' => 'Signed reply',
+        'MessageSid' => 'SM777',
+    ];
 
-        $this->postJson('/api/webhooks/twilio/inbound', [
-            'From' => '+15551234567',
-            'Body' => 'Forged message',
-            'MessageSid' => 'SM999',
-        ], [
-            'X-Twilio-Signature' => 'invalid',
-        ])->assertForbidden();
+    $url = url('/api/webhooks/twilio/inbound');
+    $signature = app(TwilioSignatureVerifier::class)->computeSignature($url, $params, 'twilio-auth-token');
 
-        $this->assertDatabaseMissing('communications', [
-            'external_message_id' => 'SM999',
-        ]);
-    }
+    $this->postJson('/api/webhooks/twilio/inbound', $params, [
+        'X-Twilio-Signature' => $signature,
+    ])->assertNoContent();
 
-    public function test_inbound_sms_accepts_valid_signature_when_token_configured(): void
-    {
-        config(['services.twilio.token' => 'twilio-auth-token']);
-
-        $params = [
-            'From' => '+15551234567',
-            'Body' => 'Signed reply',
-            'MessageSid' => 'SM777',
-        ];
-
-        $url = url('/api/webhooks/twilio/inbound');
-        $signature = app(TwilioSignatureVerifier::class)->computeSignature($url, $params, 'twilio-auth-token');
-
-        $this->postJson('/api/webhooks/twilio/inbound', $params, [
-            'X-Twilio-Signature' => $signature,
-        ])->assertNoContent();
-
-        $this->assertDatabaseHas('communications', [
-            'external_message_id' => 'SM777',
-            'message' => 'Signed reply',
-        ]);
-    }
-}
+    $this->assertDatabaseHas('communications', [
+        'external_message_id' => 'SM777',
+        'message' => 'Signed reply',
+    ]);
+});

@@ -1,52 +1,37 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Tests\Feature\Services;
-
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\Communications\InboundCommunicationResolver;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-final class InboundCommunicationResolverTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
+test('resolves lead by prospect email', function () {
+    $prospect = User::factory()->create(['email' => 'prospect@example.com']);
+    $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
 
-    public function test_resolves_lead_by_prospect_email(): void
-    {
-        $prospect = User::factory()->create(['email' => 'prospect@example.com']);
-        $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
+    $match = app(InboundCommunicationResolver::class)->resolveByEmail('prospect@example.com');
 
-        $match = app(InboundCommunicationResolver::class)->resolveByEmail('prospect@example.com');
+    expect($match->leadId)->toBe($lead->id);
+    expect($match->contactUserId)->toBe($prospect->id);
+});
+test('resolves lead by prospect phone suffix', function () {
+    $prospect = User::factory()->create(['phone' => '+1 (555) 123-4567']);
+    $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
 
-        $this->assertSame($lead->id, $match->leadId);
-        $this->assertSame($prospect->id, $match->contactUserId);
-    }
+    $match = app(InboundCommunicationResolver::class)->resolveByPhone('+15551234567');
 
-    public function test_resolves_lead_by_prospect_phone_suffix(): void
-    {
-        $prospect = User::factory()->create(['phone' => '+1 (555) 123-4567']);
-        $lead = Lead::factory()->create(['prospect_user_id' => $prospect->id]);
+    expect($match->leadId)->toBe($lead->id);
+    expect($match->contactUserId)->toBe($prospect->id);
+});
+test('extracts email from rfc address', function () {
+    $resolver = app(InboundCommunicationResolver::class);
 
-        $match = app(InboundCommunicationResolver::class)->resolveByPhone('+15551234567');
-
-        $this->assertSame($lead->id, $match->leadId);
-        $this->assertSame($prospect->id, $match->contactUserId);
-    }
-
-    public function test_extracts_email_from_rfc_address(): void
-    {
-        $resolver = app(InboundCommunicationResolver::class);
-
-        $this->assertSame('user@example.com', $resolver->extractEmailAddress('User Name <user@example.com>'));
-    }
-}
+    expect($resolver->extractEmailAddress('User Name <user@example.com>'))->toBe('user@example.com');
+});

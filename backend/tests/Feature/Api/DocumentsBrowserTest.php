@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
-
 use App\Models\AchCustomer;
 use App\Models\AchFundingSource;
 use App\Models\AchTransfer;
@@ -13,125 +11,103 @@ use App\Models\Store;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-final class DocumentsBrowserTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
+test('franchisor can load documents browser settings and rows', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
 
-    public function test_franchisor_can_load_documents_browser_settings_and_rows(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisor');
+    $store = Store::factory()->create(['name' => 'Demo Store']);
+    $document = Document::query()->create([
+        'title' => 'Doctors License',
+        'mime_type' => 'application/pdf',
+        'storage_disk' => 'local',
+        'storage_path' => 'legacy/1/license.pdf',
+        'status' => 'active',
+    ]);
 
-        $store = Store::factory()->create(['name' => 'Demo Store']);
-        $document = Document::query()->create([
-            'title' => 'Doctors License',
-            'mime_type' => 'application/pdf',
-            'storage_disk' => 'local',
-            'storage_path' => 'legacy/1/license.pdf',
-            'status' => 'active',
-        ]);
+    DocumentLink::query()->create([
+        'document_id' => $document->id,
+        'linkable_type' => Store::class,
+        'linkable_id' => $store->id,
+        'role' => 'doctors_license',
+        'sort_order' => 0,
+    ]);
 
-        DocumentLink::query()->create([
-            'document_id' => $document->id,
-            'linkable_type' => Store::class,
-            'linkable_id' => $store->id,
-            'role' => 'doctors_license',
-            'sort_order' => 0,
-        ]);
+    $this->actingAs($user)
+        ->getJson('/api/v1/documents/settings')
+        ->assertOk()
+        ->assertJsonPath('data.enabled', true);
 
-        $this->actingAs($user)
-            ->getJson('/api/v1/documents/settings')
-            ->assertOk()
-            ->assertJsonPath('data.enabled', true);
+    $this->actingAs($user)
+        ->getJson('/api/v1/documents/rows?entity=store')
+        ->assertOk()
+        ->assertJsonPath('data.0.entity_title', 'Demo Store')
+        ->assertJsonPath('data.0.doc_type', 'doctors_license');
+});
 
-        $this->actingAs($user)
-            ->getJson('/api/v1/documents/rows?entity=store')
-            ->assertOk()
-            ->assertJsonPath('data.0.entity_title', 'Demo Store')
-            ->assertJsonPath('data.0.doc_type', 'doctors_license');
-    }
-}
+test('franchisor can view store ach enrollment', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
+    $store = Store::factory()->create();
 
-final class AchCustomerTest extends TestCase
-{
-    use RefreshDatabase;
+    $customer = AchCustomer::query()->create([
+        'owner_type' => Store::class,
+        'owner_id' => $store->id,
+        'provider' => 'dwolla',
+        'external_customer_id' => 'cust-test',
+        'status' => 'active',
+    ]);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+    AchFundingSource::query()->create([
+        'ach_customer_id' => $customer->id,
+        'external_funding_source_id' => 'fs-test',
+        'name' => 'Operating',
+        'type' => 'bank',
+        'status' => 'active',
+        'is_default' => true,
+    ]);
 
-    public function test_franchisor_can_view_store_ach_enrollment(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisor');
-        $store = Store::factory()->create();
+    $this->actingAs($user)
+        ->getJson("/api/v1/stores/{$store->id}/ach/customer")
+        ->assertOk()
+        ->assertJsonPath('data.enrolled', true)
+        ->assertJsonPath('data.funding_sources.0.external_funding_source_id', 'fs-test');
+});
 
-        $customer = AchCustomer::query()->create([
-            'owner_type' => Store::class,
-            'owner_id' => $store->id,
-            'provider' => 'dwolla',
-            'external_customer_id' => 'cust-test',
-            'status' => 'active',
-        ]);
+test('franchisor can request plaid link token stub', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
+    $store = Store::factory()->create();
 
-        AchFundingSource::query()->create([
-            'ach_customer_id' => $customer->id,
-            'external_funding_source_id' => 'fs-test',
-            'name' => 'Operating',
-            'type' => 'bank',
-            'status' => 'active',
-            'is_default' => true,
-        ]);
+    $this->actingAs($user)
+        ->postJson("/api/v1/stores/{$store->id}/ach/plaid/link-token")
+        ->assertOk()
+        ->assertJsonPath('data.store_id', $store->id)
+        ->assertJsonStructure(['data' => ['link_token', 'expiration']]);
+});
 
-        $this->actingAs($user)
-            ->getJson("/api/v1/stores/{$store->id}/ach/customer")
-            ->assertOk()
-            ->assertJsonPath('data.enrolled', true)
-            ->assertJsonPath('data.funding_sources.0.external_funding_source_id', 'fs-test');
-    }
+test('dwolla webhook updates transfer status', function () {
+    $store = Store::factory()->create();
 
-    public function test_franchisor_can_request_plaid_link_token_stub(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('franchisor');
-        $store = Store::factory()->create();
+    $transfer = AchTransfer::query()->create([
+        'store_id' => $store->id,
+        'transferred_at' => now(),
+        'provider' => 'dwolla',
+        'provider_status' => 'pending',
+        'status' => 0,
+        'amount' => 100,
+        'external_transfer_id' => 'transfer-123',
+    ]);
 
-        $this->actingAs($user)
-            ->postJson("/api/v1/stores/{$store->id}/ach/plaid/link-token")
-            ->assertOk()
-            ->assertJsonPath('data.store_id', $store->id)
-            ->assertJsonStructure(['data' => ['link_token', 'expiration']]);
-    }
+    $this->postJson('/api/webhooks/dwolla', [
+        'topic' => 'transfer_completed',
+        'resourceId' => 'transfer-123',
+    ])->assertOk();
 
-    public function test_dwolla_webhook_updates_transfer_status(): void
-    {
-        $store = Store::factory()->create();
-
-        $transfer = AchTransfer::query()->create([
-            'store_id' => $store->id,
-            'transferred_at' => now(),
-            'provider' => 'dwolla',
-            'provider_status' => 'pending',
-            'status' => 0,
-            'amount' => 100,
-            'external_transfer_id' => 'transfer-123',
-        ]);
-
-        $this->postJson('/api/webhooks/dwolla', [
-            'topic' => 'transfer_completed',
-            'resourceId' => 'transfer-123',
-        ])->assertOk();
-
-        $this->assertSame('processed', $transfer->fresh()->provider_status);
-    }
-}
+    expect($transfer->fresh()->provider_status)->toBe('processed');
+});

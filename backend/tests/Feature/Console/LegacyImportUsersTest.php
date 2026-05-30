@@ -1,61 +1,51 @@
 <?php
 
-namespace Tests\Feature\Console;
-
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class LegacyImportUsersTest extends TestCase
-{
-    use RefreshDatabase;
+uses(RefreshDatabase::class);
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seed(RolesAndPermissionsSeeder::class);
-    }
+beforeEach(function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+});
 
-    public function test_imports_staff_users_with_roles_by_default(): void
-    {
-        $fixture = base_path('tests/fixtures/legacy-users.sql');
+test('imports staff users with roles by default', function () {
+    $fixture = base_path('tests/fixtures/legacy-users.sql');
 
-        $this->artisan('legacy:import', [
-            'dump' => $fixture,
-            '--prefix' => 'wp_9_',
-            '--only' => 'users',
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $fixture,
+        '--prefix' => 'wp_9_',
+        '--only' => 'users',
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $this->assertDatabaseHas('users', [
-            'legacy_user_id' => 502,
-            'email' => 'admin@primeiv.test',
-            'first_name' => 'Corp',
-            'last_name' => 'Admin',
-        ]);
+    $this->assertDatabaseHas('users', [
+        'legacy_user_id' => 502,
+        'email' => 'admin@primeiv.test',
+        'first_name' => 'Corp',
+        'last_name' => 'Admin',
+    ]);
 
-        $admin = User::query()->where('legacy_user_id', 502)->first();
-        $this->assertNotNull($admin);
-        $this->assertTrue($admin->hasRole('franchisor'));
+    $admin = User::query()->where('legacy_user_id', 502)->first();
+    expect($admin)->not->toBeNull();
+    expect($admin->hasRole('franchisor'))->toBeTrue();
 
-        $this->assertDatabaseMissing('users', ['legacy_user_id' => 501]);
-    }
+    $this->assertDatabaseMissing('users', ['legacy_user_id' => 501]);
+});
 
-    public function test_all_users_flag_imports_prospects(): void
-    {
-        $fixture = base_path('tests/fixtures/legacy-users.sql');
+test('all users flag imports prospects', function () {
+    $fixture = base_path('tests/fixtures/legacy-users.sql');
 
-        $this->artisan('legacy:import', [
-            'dump' => $fixture,
-            '--prefix' => 'wp_9_',
-            '--only' => 'users',
-            '--all-users' => true,
-            '--execute' => true,
-        ])->assertSuccessful();
+    $this->artisan('legacy:import', [
+        'dump' => $fixture,
+        '--prefix' => 'wp_9_',
+        '--only' => 'users',
+        '--all-users' => true,
+        '--execute' => true,
+    ])->assertSuccessful();
 
-        $prospect = User::query()->where('legacy_user_id', 501)->first();
-        $this->assertNotNull($prospect);
-        $this->assertTrue($prospect->hasRole('prospect'));
-    }
-}
+    $prospect = User::query()->where('legacy_user_id', 501)->first();
+    expect($prospect)->not->toBeNull();
+    expect($prospect->hasRole('prospect'))->toBeTrue();
+});

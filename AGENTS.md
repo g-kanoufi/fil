@@ -14,7 +14,7 @@ Use **FIL naming** in all product code. See `docs/NAMING.md`.
 ## Principles
 
 1. **DRY / KISS** — search existing services and components before adding new ones.
-2. **TDD** — failing test first; backend PHPUnit, frontend Vitest.
+2. **TDD** — failing test first; backend Pest, frontend Vitest.
 3. **OpenAPI-first** — update `docs/api.openapi.yaml` before API changes.
 4. **Single tenant** — no multisite concepts in runtime code.
 5. **Structured metadata** — typed columns + `field_values`; no EAV key-value blobs (see `docs/METADATA.md`).
@@ -50,10 +50,11 @@ docs/        schema, API, parity checklist, METADATA.md, STACK.md
 
 ```bash
 # Backend
-cd backend && php artisan test --compact
+cd backend && composer pint:test && php artisan test --compact
+php artisan openapi:audit --fail-on-drift
 
 # Frontend (when present)
-cd frontend && npm run test:run
+cd frontend && npm run lint && npm run test:run
 
 # Legacy dump inventory
 php tools/inventory-dump.php data/local.sql.gz
