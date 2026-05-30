@@ -1,4 +1,4 @@
-import { apiGet } from './client';
+import { apiGet, apiPatch } from './client';
 
 export interface Contact {
   id: number;
@@ -9,8 +9,16 @@ export interface Contact {
   roles: string[];
   created_at: string | null;
   updated_at: string | null;
+  custom?: Record<string, unknown>;
 }
 
 export function fetchContact(id: number): Promise<Contact> {
   return apiGet<{ data: Contact }>(`/v1/contacts/${id}`).then((body) => body.data);
+}
+
+export function updateContact(
+  id: number,
+  payload: { custom: Record<string, unknown> },
+): Promise<Contact> {
+  return apiPatch<{ data: Contact }>(`/v1/contacts/${id}`, payload).then((body) => body.data);
 }

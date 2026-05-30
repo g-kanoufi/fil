@@ -42,7 +42,7 @@ Brief status for “what works today.” **Full roadmap and % complete:** [PRODU
 
 | Item | Notes |
 | --- | --- |
-| Contact custom fields | P-002; leads done first |
+| Contact custom fields | ☑ P-026 — `PATCH /api/v1/contacts/{contact}` + detail panel |
 | Slide-over detail panel | ☑ Grid row → `?panel=` slide-over; full pages at `/reports/:resource/:id` |
 | Financial / Dwolla flows | Phase 3; stub UI only |
 | Client DB import on staging | Phase 4 |

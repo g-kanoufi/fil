@@ -79,5 +79,32 @@ final class FieldSchemaSeeder extends Seeder
                 );
             }
         }
+
+        $contactGroup = FieldGroup::query()->updateOrCreate(
+            ['key' => 'contact_profile'],
+            [
+                'title' => 'Contact profile',
+                'slug' => 'contact-profile',
+                'sort_order' => 2,
+                'status' => 'active',
+            ],
+        );
+
+        Field::query()->updateOrCreate(
+            [
+                'field_group_id' => $contactGroup->id,
+                'key' => 'contact_notes',
+            ],
+            [
+                'entity' => 'contact',
+                'name' => 'Contact notes',
+                'type' => 'textarea',
+                'storage' => 'field_value',
+                'sort_order' => 1,
+                'required' => false,
+                'is_filterable' => false,
+                'status' => 'active',
+            ],
+        );
     }
 }

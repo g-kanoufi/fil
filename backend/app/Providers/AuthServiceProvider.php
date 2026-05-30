@@ -74,6 +74,7 @@ final class AuthServiceProvider extends ServiceProvider
 
         Gate::define('accessStaffApp', [StaffPolicy::class, 'accessStaffApp']);
         Gate::define('viewContact', fn (User $user, User $contact): bool => app(ContactPolicy::class)->view($user, $contact));
+        Gate::define('updateContact', fn (User $user, User $contact): bool => app(ContactPolicy::class)->update($user, $contact));
         Gate::define('viewAnyRoyalty', [RoyaltyPolicy::class, 'viewAny']);
         Gate::define('manageRoyalty', [RoyaltyPolicy::class, 'manage']);
         Gate::define('viewAnyAch', [AchPolicy::class, 'viewAny']);

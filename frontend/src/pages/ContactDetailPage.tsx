@@ -3,13 +3,15 @@ import { useParams } from 'react-router-dom';
 import { TextLink } from '@/components/ui/TextLink';
 import { DetailPanelChrome } from '@/components/ui/SlideOver';
 import type { EntityDetailPageProps } from '@/components/detail/types';
+import { EntityCustomFieldsPanel } from '@/components/fields/EntityCustomFieldsPanel';
 import { EntityActivityTimeline } from '@/components/activity/EntityActivityTimeline';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { fetchContact, type Contact } from '@/lib/api/contacts';
+import { fetchContact, updateContact, type Contact } from '@/lib/api/contacts';
+import { useAuth } from '@/providers/AuthProvider';
 
 function displayName(contact: Contact): string {
   const full = [contact.first_name, contact.last_name].filter(Boolean).join(' ').trim();
@@ -23,6 +25,8 @@ export function ContactDetailPage({
   onPanelClose,
   fullPagePath,
 }: EntityDetailPageProps = {}) {
+  const { can } = useAuth();
+  const canEditContact = can('contacts.manage');
   const { id } = useParams<{ id: string }>();
   const contactId = recordIdProp ?? Number(id);
   const panelMode = layout === 'panel';
@@ -109,6 +113,16 @@ export function ContactDetailPage({
             </dd>
           </div>
         </dl>
+
+        <EntityCustomFieldsPanel
+          entity="contact"
+          values={contact.custom ?? {}}
+          canEdit={canEditContact}
+          onSave={async (custom) => {
+            const updated = await updateContact(contact.id, { custom });
+            setContact(updated);
+          }}
+        />
       </Card>
 
       <div className={panelMode ? 'mt-4' : 'mt-6'}>
