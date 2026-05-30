@@ -134,6 +134,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/closings', [ClosingController::class, 'index'])->name('api.v1.closings.index');
         Route::get('/closings/{closing}', [ClosingController::class, 'show'])->name('api.v1.closings.show');
         Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('api.v1.contacts.show');
+        Route::patch('/contacts/{contact}', [ContactController::class, 'update'])->name('api.v1.contacts.update');
         Route::get('/stores', [StoreController::class, 'index'])->name('api.v1.stores.index');
         Route::post('/stores', [StoreController::class, 'store'])->name('api.v1.stores.store');
         Route::get('/stores/{store}', [StoreController::class, 'show'])->name('api.v1.stores.show');

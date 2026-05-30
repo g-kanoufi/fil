@@ -79,7 +79,7 @@ Weighted by what blocks a real client cutover:
 
 | ID | Item | Status |
 | --- | --- | --- |
-| P-002 | Custom fields on contacts | Deferred (leads custom fields done) |
+| P-002 | Custom fields on contacts | ☑ (P-026) |
 | P-005 | Activity history | ☑ Phases A–C |
 | P-006 | Bulk FDD from grid | ☑ |
 | P-007 | SMS/email composer | ☑ |
@@ -125,9 +125,7 @@ Weighted by what blocks a real client cutover:
 | 1.9 | Activity timeline | ☑ | [ACTIVITY_HISTORY.md](./ACTIVITY_HISTORY.md) Phases A–C |
 | 1.10 | Slide-over detail panel | ☑ | Grid `?panel=` URL + `user_has_panel_access` |
 
-**Phase 1 exit:** ☑ (includes 1.10 slide-over)
-
-**Remaining (non-blocking):** contact custom fields (P-002).
+**Phase 1 exit:** ☑ (includes 1.10 slide-over and P-026 contact custom fields).
 
 ---
 
@@ -260,8 +258,6 @@ gantt
 1. Client UAT on staging
 2. Backup/restore drill
 3. Production deploy + smoke; monitor queue 48h
-
-**Optional in parallel:** contact custom fields (P-002) — only if UAT demands.
 
 ---
 

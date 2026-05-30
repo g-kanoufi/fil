@@ -19,7 +19,7 @@ const SCALAR_TYPES = new Set([
 ]);
 
 interface EntityCustomFieldsPanelProps {
-  entity: 'lead' | 'store';
+  entity: 'lead' | 'store' | 'contact';
   values: Record<string, unknown>;
   canEdit: boolean;
   onSave: (custom: Record<string, unknown>) => Promise<void>;

@@ -2,11 +2,21 @@
 
 Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla, Plaid, or AI service credentials.
 
-**Last updated:** 2026-05-30
+**Last updated:** 2026-05-28
 
 ---
 
-## Done this branch (`feature/local-hardening-and-cleanup`)
+## Done this branch (`feature/contact-custom-fields`)
+
+| Item | Notes |
+|------|--------|
+| Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
+| OpenAPI | `patch` on `/v1/contacts/{contact}` |
+| Tests | ContactController PATCH + forbidden without `contacts.manage` |
+
+---
+
+## Done previously (`feature/local-hardening-and-cleanup`)
 
 | Item | Notes |
 |------|--------|
@@ -23,11 +33,10 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **Contact custom fields (P-002)** | 2–3d | Mirror lead `field_values` on contacts; admin + detail UI |
-| 2 | **Closing detail workflow UI** | 1–2d | Status transitions, fee line display (read/write against existing API) |
-| 3 | **Grid export polish** | 0.5d | Consistent export button placement, filename conventions |
-| 4 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
-| 5 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
+| 1 | **Closing detail workflow UI** | 1–2d | Status transitions, fee line display (read/write against existing API) |
+| 2 | **Grid export polish** | 0.5d | Consistent export button placement, filename conventions |
+| 3 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
+| 4 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
 
 ### P2 — Quality & design
 
@@ -65,14 +74,14 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ## Suggested next feature branch
 
-After merging this branch to `dev`:
+After merging contact custom fields to `dev`:
 
 ```bash
 git checkout dev && git pull
-git checkout -b feature/contact-custom-fields
+git checkout -b feature/closing-detail-workflow
 ```
 
-**Scope:** P-002 contact custom fields — backend field schema extension, contact detail panel, PHPUnit + Vitest.
+**Scope:** Closing detail status transitions and fee line display against existing API.
 
 ---
 

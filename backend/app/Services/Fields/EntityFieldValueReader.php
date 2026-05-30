@@ -9,6 +9,7 @@ use App\Models\FieldRelationLink;
 use App\Models\FieldValue;
 use App\Models\Lead;
 use App\Models\Store;
+use App\Models\User;
 use App\Support\Fields\FieldTypes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -100,6 +101,7 @@ final class EntityFieldValueReader
         return match ($entityType) {
             'lead' => Lead::class,
             'store' => Store::class,
+            'contact' => User::class,
             default => null,
         };
     }

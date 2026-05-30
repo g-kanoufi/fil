@@ -16,6 +16,7 @@ final class FieldSchemaPolicy
     {
         return $user->can('viewAny', Lead::class)
             || $user->can('viewAny', Store::class)
+            || app(ContactPolicy::class)->viewAny($user)
             || $user->can('manage', Settings::class);
     }
 
@@ -24,6 +25,7 @@ final class FieldSchemaPolicy
         return match ($entity) {
             'lead' => $user->can('viewAny', Lead::class),
             'store' => $user->can('viewAny', Store::class),
+            'contact' => app(ContactPolicy::class)->viewAny($user),
             default => $user->can('manage', Settings::class),
         };
     }

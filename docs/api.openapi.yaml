@@ -106,6 +106,31 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+    patch:
+      summary: Update contact custom fields (contacts.manage)
+      parameters:
+        - name: contact
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                custom:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Updated contact profile
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
 components:
   schemas:
     GridQueryRequest:
