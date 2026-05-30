@@ -40,6 +40,7 @@ Ship when **all** of these pass in staging:
 ### Client data
 
 - [ ] Run `legacy:import-acf` with client ACF path
+- [ ] Complete dry-run checklist — [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md)
 - [ ] Run `legacy:import --execute` against client dump
 - [ ] Run `legacy:parity-report` — document acceptable gaps
 - [ ] Spot-check 10 leads, 5 stores in staging UI

@@ -30,6 +30,7 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | [parity-checklist.md](./parity-checklist.md) | Legacy CRM parity IDs (P-001 …) |
 | [ACTIVITY_HISTORY.md](./ACTIVITY_HISTORY.md) | Activity feed design (Phases A–C complete) |
 | [schema-mapping.md](./schema-mapping.md) | Legacy → FIL table mapping |
+| [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) | Phase 4 import dry-run + execute checklist |
 
 ## Engineering reference
 

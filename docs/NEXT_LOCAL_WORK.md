@@ -10,6 +10,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | Item | Notes |
 |------|--------|
+| Legacy import dry-run docs | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) — Phase 4 checklist |
 | Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
 | Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
@@ -25,8 +26,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
-| 2 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
+| 1 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
 
 ### P2 — Quality & design
 
@@ -66,10 +66,10 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ```bash
 git checkout dev && git pull
-git checkout -b feature/legacy-import-dry-run-docs
+git checkout -b feature/phpunit-coverage-gaps
 ```
 
-**Scope:** Document `legacy:import --dry-run` checklist for Phase 4 prep.
+**Scope:** Activity export auth paths and document scope edge case tests.
 
 ---
 

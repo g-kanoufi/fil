@@ -169,7 +169,7 @@ Weighted by what blocks a real client cutover:
 | # | Task | Status |
 | --- | --- | --- |
 | 4.1 | Obtain latest client DB dump | ☐ |
-| 4.2 | Run import pipeline on staging | ☐ |
+| 4.2 | Run import pipeline on staging | ☐ — [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) |
 | 4.3 | Row counts + spot-check vs legacy | ☐ |
 | 4.4 | Fix mapping gaps ([schema-mapping.md](./schema-mapping.md)) | ☐ |
 | 4.5 | Sign-off checklist with client | ☐ |

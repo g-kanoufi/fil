@@ -148,10 +148,15 @@ Resolves database, migrations, roles, queue, mail guard, demo accounts (staging/
 
 ```bash
 php artisan test --compact
-php artisan legacy:import --execute          # import from dump
+php artisan legacy:inventory                    # dump row counts
+php artisan legacy:import                       # dry-run (default; no --execute)
+php artisan legacy:import --execute             # import from dump
 php artisan legacy:parity-report
+php artisan legacy:finalize --strict
 php artisan db:seed --class=DemoSeeder       # re-seed demo data only
 ```
+
+See [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) for the full Phase 4 checklist.
 
 ## Troubleshooting
 
