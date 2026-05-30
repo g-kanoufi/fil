@@ -1,9 +1,3 @@
----
-description: FIL project core rules — DRY, KISS, TDD, naming standards
-globs: "**/*"
-alwaysApply: true
----
-
 # FIL core rules
 
 - Product code uses **FIL naming** (`docs/NAMING.md`). Never add legacy CMS API paths, `blog_ID`, or vendor-specific constants to new code.
@@ -12,7 +6,7 @@ alwaysApply: true
 - **OpenAPI-first:** update `docs/api.openapi.yaml` when changing `/api/v1` or `/api/public/v1`.
 - **Single tenant:** no multisite patterns.
 - **No EAV metadata:** use typed columns, FKs, and `field_values` — see `docs/METADATA.md`. Never add generic key/value meta tables.
-- **Git workflow:** `feature/*` → `dev` → `staging` PR at EOD — see `.cursor/rules/fil-git-workflow.mdc`.
+- **Git workflow:** feature branches off `dev`; merge to `dev` when done; EOD PR to `staging` — see `.claude/rules/git-workflow.md`.
 
 ## Iteration gate (every chunk)
 

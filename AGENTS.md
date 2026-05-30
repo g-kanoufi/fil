@@ -2,6 +2,8 @@
 
 FIL (Franchise Intelligence Layer) is a per-client Laravel + React franchise CRM.
 
+**Claude Code:** read `CLAUDE.md` at repo root (imports this file + `.claude/rules/`). **Cursor:** `.cursor/rules/*.mdc`. Keep both in sync when changing project conventions.
+
 ## Migration reference (behavior only)
 
 - PrimeIV migration dump: `data/local.sql.gz` (table prefix `vnzokz0zw_9_`)
@@ -18,6 +20,16 @@ Use **FIL naming** in all product code. See `docs/NAMING.md`.
 5. **Structured metadata** — typed columns + `field_values`; no EAV key-value blobs (see `docs/METADATA.md`).
 6. **Minimal scope** — only features listed in the plan; reference legacy behavior for parity, not for structure.
 7. **Chunk gate** — simplify, de-duplicate, test green before the next iteration (see `.cursor/rules/fil-core.mdc`).
+
+## Git workflow
+
+Branch flow: **`feature/*` → `dev` → `staging`**.
+
+1. **New features** — create `feature/<short-name>` from `dev`; never commit feature work directly to `dev`, `staging`, or `main`/`master`.
+2. **Feature complete** — merge into `dev` (local merge or PR to `dev`).
+3. **End of day** — if GitHub remote is configured and `dev` has new commits not on `staging`, open a PR **`dev` → `staging`** (`gh pr create --base staging --head dev`).
+
+Details: `.claude/rules/git-workflow.md` · `.cursor/rules/fil-git-workflow.mdc`.
 
 ## Coding style
 

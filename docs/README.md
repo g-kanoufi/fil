@@ -9,6 +9,7 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | [**PRODUCTION_READINESS.md**](./PRODUCTION_READINESS.md) | Master roadmap, progress %, phases 0–8, next actions |
 | [**MVP_STATUS.md**](./MVP_STATUS.md) | Short snapshot of what ships today vs deferred |
 | [**AGENTS.md**](../AGENTS.md) | Agent/coding conventions (repo root) |
+| [**CLAUDE.md**](../CLAUDE.md) | Claude Code entry point (imports AGENTS.md + `.claude/rules/`) |
 
 ## Operations & deploy
 
