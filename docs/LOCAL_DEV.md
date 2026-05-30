@@ -30,6 +30,29 @@ cd widget && npm install && npm run build
 
 The seed creates demo users and sample CRM data (local/testing only).
 
+### Database (PostgreSQL)
+
+Local dev uses **PostgreSQL only** (same as Forge staging/production). SQLite is reserved for PHPUnit and E2E smoke tests.
+
+```bash
+docker compose up -d postgres   # from repo root
+```
+
+Ensure `backend/.env` matches `.env.example`:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=fil
+DB_USERNAME=fil
+DB_PASSWORD=fil
+```
+
+**TablePlus:** create a PostgreSQL connection with the values above. Do not open `database/database.sqlite` for day-to-day dev — that file is legacy from earlier local runs.
+
+**Client data:** after `migrate`, run `legacy:import --execute` (see [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md)) to load `data/local.sql.gz`.
+
 ### Demo credentials
 
 | Email | Role | Scope | Password |
@@ -165,7 +188,9 @@ See [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) for the full Phase 4 
 | Login succeeds but session lost on refresh | Add your host to `SANCTUM_STATEFUL_DOMAINS`; use same origin (Option A) |
 | Blank `/app` page | Run `cd frontend && npm run build` |
 | Widget 401 | Set `FIL_EMBED_SITE_KEYS=pk_dev` and use `data-site-key="pk_dev"` |
-| Grid empty after seed | `php artisan migrate:fresh --seed` |
+| Grid empty after seed | Confirm `DB_CONNECTION=pgsql` and Postgres is running (`docker compose ps`); run `php artisan migrate --seed` |
+| `SQLSTATE[08006]` / connection refused | `docker compose up -d postgres` |
+| Artisan uses wrong DB (sqlite / e2e) | Unset shell overrides: `unset DB_CONNECTION DB_DATABASE` — E2E script exports sqlite only inside its subshell, but a parent shell may still have them |
 | Drip emails not sent | Start `php artisan queue:work database` |
 
 ## When to notify the team

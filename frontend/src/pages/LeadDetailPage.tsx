@@ -13,7 +13,8 @@ import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { LoadingState } from '@/components/ui/LoadingState';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { fetchCommunications, type Communication } from '@/lib/api/communications';
 import { DocumentDownloadLink } from '@/components/documents/DocumentDownloadLink';
@@ -206,22 +207,19 @@ export function LeadDetailPage({
     }
   }
 
-  if (loading) {
-    return <LoadingState label="Loading lead…" />;
-  }
-
-  if (!lead) {
-    if (panelMode) {
-      return <Alert variant="error">{error ?? 'Lead not found'}</Alert>;
-    }
-
+  if (loading || !lead) {
     return (
-      <>
-        <Alert variant="error">{error ?? 'Lead not found'}</Alert>
-        <TextLink to="/reports/leads" plain className="mt-4 inline-block text-sm">
-          ← Back to leads
-        </TextLink>
-      </>
+      <EntityLoadState
+        loading={loading}
+        found={lead != null}
+        error={error}
+        loadingLabel="Loading lead…"
+        notFoundMessage="Lead not found"
+        layout={panelMode ? 'panel' : 'page'}
+        backTo={{ label: '← Back to leads', href: '/reports/leads' }}
+      >
+        {null}
+      </EntityLoadState>
     );
   }
 
@@ -329,7 +327,9 @@ export function LeadDetailPage({
 
         <Card>
           <CardHeader title="Send FDD" description="Active disclosure documents for this lead." />
-          {fdds.length === 0 ? <p className="text-sm text-muted">No active FDDs configured.</p> : null}
+          {fdds.length === 0 ? (
+            <EmptyState size="compact" title="No active FDDs" description="Configure FDD documents to send from the FDD manager." />
+          ) : (
           <ul className="space-y-2">
             {fdds.map((fdd) => (
               <li key={fdd.id}>
@@ -344,13 +344,14 @@ export function LeadDetailPage({
               </li>
             ))}
           </ul>
+          )}
         </Card>
       </div>
 
       <Card className="mt-6">
         <CardHeader title="FDD delivery history" description="Sent disclosures and signature status." />
         {deliveries.length === 0 ? (
-          <p className="text-sm text-muted">No FDD deliveries yet.</p>
+          <EmptyState size="compact" title="No FDD deliveries yet" description="Send an FDD from the section above to start tracking signatures." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
@@ -417,7 +418,9 @@ export function LeadDetailPage({
           prospectPhone={lead.prospect?.phone}
           onSent={() => void reloadCommunications()}
         />
-        {communications.length === 0 ? <p className="text-sm text-muted">No messages logged yet.</p> : null}
+        {communications.length === 0 ? (
+          <EmptyState size="compact" title="No messages yet" description="Send email or SMS using the composer above." />
+        ) : (
         <ul className="space-y-3">
           {communications.map((comm) => (
             <li key={comm.id} className="rounded-lg border border-border p-4">
@@ -430,6 +433,7 @@ export function LeadDetailPage({
             </li>
           ))}
         </ul>
+        )}
       </Card>
 
       <div className="mt-6">

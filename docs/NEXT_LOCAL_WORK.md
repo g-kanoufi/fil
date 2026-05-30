@@ -2,7 +2,9 @@
 
 Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla, Plaid, or AI service credentials.
 
-**Last updated:** 2026-05-28
+**Last updated:** 2026-05-31
+
+**Next session handoff:** [NEXT_SESSION.md](./NEXT_SESSION.md) — paste the chat starter into a new chat to execute.
 
 ---
 
@@ -18,6 +20,13 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | Activity CSV export | History page + lead/store/contact timelines (client-side) |
 | `mvp:staging-check` | No crash when roles not seeded |
 | Forbidden page | Consistent `TextLink` styling |
+| AG Grid code-split | `FilGridLazy` on grid routes |
+| PostgreSQL local default | Docker Postgres + legacy import on pgsql (see LOCAL_DEV.md) |
+| Empty states audit | `EntityLoadState`, `AsyncSection`, compact `EmptyState` on detail pages |
+| OpenAPI sync audit | `php artisan openapi:audit`, 113/113 routes — [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
+| Pint / ESLint pass | `pint.json`, `eslint.config.js`, CI `pint --test` + `npm run lint` |
+| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 50 Vitest |
+| Pest 4 migration | 294 Pest tests; see [PEST_REVIEW.md](./PEST_REVIEW.md) |
 
 ---
 
@@ -27,16 +36,16 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **AG Grid code-split** | 1d | Dynamic import on grid routes (build warns >600kB chunk) |
+| 1 | ~~**AG Grid code-split**~~ | — | Done |
 
 ### P2 — Quality & design
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 2 | **Empty states audit** | 0.5d | Standardize empty/error/loading across detail pages |
-| 3 | **Pint / ESLint pass** | 0.5d | Add Laravel Pint to CI if not present; fix autofixable issues |
-| 4 | **OpenAPI sync audit** | 1d | Diff `docs/api.openapi.yaml` vs live routes |
-| 5 | **Accessibility pass** | 1d | Login, grids, modals — focus trap, labels, axe on key pages |
+| 2 | ~~**Empty states audit**~~ | — | Done |
+| 3 | ~~**Pint / ESLint pass**~~ | — | Pint on 70 files, ESLint flat config, CI gates |
+| 4 | ~~**OpenAPI sync audit**~~ | — | `openapi:audit` command + [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
+| 5 | ~~**Accessibility pass**~~ | — | Done — see [NEXT_SESSION.md](./NEXT_SESSION.md) Block 1 to commit |
 
 ### P3 — Security & compliance (still local)
 
@@ -64,12 +73,14 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ## Suggested next feature branch
 
-```bash
-git checkout dev && git pull
-git checkout -b feature/ag-grid-code-split
-```
+See [NEXT_SESSION.md](./NEXT_SESSION.md) for the full ordered plan.
 
-**Scope:** Lazy-load AG Grid on grid routes to shrink the main bundle chunk.
+```bash
+git checkout dev
+# Block 1: land uncommitted work (quality pass)
+# Block 3A: git checkout -b feature/activity-export-api
+# Block 2:  git checkout -b feature/staging-phase-0   # needs Forge
+```
 
 ---
 

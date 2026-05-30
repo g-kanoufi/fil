@@ -1,6 +1,12 @@
 <?php
 
 declare(strict_types=1);
+use App\Domain\AiAssistant;
+use App\Domain\Contact;
+use App\Domain\Document;
+use App\Models\Fdd;
+use App\Models\Lead;
+use App\Models\Store;
 
 return [
     'ai_service_url' => env('FIL_AI_SERVICE_URL'),
@@ -180,16 +186,16 @@ return [
     'navigation' => [
         ['id' => 'dashboard', 'label' => 'Dashboard', 'path' => '/', 'gate' => 'accessStaffApp'],
         ['id' => 'history', 'label' => 'Activity', 'path' => '/history', 'permission' => 'app.access'],
-        ['id' => 'documents', 'label' => 'Documents', 'path' => '/documents', 'policy' => \App\Domain\Document::class, 'ability' => 'viewAny'],
-        ['id' => 'fdd', 'label' => 'FDD', 'path' => '/fdd', 'policy' => \App\Models\Fdd::class, 'ability' => 'viewAny'],
+        ['id' => 'documents', 'label' => 'Documents', 'path' => '/documents', 'policy' => Document::class, 'ability' => 'viewAny'],
+        ['id' => 'fdd', 'label' => 'FDD', 'path' => '/fdd', 'policy' => Fdd::class, 'ability' => 'viewAny'],
         ['type' => 'section', 'label' => 'Reports'],
-        ['id' => 'stores', 'label' => 'My Units', 'path' => '/reports/stores', 'policy' => \App\Models\Store::class, 'ability' => 'viewAny'],
-        ['id' => 'contacts', 'label' => 'Contacts', 'path' => '/reports/contacts', 'policy' => \App\Domain\Contact::class, 'ability' => 'viewAny'],
-        ['id' => 'leads', 'label' => 'Leads', 'path' => '/reports/leads', 'policy' => \App\Models\Lead::class, 'ability' => 'viewAny'],
+        ['id' => 'stores', 'label' => 'My Units', 'path' => '/reports/stores', 'policy' => Store::class, 'ability' => 'viewAny'],
+        ['id' => 'contacts', 'label' => 'Contacts', 'path' => '/reports/contacts', 'policy' => Contact::class, 'ability' => 'viewAny'],
+        ['id' => 'leads', 'label' => 'Leads', 'path' => '/reports/leads', 'policy' => Lead::class, 'ability' => 'viewAny'],
         ['type' => 'section', 'label' => 'Finance'],
         ['id' => 'royalties', 'label' => 'Royalties', 'path' => '/reports/royalties', 'gate' => 'viewAnyRoyalty'],
         ['id' => 'ach', 'label' => 'ACH', 'path' => '/reports/ach', 'gate' => 'viewAnyAch'],
-        ['id' => 'ai', 'label' => 'Assistant', 'path' => '/ai', 'policy' => \App\Domain\AiAssistant::class, 'ability' => 'access'],
+        ['id' => 'ai', 'label' => 'Assistant', 'path' => '/ai', 'policy' => AiAssistant::class, 'ability' => 'access'],
         ['type' => 'section', 'label' => 'Admin'],
         [
             'id' => 'settings',

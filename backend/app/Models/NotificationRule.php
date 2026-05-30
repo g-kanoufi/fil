@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\Notifications\NotificationConditionNormalizer;
+use App\Services\Notifications\NotificationRecipientTokenNormalizer;
+use App\Services\Notifications\NotificationScheduleNormalizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -67,7 +70,7 @@ final class NotificationRule extends Model
      */
     public function recipientTokens(): array
     {
-        $normalizer = app(\App\Services\Notifications\NotificationRecipientTokenNormalizer::class);
+        $normalizer = app(NotificationRecipientTokenNormalizer::class);
 
         if (is_array($this->recipients) && $this->recipients !== []) {
             $normalized = $normalizer->normalizeList($this->recipients);
@@ -134,7 +137,7 @@ final class NotificationRule extends Model
             return null;
         }
 
-        return app(\App\Services\Notifications\NotificationConditionNormalizer::class)->normalize($raw);
+        return app(NotificationConditionNormalizer::class)->normalize($raw);
     }
 
     /**
@@ -143,7 +146,7 @@ final class NotificationRule extends Model
     public function effectiveSchedule(): ?array
     {
         if (is_array($this->schedule) && filled($this->schedule['field'] ?? null)) {
-            return app(\App\Services\Notifications\NotificationScheduleNormalizer::class)
+            return app(NotificationScheduleNormalizer::class)
                 ->normalize($this->schedule);
         }
 
@@ -156,7 +159,7 @@ final class NotificationRule extends Model
             return null;
         }
 
-        return app(\App\Services\Notifications\NotificationScheduleNormalizer::class)->normalize($legacy);
+        return app(NotificationScheduleNormalizer::class)->normalize($legacy);
     }
 
     public function isScheduledTrigger(): bool
@@ -169,7 +172,7 @@ final class NotificationRule extends Model
             || str_starts_with($this->trigger_slug, 'scheduled/');
     }
 
-    public function shouldSkipDuplicateSend(\App\Models\Lead $lead): bool
+    public function shouldSkipDuplicateSend(Lead $lead): bool
     {
         if (! $this->isScheduledTrigger()) {
             return false;

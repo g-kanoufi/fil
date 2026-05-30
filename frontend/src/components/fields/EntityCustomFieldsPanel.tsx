@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AsyncSection } from '@/components/ui/AsyncSection';
 import { Button } from '@/components/ui/Button';
 import { CardHeader } from '@/components/ui/Card';
 import { useAuth } from '@/providers/AuthProvider';
@@ -139,31 +140,31 @@ export function EntityCustomFieldsPanel({
   const [groups, setGroups] = useState<FieldGroupDef[]>([]);
   const [draft, setDraft] = useState<Record<string, unknown>>(values);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setDraft(values);
   }, [values]);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadSchema = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    void fetchFieldSchema(entity)
-      .then((loaded) => {
-        if (!cancelled) {
-          setGroups(loaded);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const loaded = await fetchFieldSchema(entity);
+      setGroups(loaded);
+    } catch (loadError: unknown) {
+      setError(loadError instanceof Error ? loadError.message : 'Failed to load custom fields');
+      setGroups([]);
+    } finally {
+      setLoading(false);
+    }
   }, [entity]);
+
+  useEffect(() => {
+    void loadSchema();
+  }, [loadSchema]);
 
   const editableFields = useMemo(
     () =>
@@ -203,49 +204,53 @@ export function EntityCustomFieldsPanel({
     }
   }
 
-  if (loading) {
-    return <p className="text-sm text-muted">Loading custom fields…</p>;
-  }
-
-  if (editableFields.length === 0) {
-    return null;
-  }
+  const status = loading ? 'loading' : error ? 'error' : editableFields.length === 0 ? 'empty' : 'ready';
 
   return (
-    <form onSubmit={(event) => void onSubmit(event)} className="mt-6 space-y-4 border-t border-border pt-4">
+    <div className="mt-6 space-y-4 border-t border-border pt-4">
       <CardHeader title="Custom fields" description="Schema-driven values for this record." />
+      <AsyncSection
+        status={status}
+        loadingLabel="Loading custom fields…"
+        error={error}
+        onRetry={() => void loadSchema()}
+        emptyTitle="No custom fields"
+        emptyDescription="No editable fields are configured for this record type."
+      >
+        <form onSubmit={(event) => void onSubmit(event)} className="space-y-4">
+          <div className="space-y-4">
+            {editableFields.map((field) => {
+              const readOnly = !canEdit || isFieldReadonly(field.key);
 
-      <div className="space-y-4">
-        {editableFields.map((field) => {
-          const readOnly = !canEdit || isFieldReadonly(field.key);
-
-          return (
-          <div key={field.id}>
-            <label htmlFor={`custom-${field.key}`} className="block text-sm font-medium text-foreground">
-              {field.name}
-              {field.required ? ' *' : ''}
-            </label>
-            {readOnly ? (
-              <p className="mt-1 text-sm text-foreground">
-                {draft[field.key] === null || draft[field.key] === undefined || draft[field.key] === ''
-                  ? '—'
-                  : String(draft[field.key])}
-              </p>
-            ) : (
-              renderFieldInput(field, draft[field.key], (next) =>
-                setDraft((current) => ({ ...current, [field.key]: next })),
-              )
-            )}
+              return (
+                <div key={field.id}>
+                  <label htmlFor={`custom-${field.key}`} className="block text-sm font-medium text-foreground">
+                    {field.name}
+                    {field.required ? ' *' : ''}
+                  </label>
+                  {readOnly ? (
+                    <p className="mt-1 text-sm text-foreground">
+                      {draft[field.key] === null || draft[field.key] === undefined || draft[field.key] === ''
+                        ? '—'
+                        : String(draft[field.key])}
+                    </p>
+                  ) : (
+                    renderFieldInput(field, draft[field.key], (next) =>
+                      setDraft((current) => ({ ...current, [field.key]: next })),
+                    )
+                  )}
+                </div>
+              );
+            })}
           </div>
-          );
-        })}
-      </div>
 
-      {canEdit ? (
-        <Button type="submit" size="sm" disabled={saving}>
-          {saving ? 'Saving…' : 'Save custom fields'}
-        </Button>
-      ) : null}
-    </form>
+          {canEdit ? (
+            <Button type="submit" size="sm" disabled={saving}>
+              {saving ? 'Saving…' : 'Save custom fields'}
+            </Button>
+          ) : null}
+        </form>
+      </AsyncSection>
+    </div>
   );
 }

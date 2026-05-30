@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
-import { Alert } from '@/components/ui/Alert';
-import { LoadingState } from '@/components/ui/LoadingState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { TextLink } from '@/components/ui/TextLink';
 import { fetchDocument, type DocumentRecord } from '@/lib/api/documents';
 import { DocumentDownloadLink } from '@/components/documents/DocumentDownloadLink';
@@ -52,19 +51,19 @@ export function DocumentDetailPage() {
     };
   }, [documentId]);
 
-  if (loading) {
-    return <LoadingState label="Loading document…" />;
-  }
-
-  if (error || !document) {
+  if (loading || error || !document) {
     return (
-      <>
-        <PageHeader title="Document" />
-        <Alert variant="error">{error ?? 'Document not found'}</Alert>
-        <TextLink to="/documents" plain className="mt-4 inline-block text-sm">
-          ← Back to documents
-        </TextLink>
-      </>
+      <EntityLoadState
+        loading={loading}
+        found={document != null && !error}
+        error={error}
+        loadingLabel="Loading document…"
+        notFoundMessage="Document not found"
+        notFoundPrefix={<PageHeader title="Document" />}
+        backTo={{ label: '← Back to documents', href: '/documents' }}
+      >
+        {null}
+      </EntityLoadState>
     );
   }
 

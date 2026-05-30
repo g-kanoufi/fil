@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\ListFieldsRequest;
 use App\Http\Resources\Api\V1\FieldSchemaResource;
 use App\Services\Fields\FieldSchemaService;
 use App\Support\Api\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
 final class FieldSchemaController extends Controller
 {
@@ -16,7 +17,7 @@ final class FieldSchemaController extends Controller
         private readonly FieldSchemaService $schema,
     ) {}
 
-    public function index(ListFieldsRequest $request): \Illuminate\Http\JsonResponse
+    public function index(ListFieldsRequest $request): JsonResponse
     {
         $payload = $this->schema->forEntity($request->user(), $request->entity());
 

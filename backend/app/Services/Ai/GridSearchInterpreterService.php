@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Ai;
 
 use App\Models\User;
+use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -61,7 +62,7 @@ final class GridSearchInterpreterService
         $response = Http::timeout(45)->post(rtrim($serviceUrl, '/').'/interpret-grid', [
             'resource' => $resource,
             'query' => $query,
-            'scope_tier' => app(\App\Services\Auth\ResourceScopeService::class)->tier($user),
+            'scope_tier' => app(ResourceScopeService::class)->tier($user),
             'schema' => $this->aiSearchSchema($resource),
             'grid_config' => config("fil-grid.resources.{$resource}"),
         ]);

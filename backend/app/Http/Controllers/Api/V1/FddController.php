@@ -19,7 +19,6 @@ use App\Services\Auth\ResourceScopeService;
 use App\Services\Fdd\FddDocumentService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 final class FddController extends Controller
 {

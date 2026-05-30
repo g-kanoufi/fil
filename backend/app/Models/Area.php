@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\AreaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 final class Area extends Model
 {
-    /** @use HasFactory<\Database\Factories\AreaFactory> */
+    /** @use HasFactory<AreaFactory> */
     use HasFactory;
+
     /**
      * @var list<string>
      */

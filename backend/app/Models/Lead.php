@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\LeadFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Lead extends Model
 {
-    /** @use HasFactory<\Database\Factories\LeadFactory> */
+    /** @use HasFactory<LeadFactory> */
     use HasFactory;
 
     /**
@@ -53,9 +55,9 @@ final class Lead extends Model
             'nda_signed_at' => 'datetime',
             'fdd_signed_at' => 'datetime',
             'waiting_period_ends_at' => 'datetime',
-        'eligible_for_drip' => 'boolean',
-        'legacy_post_id' => 'integer',
-        'form_data' => 'array',
+            'eligible_for_drip' => 'boolean',
+            'legacy_post_id' => 'integer',
+            'form_data' => 'array',
         ];
     }
 
@@ -74,17 +76,17 @@ final class Lead extends Model
         return $this->belongsTo(Area::class);
     }
 
-    public function communications(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function communications(): HasMany
     {
         return $this->hasMany(Communication::class);
     }
 
-    public function phaseEvents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function phaseEvents(): HasMany
     {
         return $this->hasMany(LeadPhaseEvent::class)->orderByDesc('created_at');
     }
 
-    public function fddDeliveries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function fddDeliveries(): HasMany
     {
         return $this->hasMany(FddDelivery::class)->orderByDesc('sent_at');
     }

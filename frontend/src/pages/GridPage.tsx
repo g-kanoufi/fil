@@ -83,7 +83,7 @@ export function GridPage({ title, resource, embedded = false }: GridPageProps) {
       filters,
       sort: [{ field: effectiveSort.field, direction: effectiveSort.direction }],
     }),
-    [effectiveSort.direction, effectiveSort.field, filters, filtersKey, params.search],
+    [effectiveSort.direction, effectiveSort.field, filters, params.search],
   );
 
   const gridQueryKey = useMemo(

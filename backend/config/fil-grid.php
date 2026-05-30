@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Domain\Contact;
 use App\Models\Lead;
 use App\Models\Store;
 use App\Models\User;
-use App\Domain\Contact;
 
 return [
     'resources' => [

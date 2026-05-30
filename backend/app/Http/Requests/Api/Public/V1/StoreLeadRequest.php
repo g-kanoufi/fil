@@ -10,6 +10,7 @@ use App\Services\Embed\RecaptchaVerifier;
 use App\Services\WidgetForms\WidgetFormConfigService;
 use App\Support\Fields\FieldTypes;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Validator;
 
 final class StoreLeadRequest extends FormRequest
@@ -99,9 +100,9 @@ final class StoreLeadRequest extends FormRequest
     /**
      * The active widget form's custom fields (excluding core intake keys).
      *
-     * @return \Illuminate\Support\Collection<int, Field>
+     * @return Collection<int, Field>
      */
-    private function customFields(): \Illuminate\Support\Collection
+    private function customFields(): Collection
     {
         $form = $this->resolveForm();
 

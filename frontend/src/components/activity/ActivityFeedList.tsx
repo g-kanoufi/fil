@@ -5,13 +5,19 @@ import type { ActivityItem } from '@/lib/api/activity';
 interface ActivityFeedListProps {
   items: ActivityItem[];
   emptyMessage?: string;
+  hideEmptyMessage?: boolean;
 }
 
 export function ActivityFeedList({
   items,
   emptyMessage = 'No activity recorded yet.',
+  hideEmptyMessage = false,
 }: ActivityFeedListProps) {
   if (items.length === 0) {
+    if (hideEmptyMessage) {
+      return null;
+    }
+
     return <p className="text-sm text-muted">{emptyMessage}</p>;
   }
 

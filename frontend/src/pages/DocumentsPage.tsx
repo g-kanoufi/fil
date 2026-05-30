@@ -9,7 +9,6 @@ import { DataTable } from '@/components/ui/DataTable';
 import { FormField } from '@/components/ui/FormField';
 import { fetchDocuments, type DocumentRecord } from '@/lib/api/documents';
 import {
-  fetchDocumentBrowserRows,
   fetchAllDocumentBrowserRows,
   fetchDocumentsBrowserSettings,
   type DocumentBrowserRow,

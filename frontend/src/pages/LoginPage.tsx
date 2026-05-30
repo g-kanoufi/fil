@@ -46,13 +46,17 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-accent-soft/50 to-[var(--body-bg-color)] px-4 py-10">
+    <main
+      id="main-content"
+      className="flex min-h-screen items-center justify-center bg-gradient-to-b from-accent-soft/50 to-[var(--body-bg-color)] px-4 py-10"
+    >
       <div className={loginShell}>
         <Card className={`w-full ${loginInner}`} padding="md">
           <div className="mb-6 text-center">
             <BrandMark variant="login" />
-            <h1 className="mt-2 text-2xl font-semibold text-foreground">Staff sign in</h1>
-            <p className="mt-1 text-sm text-muted">Franchise operations portal</p>
+            <h1 id="login-heading" className="mt-2 text-2xl font-semibold text-foreground">
+              Sign in
+            </h1>
           </div>
 
           {import.meta.env.DEV ? (
@@ -65,12 +69,13 @@ export function LoginPage() {
             </Alert>
           ) : null}
 
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-4" aria-labelledby="login-heading">
             <FormField
               label="Email"
               id="email"
               type="email"
               autoComplete="username"
+              autoFocus
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
@@ -91,6 +96,6 @@ export function LoginPage() {
           </form>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

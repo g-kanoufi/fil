@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Middleware\EnsureStaffAccess;
+use App\Http\Middleware\ThrottleStaffLogin;
+use App\Http\Middleware\ValidateEmbedSiteKey;
+use App\Support\Api\ApiProblem;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -26,8 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->alias([
             'staff' => EnsureStaffAccess::class,
-            'embed.site_key' => \App\Http\Middleware\ValidateEmbedSiteKey::class,
-            'throttle.staff_login' => \App\Http\Middleware\ThrottleStaffLogin::class,
+            'embed.site_key' => ValidateEmbedSiteKey::class,
+            'throttle.staff_login' => ThrottleStaffLogin::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
     })
@@ -36,17 +41,17 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $exception, Request $request) {
+        $exceptions->render(function (AuthenticationException $exception, Request $request) {
             if ($request->is('api/*')) {
-                return \App\Support\Api\ApiProblem::unauthenticated($exception->getMessage());
+                return ApiProblem::unauthenticated($exception->getMessage());
             }
 
             return null;
         });
 
-        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $exception, Request $request) {
+        $exceptions->render(function (AuthorizationException $exception, Request $request) {
             if ($request->is('api/*')) {
-                return \App\Support\Api\ApiProblem::forbidden($exception->getMessage() ?: 'Forbidden.');
+                return ApiProblem::forbidden($exception->getMessage() ?: 'Forbidden.');
             }
 
             return null;

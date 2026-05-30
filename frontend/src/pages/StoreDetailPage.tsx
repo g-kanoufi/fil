@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { FormField } from '@/components/ui/FormField';
-import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StoreAchEnrollmentCard } from '@/components/ach/StoreAchEnrollmentCard';
 import { StoreEditForm } from '@/components/stores/StoreEditForm';
@@ -137,22 +138,19 @@ export function StoreDetailPage({
     }
   }
 
-  if (loading) {
-    return <LoadingState label="Loading store…" />;
-  }
-
-  if (!store) {
-    if (panelMode) {
-      return <Alert variant="error">{error ?? 'Store not found'}</Alert>;
-    }
-
+  if (loading || !store) {
     return (
-      <>
-        <Alert variant="error">{error ?? 'Store not found'}</Alert>
-        <TextLink to="/reports/stores" plain className="mt-4 inline-block text-sm">
-          ← Back to stores
-        </TextLink>
-      </>
+      <EntityLoadState
+        loading={loading}
+        found={store != null}
+        error={error}
+        loadingLabel="Loading store…"
+        notFoundMessage="Store not found"
+        layout={panelMode ? 'panel' : 'page'}
+        backTo={{ label: '← Back to stores', href: '/reports/stores' }}
+      >
+        {null}
+      </EntityLoadState>
     );
   }
 
@@ -188,7 +186,9 @@ export function StoreDetailPage({
 
         <Card>
           <CardHeader title="Owners" />
-          {owners.length === 0 ? <p className="text-sm text-muted">No owners linked yet.</p> : null}
+          {owners.length === 0 ? (
+            <EmptyState size="compact" title="No owners linked" description="Assign franchisees or managers from store administration." />
+          ) : null}
           <ul className="space-y-2 text-sm">
             {owners.map((owner) => (
               <li key={owner.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2">

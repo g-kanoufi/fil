@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Alert } from '@/components/ui/Alert';
-import { LoadingState } from '@/components/ui/LoadingState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Badge } from '@/components/ui/Badge';
@@ -87,8 +87,18 @@ export function ProfilePage() {
     }
   }
 
-  if (loading) {
-    return <LoadingState label="Loading profile…" />;
+  if (loading || !profile) {
+    return (
+      <EntityLoadState
+        loading={loading}
+        found={profile != null}
+        error={error}
+        loadingLabel="Loading profile…"
+        notFoundMessage="Profile unavailable"
+      >
+        {null}
+      </EntityLoadState>
+    );
   }
 
   return (

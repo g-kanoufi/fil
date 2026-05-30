@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\DocumentRowResource;
+use App\Models\Document;
 use App\Models\DocumentLink;
 use App\Models\FranchiseLocation;
 use App\Models\Lead;
@@ -19,7 +20,7 @@ final class DocumentsBrowserController extends Controller
 {
     public function settings(): JsonResponse
     {
-        $this->authorize('viewAny', \App\Models\Document::class);
+        $this->authorize('viewAny', Document::class);
 
         return ApiResponse::payload([
             'enabled' => config('fil-documents.enabled', true),
@@ -31,7 +32,7 @@ final class DocumentsBrowserController extends Controller
 
     public function rows(Request $request): JsonResponse
     {
-        $this->authorize('viewAny', \App\Models\Document::class);
+        $this->authorize('viewAny', Document::class);
 
         $entity = (string) $request->query('entity', 'store');
         $perPage = min(100, max(1, $request->integer('per_page', 50)));

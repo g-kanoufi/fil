@@ -7,16 +7,18 @@ namespace App\Services\App;
 use App\Models\Area;
 use App\Models\Lead;
 use App\Models\Store;
-use App\Models\User;
 use App\Models\UiMenuItem;
+use App\Models\User;
+use App\Services\Leads\LeadPipelineCatalog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 final class MenuStructureService
 {
     public function __construct(
-        private readonly \App\Services\Leads\LeadPipelineCatalog $pipelineCatalog,
+        private readonly LeadPipelineCatalog $pipelineCatalog,
     ) {}
+
     /**
      * @return array<string, mixed>
      */

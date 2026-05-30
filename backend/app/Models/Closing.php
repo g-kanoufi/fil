@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ClosingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class Closing extends Model
 {
-    /** @use HasFactory<\Database\Factories\ClosingFactory> */
+    /** @use HasFactory<ClosingFactory> */
     use HasFactory;
 
     /**

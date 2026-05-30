@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Fdd;
 
+use App\Mail\FddDeliveryMail;
 use App\Models\FddDelivery;
 use App\Models\User;
-use App\Mail\FddDeliveryMail;
 use Illuminate\Support\Facades\Mail;
 
 final class ResendFddDelivery

@@ -52,7 +52,12 @@ Ship when **all** of these pass in staging:
 | `APP_ENV` | `production` |
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://crm.clientdomain.com` |
-| `DB_*` | Forge Postgres on VPS |
+| `DB_CONNECTION` | `pgsql` |
+| `DB_HOST` | `127.0.0.1` (Forge: localhost or socket) |
+| `DB_PORT` | `5432` |
+| `DB_DATABASE` | Forge database name |
+| `DB_USERNAME` | Forge database user |
+| `DB_PASSWORD` | Forge database password |
 | `QUEUE_CONNECTION` | `database` |
 | `SESSION_DRIVER` | `database` |
 | `CACHE_STORE` | `file` |

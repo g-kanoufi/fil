@@ -22,7 +22,9 @@ jobs:
       - run: cp .env.example .env
       - run: php artisan key:generate
       - run: php artisan migrate --force
+      - run: ./vendor/bin/pint --test
       - run: php artisan test --compact
+      - run: php artisan openapi:audit --fail-on-drift
       - run: composer audit --no-dev || true
 
   frontend:
@@ -39,6 +41,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run test:run
+      - run: npm run lint
       - run: npm audit --audit-level=high || true
 
   e2e:

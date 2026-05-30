@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session);
       setAppConfig(await fetchAppConfig());
       setStatus('authenticated');
-    } catch (error) {
+    } catch {
       clearSession();
     }
   }, [clearSession]);

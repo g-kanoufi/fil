@@ -73,7 +73,7 @@ export function GridToolbar({
                 type="button"
                 className={cn(iconButtonClasses, 'border border-border px-3 py-2 text-sm')}
                 onClick={() => onSortChange(sortField, sortDirection === 'asc' ? 'desc' : 'asc')}
-                aria-label="Toggle sort direction"
+                aria-label={`Sort ${sortDirection === 'asc' ? 'descending' : 'ascending'}`}
               >
                 {sortDirection === 'asc' ? '↑ Asc' : '↓ Desc'}
               </button>

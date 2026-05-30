@@ -6,7 +6,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { LoadingState } from '@/components/ui/LoadingState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { fetchClosing, formatFeeCents, updateClosing, type Closing } from '@/lib/api/closings';
 import { useAuth } from '@/providers/AuthProvider';
@@ -102,18 +102,18 @@ export function ClosingDetailPage() {
     }
   }
 
-  if (loading) {
-    return <LoadingState label="Loading closing…" />;
-  }
-
-  if (!closing) {
+  if (loading || !closing) {
     return (
-      <>
-        <Alert variant="error">{error ?? 'Closing not found'}</Alert>
-        <TextLink to="/reports/closings" plain className="mt-4 inline-block text-sm">
-          ← Back to closings
-        </TextLink>
-      </>
+      <EntityLoadState
+        loading={loading}
+        found={closing != null}
+        error={error}
+        loadingLabel="Loading closing…"
+        notFoundMessage="Closing not found"
+        backTo={{ label: '← Back to closings', href: '/reports/closings' }}
+      >
+        {null}
+      </EntityLoadState>
     );
   }
 

@@ -64,7 +64,7 @@ final class MailgunWebhookController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $event
+     * @param  array<string, mixed>  $event
      */
     private function resolveMessageId(array $event): ?string
     {
@@ -84,7 +84,7 @@ final class MailgunWebhookController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $event
+     * @param  array<string, mixed>  $event
      */
     private function resolveDeliveryId(array $event): ?int
     {
@@ -112,7 +112,7 @@ final class MailgunWebhookController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $event
+     * @param  array<string, mixed>  $event
      */
     private function updateDelivery(int $deliveryId, string $eventName, ?string $messageId, array $event): void
     {
@@ -146,7 +146,7 @@ final class MailgunWebhookController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $event
+     * @param  array<string, mixed>  $event
      */
     private function updateDeliveryByMessageId(string $messageId, string $eventName, array $event): void
     {
@@ -162,7 +162,7 @@ final class MailgunWebhookController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $event
+     * @param  array<string, mixed>  $event
      */
     private function updateCommunication(string $messageId, string $eventName, array $event): void
     {

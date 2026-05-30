@@ -180,6 +180,13 @@ final class DemoSeeder extends Seeder
             ],
         );
 
+        $user->forceFill([
+            'name' => $name,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'password' => Hash::make('password'),
+        ])->save();
+
         $user->syncRoles([$role]);
 
         return $user;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Fdd;
 
+use App\Mail\FddDeliveryMail;
 use App\Models\Fdd;
 use App\Models\FddDelivery;
 use App\Models\Lead;
@@ -11,8 +12,8 @@ use App\Models\Signature;
 use App\Models\User;
 use App\Services\Fdd\FddPdfService;
 use App\Services\Leads\LeadPipelineService;
+use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Support\Facades\DB;
-use App\Mail\FddDeliveryMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -76,7 +77,7 @@ final class SendFddDelivery
                 ]);
             }
 
-            app(\App\Services\Notifications\NotificationDispatcher::class)
+            app(NotificationDispatcher::class)
                 ->dispatch('application.send_prospect_fdd', $lead->fresh(), [
                     'fdd_delivery_id' => $delivery->id,
                     'fdd_id' => $fdd->id,

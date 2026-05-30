@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\AchTransfer;
+use App\Models\AiThread;
 use App\Models\Area;
 use App\Models\Closing;
 use App\Models\Communication;
 use App\Models\Fdd;
 use App\Models\Lead;
+use App\Models\NotificationRule;
 use App\Models\Organization;
 use App\Models\RoyaltyPeriod;
 use App\Models\Store;
-use App\Models\NotificationRule;
 use App\Models\User;
-use App\Models\AiThread;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 

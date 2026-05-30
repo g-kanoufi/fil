@@ -15,14 +15,16 @@ class DatabaseSeeder extends Seeder
         $this->call(FieldSchemaSeeder::class);
         $this->call(WidgetFormSeeder::class);
 
-        $admin = User::factory()->create([
-            'name' => 'FIL Admin',
-            'first_name' => 'FIL',
-            'last_name' => 'Admin',
-            'email' => 'admin@fil.test',
-            'password' => Hash::make('password'),
-        ]);
-        $admin->assignRole('admin');
+        $admin = User::query()->updateOrCreate(
+            ['email' => 'admin@fil.test'],
+            [
+                'name' => 'FIL Admin',
+                'first_name' => 'FIL',
+                'last_name' => 'Admin',
+                'password' => Hash::make('password'),
+            ],
+        );
+        $admin->syncRoles(['admin']);
 
         if (app()->environment('local', 'testing')) {
             $this->call(DemoSeeder::class);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\AchCustomer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,7 +21,7 @@ final class DwollaClientTokenRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user()?->can('manage', \App\Models\AchCustomer::class) ?? false;
+        return $this->user()?->can('manage', AchCustomer::class) ?? false;
     }
 
     /**

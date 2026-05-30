@@ -39,6 +39,12 @@ interface FilGridProps {
 
 type GridRow = GridQueryResponse['hits']['hits'][number];
 
+const RESOURCE_LABEL: Record<FilGridProps['resource'], string> = {
+  leads: 'Leads',
+  stores: 'Stores',
+  contacts: 'Contacts',
+};
+
 const EMPTY_COPY: Record<FilGridProps['resource'], { title: string; description: string }> = {
   leads: {
     title: 'No leads found',
@@ -305,14 +311,16 @@ export function FilGrid({
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
 
       <div className="mb-3 flex items-center justify-between text-sm text-muted">
-        <span>
+        <span aria-live="polite" aria-atomic="true">
           {rows.length.toLocaleString()} loaded
           {total > rows.length ? ` of ${total.toLocaleString()}` : ''}
         </span>
-        {loadingMore ? <span>Loading more…</span> : null}
+        {loadingMore ? <span aria-live="polite">Loading more…</span> : null}
       </div>
 
       <div
+        role="region"
+        aria-label={`${RESOURCE_LABEL[resource]} data grid`}
         className="w-full overflow-hidden rounded-xl border border-border bg-surface"
         style={{ height: 'min(70vh, 720px)' }}
       >
@@ -326,7 +334,6 @@ export function FilGrid({
           headerHeight={42}
           rowBuffer={12}
           animateRows
-          suppressCellFocus
           suppressScrollOnNewData
           suppressRowClickSelection={enableSelection}
           domLayout="normal"

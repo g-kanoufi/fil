@@ -8,7 +8,7 @@ import { EntityActivityTimeline } from '@/components/activity/EntityActivityTime
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { LoadingState } from '@/components/ui/LoadingState';
+import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { fetchContact, updateContact, type Contact } from '@/lib/api/contacts';
 import { useAuth } from '@/providers/AuthProvider';
@@ -66,22 +66,19 @@ export function ContactDetailPage({
     };
   }, [contactId]);
 
-  if (loading) {
-    return <LoadingState label="Loading contact…" />;
-  }
-
-  if (!contact) {
-    if (panelMode) {
-      return <Alert variant="error">{error ?? 'Contact not found'}</Alert>;
-    }
-
+  if (loading || !contact) {
     return (
-      <>
-        <Alert variant="error">{error ?? 'Contact not found'}</Alert>
-        <TextLink to="/reports/contacts" plain className="mt-4 inline-block text-sm">
-          ← Back to contacts
-        </TextLink>
-      </>
+      <EntityLoadState
+        loading={loading}
+        found={contact != null}
+        error={error}
+        loadingLabel="Loading contact…"
+        notFoundMessage="Contact not found"
+        layout={panelMode ? 'panel' : 'page'}
+        backTo={{ label: '← Back to contacts', href: '/reports/contacts' }}
+      >
+        {null}
+      </EntityLoadState>
     );
   }
 

@@ -10,8 +10,8 @@ use App\Support\DocumentFilename;
 use App\Support\MinimalPdf;
 use App\Support\PreviewUrlValidator;
 use Illuminate\Http\RedirectResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DocumentDownloadController extends Controller
 {

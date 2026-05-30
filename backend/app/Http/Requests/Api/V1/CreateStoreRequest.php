@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\Store;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class CreateStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Models\Store::class) ?? false;
+        return $this->user()?->can('create', Store::class) ?? false;
     }
 
     /**

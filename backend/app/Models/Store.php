@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\StoreFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Store extends Model
 {
-    /** @use HasFactory<\Database\Factories\StoreFactory> */
+    /** @use HasFactory<StoreFactory> */
     use HasFactory;
+
     /**
      * @var list<string>
      */
@@ -46,12 +50,12 @@ final class Store extends Model
         return $this->belongsTo(Area::class);
     }
 
-    public function storeOwners(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function storeOwners(): HasMany
     {
         return $this->hasMany(StoreOwner::class);
     }
 
-    public function owners(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function owners(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'store_owners')
             ->withPivot(['ownership_pct', 'role'])

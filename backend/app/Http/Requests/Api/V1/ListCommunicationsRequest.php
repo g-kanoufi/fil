@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\Communication;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class ListCommunicationsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('viewAny', \App\Models\Communication::class) ?? false;
+        return $this->user()?->can('viewAny', Communication::class) ?? false;
     }
 
     /**

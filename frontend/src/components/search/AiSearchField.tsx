@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
-import { surface, textLink, formFocus, button } from '@/lib/ui/tokens';
+import { surface, formFocus, button } from '@/lib/ui/tokens';
 import { interpretGridSearch, type GridSearchInterpretation } from '@/lib/api/gridSearch';
 
 interface AiSearchFieldProps {

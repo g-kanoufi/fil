@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Auth;
 
-use App\Models\ClientSetting;
 use App\Models\RoleNoteGrant;
 use App\Models\RoleUiGrant;
 use App\Models\UiMenuItem;

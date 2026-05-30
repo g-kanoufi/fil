@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ExportCsvButton } from '@/components/export/ExportCsvButton';
 import { TextLink } from '@/components/ui/TextLink';
 import { ActivityFeedList } from '@/components/activity/ActivityFeedList';
+import { AsyncSection } from '@/components/ui/AsyncSection';
 import { Card, CardHeader } from '@/components/ui/Card';
-import { LoadingState } from '@/components/ui/LoadingState';
 import { fetchSubjectActivity } from '@/lib/api/activity';
 import { downloadActivityCsv } from '@/lib/export/activityCsv';
 import { subjectActivityExportFilename } from '@/lib/export/filenames';
@@ -16,27 +16,27 @@ interface EntityActivityTimelineProps {
 export function EntityActivityTimeline({ subjectType, subjectId }: EntityActivityTimelineProps) {
   const [items, setItems] = useState<Awaited<ReturnType<typeof fetchSubjectActivity>>['data']>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    void fetchSubjectActivity(subjectType, subjectId, 15)
-      .then((response) => {
-        if (!cancelled) {
-          setItems(response.data);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const response = await fetchSubjectActivity(subjectType, subjectId, 15);
+      setItems(response.data);
+    } catch (loadError: unknown) {
+      setError(loadError instanceof Error ? loadError.message : 'Failed to load activity');
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }, [subjectId, subjectType]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   async function exportTimeline() {
     setExporting(true);
@@ -51,9 +51,7 @@ export function EntityActivityTimeline({ subjectType, subjectId }: EntityActivit
     }
   }
 
-  if (loading) {
-    return <LoadingState label="Loading activity…" />;
-  }
+  const status = loading ? 'loading' : error ? 'error' : items.length === 0 ? 'empty' : 'ready';
 
   return (
     <Card>
@@ -73,7 +71,16 @@ export function EntityActivityTimeline({ subjectType, subjectId }: EntityActivit
           </>
         }
       />
-      <ActivityFeedList items={items} emptyMessage="No activity logged for this record yet." />
+      <AsyncSection
+        status={status}
+        loadingLabel="Loading activity…"
+        error={error}
+        onRetry={() => void load()}
+        emptyTitle="No activity logged yet"
+        emptyDescription="Changes to this record will appear here."
+      >
+        <ActivityFeedList items={items} hideEmptyMessage />
+      </AsyncSection>
     </Card>
   );
 }

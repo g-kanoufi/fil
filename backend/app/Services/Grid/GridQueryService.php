@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Grid;
 
-use App\Models\Store;
+use App\Models\Lead;
 use App\Models\User;
+use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +17,9 @@ final class GridQueryService
 {
     public function __construct(
         private readonly LeadPipelineCatalog $pipelineCatalog,
-        private readonly \App\Services\Auth\ResourceScopeService $scope,
+        private readonly ResourceScopeService $scope,
     ) {}
+
     /**
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
@@ -37,7 +40,7 @@ final class GridQueryService
         $aggregationOnly = ($payload['size'] ?? null) === 0
             || (($payload['include_aggregations'] ?? false) && ! isset($payload['limit']));
 
-        /** @var Builder<\Illuminate\Database\Eloquent\Model> $query */
+        /** @var Builder<Model> $query */
         $query = $config['model']::query();
 
         if (! ($config['skip_status_filter'] ?? false)) {
@@ -152,7 +155,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      */
     private function applyResourceScope(Builder $query, User $user, string $resource): void
     {
@@ -165,7 +168,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $config
      */
     private function applyFilters(Builder $query, array $filters, array $config): void
@@ -227,7 +230,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $config
      */
     private function applySearch(Builder $query, ?string $search, array $config): void
@@ -251,7 +254,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  list<array{field?: string, direction?: string}>  $sort
      * @param  array<string, mixed>  $config
      */
@@ -277,7 +280,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  list<array{field: string, direction: string}>  $sortItems
      * @param  array<string, mixed>  $config
      */
@@ -331,13 +334,13 @@ final class GridQueryService
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Model  $row
+     * @param  Model  $row
      * @return array<string, mixed>
      */
     private function mapHit(string $resource, $row): array
     {
         if ($resource === 'leads') {
-            /** @var \App\Models\Lead $row */
+            /** @var Lead $row */
             $presentation = $this->pipelineCatalog->presentation($row);
             $statusLabel = $presentation['application_status_label'];
 
@@ -397,7 +400,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $config
      * @param  array<string, mixed>  $payload
      * @param  array<string, mixed>  $filters
@@ -522,7 +525,7 @@ final class GridQueryService
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $filters
      * @param  array<string, mixed>  $config
      */

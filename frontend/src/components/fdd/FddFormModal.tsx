@@ -1,9 +1,10 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useId, useState } from 'react';
 import { fetchAreas, type Area } from '@/lib/api/areas';
 import { createFdd, updateFdd, type Fdd, type FddFormPayload } from '@/lib/api/fdds';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
+import { ModalDialog } from '@/components/ui/ModalDialog';
 import { surface } from '@/lib/ui/tokens';
 
 interface FddFormModalProps {
@@ -15,6 +16,8 @@ interface FddFormModalProps {
 
 export function FddFormModal({ open, fdd, onClose, onSaved }: FddFormModalProps) {
   const isEdit = fdd !== null;
+  const titleId = useId();
+  const descriptionId = useId();
 
   const [type, setType] = useState<'unit' | 'area'>('unit');
   const [title, setTitle] = useState('');
@@ -47,10 +50,6 @@ export function FddFormModal({ open, fdd, onClose, onSaved }: FddFormModalProps)
     setPdf(null);
     setError(null);
   }, [open, fdd]);
-
-  if (!open) {
-    return null;
-  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -85,23 +84,17 @@ export function FddFormModal({ open, fdd, onClose, onSaved }: FddFormModalProps)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="fdd-form-title"
-        className="w-full max-w-lg rounded-xl border border-border bg-surface p-6 shadow-xl"
-      >
-        <h2 id="fdd-form-title" className="text-lg font-semibold text-foreground">
-          {isEdit ? 'Edit FDD' : 'Upload new FDD'}
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          {isEdit
-            ? 'Update disclosure metadata or replace the PDF file.'
-            : 'Add a unit or area franchise disclosure document to the catalog.'}
-        </p>
+    <ModalDialog open={open} onClose={onClose} labelledBy={titleId} describedBy={descriptionId}>
+      <h2 id={titleId} className="text-lg font-semibold text-foreground">
+        {isEdit ? 'Edit FDD' : 'Upload new FDD'}
+      </h2>
+      <p id={descriptionId} className="mt-1 text-sm text-muted">
+        {isEdit
+          ? 'Update disclosure metadata or replace the PDF file.'
+          : 'Add a unit or area franchise disclosure document to the catalog.'}
+      </p>
 
-        <form onSubmit={(event) => void handleSubmit(event)} className="mt-5 space-y-4">
+      <form onSubmit={(event) => void handleSubmit(event)} className="mt-5 space-y-4">
           <div>
             <label htmlFor="fdd-type" className="mb-1.5 block text-sm font-medium text-foreground">
               FDD type
@@ -191,7 +184,6 @@ export function FddFormModal({ open, fdd, onClose, onSaved }: FddFormModalProps)
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </ModalDialog>
   );
 }

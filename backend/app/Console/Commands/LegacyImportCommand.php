@@ -6,9 +6,9 @@ namespace App\Console\Commands;
 
 use App\Services\Legacy\LegacyAchEnrollmentImportService;
 use App\Services\Legacy\LegacyAchImportService;
-use App\Services\Legacy\LegacyDocumentImportService;
 use App\Services\Legacy\LegacyAiThreadImportService;
 use App\Services\Legacy\LegacyCommunicationImportService;
+use App\Services\Legacy\LegacyDocumentImportService;
 use App\Services\Legacy\LegacyNotificationImportService;
 use App\Services\Legacy\LegacyPostImportService;
 use App\Services\Legacy\LegacyPostMetaImportService;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Jobs\Pos\SyncPosRevenueJob;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\PosConnectionResource;
+use App\Jobs\Pos\SyncPosRevenueJob;
 use App\Models\PosConnection;
 use App\Models\Store;
 use App\Support\Api\ApiResponse;

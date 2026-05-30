@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IconBell, IconClose, IconLogout, IconMoon, IconProfile, IconSun } from '@/components/icons/NavIcons';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { useDialogA11y } from '@/lib/a11y/useDialogA11y';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTheme, type ThemeMode } from '@/providers/ThemeProvider';
 import { cn } from '@/lib/cn';
@@ -20,25 +21,7 @@ export function UserMenu() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = '';
-    };
-  }, [open]);
+  useDialogA11y(open, () => setOpen(false), panelRef);
 
   if (!user) {
     return null;
@@ -73,6 +56,7 @@ export function UserMenu() {
             role="dialog"
             aria-modal="true"
             aria-label="Account"
+            tabIndex={-1}
             className="relative flex h-full w-full max-w-sm flex-col border-l border-border bg-surface shadow-2xl animate-in slide-in-from-right duration-200"
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">

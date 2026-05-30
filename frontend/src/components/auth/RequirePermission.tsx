@@ -11,7 +11,7 @@ interface RequirePermissionProps {
 export function RequirePermission({
   permission,
   children,
-  fallback = '/',
+  fallback: _fallback = '/',
 }: RequirePermissionProps) {
   const { status, can } = useAuth();
 

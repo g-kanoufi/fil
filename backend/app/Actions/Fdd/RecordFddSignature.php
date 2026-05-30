@@ -9,6 +9,7 @@ use App\Models\Lead;
 use App\Models\Signature;
 use App\Models\User;
 use App\Services\Leads\LeadPipelineService;
+use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -91,7 +92,7 @@ final class RecordFddSignature
                         ]);
                     }
 
-                    app(\App\Services\Notifications\NotificationDispatcher::class)
+                    app(NotificationDispatcher::class)
                         ->dispatch('application.fdd_signed', $lead->fresh(), [
                             'fdd_delivery_id' => $delivery->id,
                             'changed_fields' => ['fdd_signed_at', 'lead_fdd_status'],

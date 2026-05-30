@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useId, useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/cn';
+import { useDialogA11y } from '@/lib/a11y/useDialogA11y';
 import { focusRing } from '@/lib/ui/tokens';
 
 interface SlideOverProps {
@@ -29,28 +30,7 @@ export function SlideOver({
   const descriptionId = useId();
   const panelRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    panelRef.current?.focus();
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open, onClose]);
+  useDialogA11y(open, onClose, panelRef);
 
   if (!open) {
     return null;

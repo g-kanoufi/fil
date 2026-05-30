@@ -6,10 +6,6 @@ use App\Http\Controllers\Api\Public\V1\LeadIntakeController;
 use App\Http\Controllers\Api\V1\AchCustomerController;
 use App\Http\Controllers\Api\V1\AchTransferController;
 use App\Http\Controllers\Api\V1\ActivityController;
-use App\Http\Controllers\Api\V1\DocumentsBrowserController;
-use App\Http\Controllers\Webhooks\DwollaWebhookController;
-use App\Http\Controllers\Webhooks\MailgunInboundWebhookController;
-use App\Http\Controllers\Webhooks\MailgunWebhookController;
 use App\Http\Controllers\Api\V1\AiStreamController;
 use App\Http\Controllers\Api\V1\AiThreadController;
 use App\Http\Controllers\Api\V1\AppConfigController;
@@ -20,6 +16,7 @@ use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\DocumentDownloadController;
+use App\Http\Controllers\Api\V1\DocumentsBrowserController;
 use App\Http\Controllers\Api\V1\DocumentsExportController;
 use App\Http\Controllers\Api\V1\DripCampaignController;
 use App\Http\Controllers\Api\V1\FddAvailabilityController;
@@ -31,9 +28,6 @@ use App\Http\Controllers\Api\V1\FieldController;
 use App\Http\Controllers\Api\V1\FieldGroupController;
 use App\Http\Controllers\Api\V1\FieldReorderController;
 use App\Http\Controllers\Api\V1\FieldSchemaController;
-use App\Http\Controllers\Api\V1\RelatableEntityController;
-use App\Http\Controllers\Api\V1\WidgetFormController;
-use App\Http\Controllers\Api\V1\WidgetFormFieldSyncController;
 use App\Http\Controllers\Api\V1\GridQueryController;
 use App\Http\Controllers\Api\V1\GridQueryInterpretController;
 use App\Http\Controllers\Api\V1\HealthController;
@@ -41,14 +35,22 @@ use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\MailSettingsController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\NotificationRuleController;
-use App\Http\Controllers\Api\V1\ProfileController;
-use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\OptionsController;
+use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\PosConnectionController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\RelatableEntityController;
 use App\Http\Controllers\Api\V1\RoyaltyController;
 use App\Http\Controllers\Api\V1\SessionController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\StoreOwnerController;
+use App\Http\Controllers\Api\V1\WidgetFormController;
+use App\Http\Controllers\Api\V1\WidgetFormFieldSyncController;
+use App\Http\Controllers\Webhooks\DwollaWebhookController;
+use App\Http\Controllers\Webhooks\MailgunInboundWebhookController;
+use App\Http\Controllers\Webhooks\MailgunWebhookController;
+use App\Http\Controllers\Webhooks\PlaidWebhookController;
+use App\Http\Controllers\Webhooks\TwilioWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('api.health');
@@ -221,7 +223,7 @@ Route::prefix('v1')->group(function (): void {
 Route::post('/webhooks/dwolla', DwollaWebhookController::class)
     ->middleware('throttle:120,1')
     ->name('api.webhooks.dwolla');
-Route::post('/webhooks/plaid', \App\Http\Controllers\Webhooks\PlaidWebhookController::class)
+Route::post('/webhooks/plaid', PlaidWebhookController::class)
     ->middleware('throttle:120,1')
     ->name('api.webhooks.plaid');
 Route::post('/webhooks/mailgun', MailgunWebhookController::class)
@@ -241,8 +243,8 @@ Route::prefix('public/v1')->middleware(['throttle:60,1', 'embed.site_key'])->gro
 });
 
 Route::prefix('webhooks')->middleware('throttle:120,1')->group(function (): void {
-    Route::post('/twilio/inbound', [\App\Http\Controllers\Webhooks\TwilioWebhookController::class, 'inbound'])
+    Route::post('/twilio/inbound', [TwilioWebhookController::class, 'inbound'])
         ->name('webhooks.twilio.inbound');
-    Route::post('/twilio/status', [\App\Http\Controllers\Webhooks\TwilioWebhookController::class, 'status'])
+    Route::post('/twilio/status', [TwilioWebhookController::class, 'status'])
         ->name('webhooks.twilio.status');
 });

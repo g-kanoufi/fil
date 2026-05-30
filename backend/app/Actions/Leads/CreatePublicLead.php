@@ -7,6 +7,7 @@ namespace App\Actions\Leads;
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\Drips\DripEnrollmentService;
+use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -49,7 +50,7 @@ final class CreatePublicLead
 
         $this->drips->enroll($lead, 'lead_created');
 
-        app(\App\Services\Notifications\NotificationDispatcher::class)
+        app(NotificationDispatcher::class)
             ->dispatch('lead.created', $lead->fresh());
 
         return $lead->fresh(['prospect']);

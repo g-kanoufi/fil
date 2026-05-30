@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Mail;
 
+use App\Mail\MailTestMail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -84,7 +85,7 @@ final class MailgunVerificationService
         $deliverTo = $this->mailGuard->resolveRecipients([$recipient])[0];
 
         try {
-            Mail::to($deliverTo)->send(new \App\Mail\MailTestMail(
+            Mail::to($deliverTo)->send(new MailTestMail(
                 appName: (string) config('app.name', 'FIL'),
                 activeMailer: (string) config('mail.default'),
             ));

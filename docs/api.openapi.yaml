@@ -25,6 +25,8 @@ paths:
     patch:
       summary: Update current user profile (name, email, phone, optional password)
   /v1/fields:
+    get:
+      summary: Field schema for entity (staff; fields.view)
     post:
       summary: Create a configurable field (admin; fields.manage)
   /v1/fields/{field}:
@@ -188,6 +190,245 @@ paths:
           description: Forbidden
         '422':
           description: Invalid transition or payload
+  /public/v1/branding:
+    get:
+      summary: "Public V1 Branding"
+  /v1/ach-transfers:
+    get:
+      summary: "V1 Ach Transfers Index"
+  /v1/ach-transfers/{achTransfer}:
+    get:
+      summary: "V1 Ach Transfers Show"
+  /v1/activity:
+    get:
+      summary: "V1 Activity Index"
+  /v1/activity/subjects/{type}/{id}:
+    get:
+      summary: "V1 Activity Subjects"
+  /v1/ai/threads:
+    get:
+      summary: "V1 Ai Threads Index"
+    post:
+      summary: "V1 Ai Threads Store"
+  /v1/ai/threads/{aiThread}:
+    get:
+      summary: "V1 Ai Threads Show"
+  /v1/ai/threads/{aiThread}/messages:
+    post:
+      summary: "V1 Ai Threads Messages"
+  /v1/ai/threads/{aiThread}/stream:
+    post:
+      summary: "V1 Ai Threads Stream"
+  /v1/app-config:
+    get:
+      summary: "V1 App Config"
+  /v1/areas:
+    get:
+      summary: "V1 Areas Index"
+  /v1/areas/{area}/fdd-availability:
+    get:
+      summary: "V1 Areas Fdd Availability"
+  /v1/communications:
+    get:
+      summary: "V1 Communications Index"
+    post:
+      summary: "V1 Communications Store"
+  /v1/dashboard:
+    get:
+      summary: "V1 Dashboard"
+  /v1/documents:
+    get:
+      summary: "V1 Documents Index"
+  /v1/documents/export/start:
+    post:
+      summary: "V1 Documents Export Start"
+  /v1/documents/export/status:
+    get:
+      summary: "V1 Documents Export Status"
+  /v1/documents/rows:
+    get:
+      summary: "V1 Documents Rows"
+  /v1/documents/settings:
+    get:
+      summary: "V1 Documents Settings"
+  /v1/documents/{document}:
+    get:
+      summary: "V1 Documents Show"
+  /v1/documents/{document}/download:
+    get:
+      summary: "V1 Documents Download"
+  /v1/drip-campaigns:
+    get:
+      summary: "V1 Drip Campaigns Index"
+    post:
+      summary: "V1 Drip Campaigns Store"
+  /v1/drip-campaigns/schema:
+    get:
+      summary: "V1 Drip Campaigns Schema"
+  /v1/drip-campaigns/{dripCampaign}:
+    delete:
+      summary: "V1 Drip Campaigns Destroy"
+    get:
+      summary: "V1 Drip Campaigns Show"
+    patch:
+      summary: "V1 Drip Campaigns Update"
+  /v1/fdd-deliveries:
+    get:
+      summary: "V1 Fdd Deliveries Index"
+  /v1/fdd-deliveries/{fddDelivery}:
+    get:
+      summary: "V1 Fdd Deliveries Show"
+  /v1/fdd-deliveries/{fddDelivery}/resend:
+    post:
+      summary: "V1 Fdd Deliveries Resend"
+  /v1/fdd-deliveries/{fddDelivery}/sign:
+    post:
+      summary: "V1 Fdd Deliveries Sign"
+  /v1/fdds:
+    get:
+      summary: "V1 Fdds Index"
+    post:
+      summary: "V1 Fdds Store"
+  /v1/fdds/bulk-send:
+    post:
+      summary: "V1 Fdds Bulk Send"
+  /v1/fdds/summary:
+    get:
+      summary: "V1 Fdds Summary"
+  /v1/fdds/{fdd}:
+    get:
+      summary: "V1 Fdds Show"
+    patch:
+      summary: "V1 Fdds Update"
+  /v1/fdds/{fdd}/leads/{lead}/send:
+    post:
+      summary: "V1 Fdds Send"
+  /v1/leads:
+    get:
+      summary: "V1 Leads Index"
+    post:
+      summary: "V1 Leads Store"
+  /v1/leads/{lead}:
+    get:
+      summary: "V1 Leads Show"
+    patch:
+      summary: "V1 Leads Update"
+  /v1/leads/{lead}/convert:
+    post:
+      summary: "V1 Leads Convert"
+  /v1/leads/{lead}/fdd-availability:
+    get:
+      summary: "V1 Leads Fdd Availability"
+  /v1/leads/{lead}/fdd-deliveries:
+    get:
+      summary: "V1 Leads Fdd Deliveries Index"
+  /v1/leads/{lead}/transition-phase:
+    post:
+      summary: "V1 Leads Transition Phase"
+  /v1/notifications/profile:
+    get:
+      summary: "V1 Notifications Profile"
+    put:
+      summary: "V1 Notifications Profile Update"
+  /v1/notifications/rules:
+    get:
+      summary: "V1 Notifications Rules Index"
+  /v1/notifications/rules/schema:
+    get:
+      summary: "V1 Notifications Rules Schema"
+  /v1/notifications/rules/{notificationRule}:
+    get:
+      summary: "V1 Notifications Rules Show"
+    patch:
+      summary: "V1 Notifications Rules Update"
+  /v1/options:
+    get:
+      summary: "V1 Options"
+  /v1/organizations:
+    get:
+      summary: "V1 Organizations Index"
+  /v1/query/{resource}/interpret:
+    post:
+      summary: "V1 Query Interpret"
+  /v1/royalty-periods/{royaltyPeriod}:
+    get:
+      summary: "V1 Royalty Periods Show"
+  /v1/settings/mail:
+    get:
+      summary: "V1 Settings Mail Show"
+  /v1/settings/mail/test:
+    post:
+      summary: "V1 Settings Mail Test"
+  /v1/settings/mail/verify:
+    post:
+      summary: "V1 Settings Mail Verify"
+  /v1/stores:
+    get:
+      summary: "V1 Stores Index"
+    post:
+      summary: "V1 Stores Store"
+  /v1/stores/{store}:
+    get:
+      summary: "V1 Stores Show"
+    patch:
+      summary: "V1 Stores Update"
+  /v1/stores/{store}/ach/customer:
+    get:
+      summary: "V1 Stores Ach Customer"
+  /v1/stores/{store}/ach/dwolla/certify-ownership:
+    post:
+      summary: "V1 Stores Ach Dwolla Certify Ownership"
+  /v1/stores/{store}/ach/dwolla/client-token:
+    post:
+      summary: "V1 Stores Ach Dwolla Client Token"
+  /v1/stores/{store}/ach/enroll:
+    post:
+      summary: "V1 Stores Ach Enroll"
+  /v1/stores/{store}/ach/plaid/complete:
+    post:
+      summary: "V1 Stores Ach Plaid Complete"
+  /v1/stores/{store}/ach/plaid/link-token:
+    post:
+      summary: "V1 Stores Ach Plaid Link Token"
+  /v1/stores/{store}/owners:
+    get:
+      summary: "V1 Stores Owners Index"
+    put:
+      summary: "V1 Stores Owners Sync"
+  /v1/stores/{store}/pos-connections:
+    get:
+      summary: "V1 Stores Pos Connections Index"
+  /v1/stores/{store}/pos-connections/{posConnection}/sync:
+    post:
+      summary: "V1 Stores Pos Connections Sync"
+  /v1/stores/{store}/royalty-periods:
+    get:
+      summary: "V1 Stores Royalty Periods Index"
+  /v1/stores/{store}/royalty-periods/calculate:
+    post:
+      summary: "V1 Stores Royalty Periods Calculate"
+  /v1/stores/{store}/royalty-periods/{royaltyPeriod}/trigger-ach:
+    post:
+      summary: "V1 Stores Royalty Periods Trigger Ach"
+  /webhooks/dwolla:
+    post:
+      summary: "Webhooks Dwolla"
+  /webhooks/mailgun:
+    post:
+      summary: "Webhooks Mailgun"
+  /webhooks/mailgun/inbound:
+    post:
+      summary: "Webhooks Mailgun Inbound"
+  /webhooks/plaid:
+    post:
+      summary: "Webhooks Plaid"
+  /webhooks/twilio/inbound:
+    post:
+      summary: "Webhooks Twilio Inbound"
+  /webhooks/twilio/status:
+    post:
+      summary: "Webhooks Twilio Status"
+
 components:
   schemas:
     GridQueryRequest:

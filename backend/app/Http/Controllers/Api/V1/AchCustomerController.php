@@ -6,10 +6,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Contracts\Ach\DwollaClient;
 use App\Contracts\Ach\PlaidClient;
-use App\Http\Requests\Api\V1\DwollaClientTokenRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\DwollaClientTokenRequest;
 use App\Models\AchCustomer;
 use App\Models\Store;
+use App\Models\User;
 use App\Services\Ach\AchDwollaEnrollmentService;
 use App\Services\Ach\AchDwollaEnrollmentSession;
 use App\Services\Ach\AchPlaidLinkService;
@@ -92,7 +93,7 @@ final class AchCustomerController extends Controller
             return response()->json(['message' => 'Dwolla is not configured.'], 422);
         }
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         try {
@@ -124,7 +125,7 @@ final class AchCustomerController extends Controller
             if (($validated['sandbox'] ?? false) === true) {
                 $customer = $enrollment->sandboxEnroll($store);
             } else {
-                /** @var \App\Models\User $user */
+                /** @var User $user */
                 $user = $request->user();
                 $customer = $enrollment->enroll(
                     $store,

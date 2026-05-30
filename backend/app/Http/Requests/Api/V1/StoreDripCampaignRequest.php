@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Domain\Settings;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -12,7 +13,7 @@ class StoreDripCampaignRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('manage', \App\Domain\Settings::class) ?? false;
+        return $this->user()?->can('manage', Settings::class) ?? false;
     }
 
     protected function prepareForValidation(): void
