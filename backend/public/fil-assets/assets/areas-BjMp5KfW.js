@@ -1,1 +1,0 @@
-import{R as e}from"./main-BBbzRN_5.js";function t(){return e(`/v1/areas`).then(e=>e.data)}export{t};

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { TextLink } from '@/components/ui/TextLink';
 
@@ -15,12 +14,9 @@ export function ForbiddenPage() {
       <p className="mt-4 text-sm text-muted">
         If you think this is a mistake, contact your franchisor administrator.
       </p>
-      <Link
-        to="/profile"
-        className="mt-2 inline-block text-sm text-link hover:underline"
-      >
+      <TextLink to="/profile" className="mt-2 inline-block text-sm">
         View my profile
-      </Link>
+      </TextLink>
     </div>
   );
 }

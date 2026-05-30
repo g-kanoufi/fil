@@ -3,7 +3,7 @@
 > **Date:** 2026-05-30  
 > **Scope:** Full application review — auth, API, embed, communications, documents, AI, **financial (Dwolla / Plaid / ACH / royalties / POS)**  
 > **Method:** Static code review + route/policy tracing (no dynamic pentest yet)  
-> **Status:** Findings documented; fixes **not yet implemented** (this doc is the plan)
+> **Status:** SEC-001–SEC-025 **implemented** in codebase (2026-05-30); dynamic pentest and prod credential verification still pending
 
 Cross-links: [AUTH.md](./AUTH.md) · [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md) · [MVP_DEPLOY.md](./MVP_DEPLOY.md)
 

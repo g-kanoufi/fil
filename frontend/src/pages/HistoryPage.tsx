@@ -6,6 +6,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { fetchActivityFeed, type ActivityItem } from '@/lib/api/activity';
+import { downloadActivityCsv } from '@/lib/export/activityCsv';
 
 const DAY_OPTIONS = [7, 30, 90];
 
@@ -72,6 +73,14 @@ export function HistoryPage() {
             </option>
           ))}
         </select>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={loading || items.length === 0}
+          onClick={() => downloadActivityCsv(items, `activity-${days}d.csv`)}
+        >
+          Export CSV
+        </Button>
       </div>
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}

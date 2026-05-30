@@ -10,6 +10,7 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | [**MVP_STATUS.md**](./MVP_STATUS.md) | Short snapshot of what ships today vs deferred |
 | [**AGENTS.md**](../AGENTS.md) | Agent/coding conventions (repo root) |
 | [**CLAUDE.md**](../CLAUDE.md) | Claude Code entry point (imports AGENTS.md + `.claude/rules/`) |
+| [**NEXT_LOCAL_WORK.md**](./NEXT_LOCAL_WORK.md) | Local-only task queue (no Forge / API keys) |
 
 ## Operations & deploy
 
