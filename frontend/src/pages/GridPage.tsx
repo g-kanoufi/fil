@@ -16,6 +16,7 @@ import { buildGridFilters } from '@/lib/grid/filters';
 import { menusForResource } from '@/lib/grid/menus';
 import { apiSortField, gridColumnsFor } from '@/lib/grid/columns';
 import { exportGridCsv } from '@/lib/grid/exportCsv';
+import { gridExportFilename } from '@/lib/export/filenames';
 import { useGridDetailPanel } from '@/lib/grid/useGridDetailPanel';
 import { useGridQueryParams } from '@/lib/grid/useGridQueryParams';
 import { useAuth } from '@/providers/AuthProvider';
@@ -110,11 +111,16 @@ export function GridPage({ title, resource, embedded = false }: GridPageProps) {
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
-      await exportGridCsv(resource, columnDefs, queryState, `${resource}-${new Date().toISOString().slice(0, 10)}.csv`);
+      await exportGridCsv(
+        resource,
+        columnDefs,
+        queryState,
+        gridExportFilename(resource, params.filter, params.subFilter),
+      );
     } finally {
       setExporting(false);
     }
-  }, [columnDefs, queryState, resource]);
+  }, [columnDefs, params.filter, params.subFilter, queryState, resource]);
 
   const handleSortFromToolbar = useCallback(
     (field: string, direction: 'asc' | 'desc') => {

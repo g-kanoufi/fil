@@ -1,3 +1,0 @@
-function e(e){return e.includes(`,`)||e.includes(`"`)||e.includes(`
-`)?`"${e.replace(/"/g,`""`)}"`:e}function t(e){return[e.occurred_at??``,e.category,e.action,e.summary,e.actor.name,e.subject?.type??``,e.subject?.label??``,e.source]}var n=[`occurred_at`,`category`,`action`,`summary`,`actor`,`subject_type`,`subject_label`,`source`];function r(r){return[n.map(e).join(`,`),...r.map(n=>t(n).map(e).join(`,`))].join(`
-`)}function i(e,t){if(e.length===0)return;let n=new Blob([r(e)],{type:`text/csv;charset=utf-8;`}),i=URL.createObjectURL(n),a=document.createElement(`a`);a.href=i,a.download=t,a.click(),URL.revokeObjectURL(i)}export{i as t};

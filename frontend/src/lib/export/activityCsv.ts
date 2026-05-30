@@ -1,12 +1,5 @@
 import type { ActivityItem } from '@/lib/api/activity';
-
-function escapeCsv(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-
-  return value;
-}
+import { buildCsv, downloadCsv } from '@/lib/export/csv';
 
 function formatRow(item: ActivityItem): string[] {
   return [
@@ -33,12 +26,10 @@ const HEADERS = [
 ];
 
 export function buildActivityCsv(items: ActivityItem[]): string {
-  const lines = [
-    HEADERS.map(escapeCsv).join(','),
-    ...items.map((item) => formatRow(item).map(escapeCsv).join(',')),
-  ];
-
-  return lines.join('\n');
+  return buildCsv(
+    HEADERS,
+    items.map((item) => formatRow(item)),
+  );
 }
 
 export function downloadActivityCsv(items: ActivityItem[], filename: string): void {
@@ -46,11 +37,5 @@ export function downloadActivityCsv(items: ActivityItem[], filename: string): vo
     return;
   }
 
-  const blob = new Blob([buildActivityCsv(items)], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadCsv(buildActivityCsv(items), filename);
 }

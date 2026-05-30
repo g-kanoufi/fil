@@ -1,0 +1,1 @@
+import{R as e}from"./main-CSA6GAgI.js";function t(){return e(`/v1/areas`).then(e=>e.data)}export{t};

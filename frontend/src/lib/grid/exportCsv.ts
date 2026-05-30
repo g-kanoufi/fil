@@ -1,6 +1,7 @@
 import type { ColDef } from 'ag-grid-community';
 import type { GridQueryResponse } from '@/lib/api/grid';
 import { queryGrid, type GridQueryPayload } from '@/lib/api/grid';
+import { buildCsv, downloadCsv } from '@/lib/export/csv';
 
 type GridRow = GridQueryResponse['hits']['hits'][number];
 
@@ -11,14 +12,6 @@ function cellValue(row: GridRow, col: ColDef): string {
   }
 
   return '';
-}
-
-function escapeCsv(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-    return `"${value.replace(/"/g, '""')}"`;
-  }
-
-  return value;
 }
 
 export async function exportGridCsv(
@@ -43,16 +36,7 @@ export async function exportGridCsv(
   } while (cursor);
 
   const headers = columns.map((col) => col.headerName ?? 'Column');
-  const lines = [
-    headers.map(escapeCsv).join(','),
-    ...rows.map((row) => columns.map((col) => escapeCsv(cellValue(row, col))).join(',')),
-  ];
+  const csvRows = rows.map((row) => columns.map((col) => cellValue(row, col)));
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadCsv(buildCsv(headers, csvRows), filename);
 }

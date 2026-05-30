@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityFeedList } from '@/components/activity/ActivityFeedList';
+import { ExportCsvButton } from '@/components/export/ExportCsvButton';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { fetchActivityFeed, type ActivityItem } from '@/lib/api/activity';
+import { fetchActivityFeed, fetchAllActivityFeed, type ActivityItem } from '@/lib/api/activity';
 import { downloadActivityCsv } from '@/lib/export/activityCsv';
+import { activityFeedExportFilename } from '@/lib/export/filenames';
 
 const DAY_OPTIONS = [7, 30, 90];
 
@@ -17,6 +19,7 @@ export function HistoryPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadFeed = useCallback(async (append = false, nextCursor: string | null = null) => {
@@ -50,6 +53,20 @@ export function HistoryPage() {
     void loadFeed(false);
   }, [loadFeed]);
 
+  async function exportFeed() {
+    setExporting(true);
+    setError(null);
+
+    try {
+      const allItems = await fetchAllActivityFeed(days);
+      downloadActivityCsv(allItems, activityFeedExportFilename(days));
+    } catch (exportError: unknown) {
+      setError(exportError instanceof Error ? exportError.message : 'Failed to export activity');
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -73,14 +90,6 @@ export function HistoryPage() {
             </option>
           ))}
         </select>
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={loading || items.length === 0}
-          onClick={() => downloadActivityCsv(items, `activity-${days}d.csv`)}
-        >
-          Export CSV
-        </Button>
       </div>
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
@@ -89,7 +98,16 @@ export function HistoryPage() {
 
       {!loading ? (
         <Card>
-          <CardHeader title="Recent activity" />
+          <CardHeader
+            title="Recent activity"
+            actions={
+              <ExportCsvButton
+                exporting={exporting}
+                disabled={items.length === 0}
+                onClick={exportFeed}
+              />
+            }
+          />
           <ActivityFeedList items={items} />
           {hasMore ? (
             <div className="mt-4">

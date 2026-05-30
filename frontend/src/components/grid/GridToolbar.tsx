@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/Button';
 import { AiSearchField } from '@/components/search/AiSearchField';
+import { ExportCsvButton } from '@/components/export/ExportCsvButton';
 import { cn } from '@/lib/cn';
 import { card, iconButtonClasses, selectControl, surface } from '@/lib/ui/tokens';
 import { apiSortField } from '@/lib/grid/columns';
@@ -81,14 +82,12 @@ export function GridToolbar({
         </div>
 
         {onExport ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={exportDisabled || exporting}
+          <ExportCsvButton
+            size="md"
+            exporting={exporting}
+            disabled={exportDisabled}
             onClick={onExport}
-          >
-            {exporting ? 'Exporting…' : 'Download CSV'}
-          </Button>
+          />
         ) : null}
 
         {onAddNew ? (

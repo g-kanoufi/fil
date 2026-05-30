@@ -10,6 +10,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | Item | Notes |
 |------|--------|
+| Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
 | Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
 | Activity CSV export | History page + lead/store/contact timelines (client-side) |
@@ -24,9 +25,8 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **Grid export polish** | 0.5d | Consistent export button placement, filename conventions |
-| 2 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
-| 3 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
+| 1 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
+| 2 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
 
 ### P2 — Quality & design
 
@@ -66,10 +66,10 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ```bash
 git checkout dev && git pull
-git checkout -b feature/grid-export-polish
+git checkout -b feature/legacy-import-dry-run-docs
 ```
 
-**Scope:** Consistent CSV export buttons and filename conventions across grids and timelines.
+**Scope:** Document `legacy:import --dry-run` checklist for Phase 4 prep.
 
 ---
 

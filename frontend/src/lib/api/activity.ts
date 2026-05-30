@@ -55,6 +55,24 @@ export function fetchActivityFeed(params?: {
   return apiGet<ActivityFeedResponse>(`/v1/activity${query ? `?${query}` : ''}`);
 }
 
+export async function fetchAllActivityFeed(days: number): Promise<ActivityItem[]> {
+  const items: ActivityItem[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const response = await fetchActivityFeed({
+      days,
+      limit: 200,
+      cursor,
+    });
+
+    items.push(...response.data);
+    cursor = response.meta.next_cursor ?? undefined;
+  } while (cursor);
+
+  return items;
+}
+
 export function fetchSubjectActivity(
   type: string,
   id: number,
