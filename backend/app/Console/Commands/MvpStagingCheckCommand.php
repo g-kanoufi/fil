@@ -9,6 +9,7 @@ use App\Services\Mail\OutboundMailGuard;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
 use Spatie\Permission\Models\Permission;
 
 final class MvpStagingCheckCommand extends Command
@@ -103,7 +104,16 @@ final class MvpStagingCheckCommand extends Command
     private function checkRoles(): array
     {
         $permissionCount = Permission::query()->count();
-        $adminExists = User::query()->role('admin')->exists();
+
+        try {
+            $adminExists = User::query()->role('admin')->exists();
+        } catch (RoleDoesNotExist) {
+            return [
+                'Roles & permissions',
+                'FAIL',
+                'Run RolesAndPermissionsSeeder — admin role missing',
+            ];
+        }
 
         if ($permissionCount < 10 || ! $adminExists) {
             return [

@@ -2,7 +2,7 @@
 
 Path from current codebase to **100% production-ready** for the first client VPS (Forge, single-tenant).
 
-**Last updated:** 2026-05-28
+**Last updated:** 2026-05-30
 
 ---
 
@@ -10,10 +10,10 @@ Path from current codebase to **100% production-ready** for the first client VPS
 
 | Metric | Value |
 | --- | --- |
-| **Overall production readiness** | **~55%** |
+| **Overall production readiness** | **~62%** |
 | Phase 1 — Staff UX (code) | **~95%** (9.5 / 10 items) |
 | Phase 0 — Staging ship (ops) | **~15%** (runbook + deploy script + staging checks) |
-| Phases 2–6 — Hardening | **~18%** (inbound matching, E2E, queued comms) |
+| Phases 2–6 — Hardening | **~35%** (comms, E2E, security code fixes) |
 | Phases 7–8 | Deferred / as needed |
 
 ### How overall % is calculated
@@ -27,9 +27,9 @@ Weighted by what blocks a real client cutover:
 | 2 Notifications / comms | 15% | 45% | 6.8% |
 | 3 Financial workflows | 10% | 0% | 0% |
 | 4 Data / import quality | 10% | 0% | 0% |
-| 5 Quality / observability | 10% | 50% | 5.0% |
-| 6 Security / compliance | 10% | 10% | 1.0% |
-| **Total** | **100%** | | **~55%** |
+| 5 Quality / observability | 10% | 55% | 5.5% |
+| 6 Security / compliance | 10% | 75% | 7.5% |
+| **Total** | **100%** | | **~62%** |
 
 ### Production exit checklist (must all be ☑ for 100%)
 
@@ -62,7 +62,9 @@ Weighted by what blocks a real client cutover:
 - **Forge deploy script** + extended `mvp:staging-check` (demo users, embed keys, Sanctum, webhooks)
 - **Email suppression list** (bounce/complaint via Mailgun webhook; blocks staff send)
 - **Playwright E2E** smoke (`scripts/e2e-smoke.sh`, CI job)
-- Backend: **251** PHPUnit tests; frontend: **33** Vitest tests; E2E: **8** Playwright specs
+- Backend: **270** PHPUnit tests; frontend: **35** Vitest tests; E2E: **8** Playwright specs
+- **Security hardening (SEC-001–025)** code complete — see [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
+- **Activity CSV export** on history + entity timelines (no external deps)
 
 ### Not production-ready yet
 
@@ -71,7 +73,7 @@ Weighted by what blocks a real client cutover:
 - Mail/SMS provider credentials not configured (Twilio/Mailgun prod)
 - Financial modules mostly stubs
 - No Sentry; structured VPS logging not done
-- Security review, retention policy, audit export not done
+- Security review code fixes done; prod credential verification and pentest not done
 
 ### Parity gaps (see [parity-checklist.md](./parity-checklist.md))
 
@@ -189,16 +191,17 @@ Weighted by what blocks a real client cutover:
 
 ---
 
-## Phase 6 — Security & compliance · 0%
+## Phase 6 — Security & compliance · 75%
 
 | # | Task | Status |
 | --- | --- | --- |
 | 6.1 | Threat model / access review ([AUTH.md](./AUTH.md), [ACCESS.md](./ACCESS.md)) | ☑ Initial scope + API codes |
-| 6.2 | Secrets rotation procedure | ☐ |
-| 6.3 | HTTPS only, HSTS, secure cookies | ☐ Forge default |
+| 6.2 | Secrets rotation procedure | ☐ Doc planned ([NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md)) |
+| 6.3 | HTTPS only, HSTS, secure cookies | ☑ Code + `mvp:staging-check`; Forge TLS at deploy |
 | 6.4 | PII retention + export policy | ☐ |
-| 6.5 | Audit log export for compliance | ☐ |
+| 6.5 | Audit log export for compliance | Partial — activity CSV export (client-side) |
 | 6.6 | Dependency audit in CI | ☑ `composer audit` + `npm audit` |
+| 6.7 | SEC-001–025 remediation | ☑ Code complete ([SECURITY_AUDIT.md](./SECURITY_AUDIT.md)) |
 
 ---
 

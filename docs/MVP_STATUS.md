@@ -2,7 +2,7 @@
 
 Brief status for “what works today.” **Full roadmap and % complete:** [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md).
 
-**Last updated:** 2026-05-28
+**Last updated:** 2026-05-30
 
 ---
 
@@ -17,7 +17,9 @@ Brief status for “what works today.” **Full roadmap and % complete:** [PRODU
 | Staging / client import | ☐ Not done |
 | Production comms hardening | Partial (queued send + Mailgun webhooks) |
 
-**Production readiness:** ~**52%** — see dashboard in [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md).
+**Production readiness:** ~**62%** — see dashboard in [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md).
+
+**Local work queue:** [NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md)
 
 ---
 
