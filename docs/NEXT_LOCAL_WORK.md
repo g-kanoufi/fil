@@ -11,6 +11,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | Item | Notes |
 |------|--------|
 | Legacy import dry-run docs | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) — Phase 4 checklist |
+| PHPUnit coverage gaps | Activity feed auth/scope + document scope/export edge cases (290 tests) |
 | Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
 | Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
@@ -26,17 +27,16 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
+| 1 | **AG Grid code-split** | 1d | Dynamic import on grid routes (build warns >600kB chunk) |
 
 ### P2 — Quality & design
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 5 | **AG Grid code-split** | 1d | Dynamic import on grid routes (build warns >600kB chunk) |
-| 6 | **Empty states audit** | 0.5d | Standardize empty/error/loading across detail pages |
-| 7 | **Pint / ESLint pass** | 0.5d | Add Laravel Pint to CI if not present; fix autofixable issues |
-| 8 | **OpenAPI sync audit** | 1d | Diff `docs/api.openapi.yaml` vs live routes |
-| 9 | **Accessibility pass** | 1d | Login, grids, modals — focus trap, labels, axe on key pages |
+| 2 | **Empty states audit** | 0.5d | Standardize empty/error/loading across detail pages |
+| 3 | **Pint / ESLint pass** | 0.5d | Add Laravel Pint to CI if not present; fix autofixable issues |
+| 4 | **OpenAPI sync audit** | 1d | Diff `docs/api.openapi.yaml` vs live routes |
+| 5 | **Accessibility pass** | 1d | Login, grids, modals — focus trap, labels, axe on key pages |
 
 ### P3 — Security & compliance (still local)
 
@@ -66,10 +66,10 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ```bash
 git checkout dev && git pull
-git checkout -b feature/phpunit-coverage-gaps
+git checkout -b feature/ag-grid-code-split
 ```
 
-**Scope:** Activity export auth paths and document scope edge case tests.
+**Scope:** Lazy-load AG Grid on grid routes to shrink the main bundle chunk.
 
 ---
 

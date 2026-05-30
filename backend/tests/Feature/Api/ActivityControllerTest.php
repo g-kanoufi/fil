@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use App\Models\ActivityEvent;
+use App\Models\Area;
+use App\Models\Lead;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Activity\ActivityRecorder;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -109,5 +112,67 @@ final class ActivityControllerTest extends TestCase
 
         $this->assertContains("phase_{$phaseEvent->id}", $ids);
         $this->assertContains("comm_{$communication->id}", $ids);
+    }
+
+    public function test_unauthenticated_users_cannot_fetch_activity_feed(): void
+    {
+        $this->getJson('/api/v1/activity')
+            ->assertUnauthorized()
+            ->assertJsonPath('code', 'unauthenticated');
+    }
+
+    public function test_prospect_cannot_fetch_activity_feed(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('prospect');
+
+        $this->actingAs($user)
+            ->getJson('/api/v1/activity')
+            ->assertForbidden()
+            ->assertJsonPath('code', 'staff_required');
+    }
+
+    public function test_area_rep_global_feed_is_scoped_to_assigned_areas(): void
+    {
+        $rep = User::factory()->create();
+        $rep->assignRole('area_rep');
+
+        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+        $visibleLead = Lead::factory()->create(['area_id' => $area->id]);
+        $hiddenLead = Lead::factory()->create(['area_id' => null]);
+        $visibleStore = Store::factory()->create(['area_id' => $area->id]);
+        $hiddenStore = Store::factory()->create(['area_id' => null]);
+
+        $this->createActivityEvent('Visible lead event', 'lead', $visibleLead->id, $rep);
+        $this->createActivityEvent('Hidden lead event', 'lead', $hiddenLead->id, $rep);
+        $this->createActivityEvent('Visible store event', 'store', $visibleStore->id, $rep);
+        $this->createActivityEvent('Hidden store event', 'store', $hiddenStore->id, $rep);
+
+        $summaries = collect(
+            $this->actingAs($rep)
+                ->getJson('/api/v1/activity?limit=50&days=30')
+                ->assertOk()
+                ->json('data'),
+        )->pluck('summary')->all();
+
+        $this->assertContains('Visible lead event', $summaries);
+        $this->assertContains('Visible store event', $summaries);
+        $this->assertNotContains('Hidden lead event', $summaries);
+        $this->assertNotContains('Hidden store event', $summaries);
+    }
+
+    private function createActivityEvent(string $summary, string $subjectType, int $subjectId, User $actor): void
+    {
+        ActivityEvent::query()->create([
+            'occurred_at' => now(),
+            'actor_user_id' => $actor->id,
+            'actor_name' => $actor->name,
+            'category' => $subjectType,
+            'action' => 'updated',
+            'summary' => $summary,
+            'subject_type' => $subjectType,
+            'subject_id' => $subjectId,
+            'source' => 'app',
+        ]);
     }
 }

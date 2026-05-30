@@ -81,6 +81,57 @@ final class SecScopeEndpointsTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_activity_subject_timeline_requires_store_access(): void
+    {
+        $rep = User::factory()->create();
+        $rep->assignRole('area_rep');
+
+        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+        $visibleStore = Store::factory()->create(['area_id' => $area->id]);
+        $hiddenStore = Store::factory()->create(['area_id' => null]);
+
+        $this->actingAs($rep)
+            ->getJson("/api/v1/activity/subjects/store/{$visibleStore->id}")
+            ->assertOk();
+
+        $this->actingAs($rep)
+            ->getJson("/api/v1/activity/subjects/store/{$hiddenStore->id}")
+            ->assertForbidden();
+    }
+
+    public function test_activity_subject_timeline_requires_contact_access(): void
+    {
+        $rep = User::factory()->create();
+        $rep->assignRole('area_rep');
+
+        $area = Area::factory()->create(['extras' => ['rep_user_id' => $rep->id]]);
+        $visibleStore = Store::factory()->create(['area_id' => $area->id]);
+        $hiddenStore = Store::factory()->create(['area_id' => null]);
+
+        $visibleContact = User::factory()->create();
+        $hiddenContact = User::factory()->create();
+
+        StoreOwner::query()->create([
+            'store_id' => $visibleStore->id,
+            'user_id' => $visibleContact->id,
+            'role' => 'owner',
+        ]);
+
+        StoreOwner::query()->create([
+            'store_id' => $hiddenStore->id,
+            'user_id' => $hiddenContact->id,
+            'role' => 'owner',
+        ]);
+
+        $this->actingAs($rep)
+            ->getJson("/api/v1/activity/subjects/contact/{$visibleContact->id}")
+            ->assertOk();
+
+        $this->actingAs($rep)
+            ->getJson("/api/v1/activity/subjects/contact/{$hiddenContact->id}")
+            ->assertForbidden();
+    }
+
     public function test_out_of_scope_store_route_is_forbidden(): void
     {
         $rep = User::factory()->create();
