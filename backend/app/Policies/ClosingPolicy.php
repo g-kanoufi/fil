@@ -26,4 +26,13 @@ final class ClosingPolicy
     {
         return $this->scope->canViewClosing($user, $closing);
     }
+
+    public function update(User $user, Closing $closing): bool
+    {
+        if (! $this->allows($user, 'leads.manage')) {
+            return false;
+        }
+
+        return $this->view($user, $closing);
+    }
 }

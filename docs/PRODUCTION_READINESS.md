@@ -152,8 +152,8 @@ Weighted by what blocks a real client cutover:
 
 | # | Task | Status |
 | --- | --- | --- |
-| 3.1 | Closing detail workflow (status transitions) | ☐ |
-| 3.2 | Fee line items + totals | ☐ |
+| 3.1 | Closing detail workflow (status transitions) | ☑ |
+| 3.2 | Fee line items + totals | ☑ |
 | 3.3 | Dwolla enrollment happy path | ☐ Stub UI |
 | 3.4 | Reporting export (CSV) | ☐ |
 | 3.5 | Admin reconciliation view | ☐ |

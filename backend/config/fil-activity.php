@@ -7,6 +7,7 @@ return [
         'lead',
         'store',
         'contact',
+        'closing',
         'fdd',
         'comm',
         'auth',

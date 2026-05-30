@@ -14,6 +14,12 @@ export const StoreDetailPage = lazy(() =>
 export const ContactDetailPage = lazy(() =>
   import('@/pages/ContactDetailPage').then((m) => ({ default: m.ContactDetailPage })),
 );
+export const ClosingsPage = lazy(() =>
+  import('@/pages/ClosingsPage').then((m) => ({ default: m.ClosingsPage })),
+);
+export const ClosingDetailPage = lazy(() =>
+  import('@/pages/ClosingDetailPage').then((m) => ({ default: m.ClosingDetailPage })),
+);
 export const DocumentsPage = lazy(() =>
   import('@/pages/DocumentsPage').then((m) => ({ default: m.DocumentsPage })),
 );

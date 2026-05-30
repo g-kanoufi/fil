@@ -131,6 +131,63 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+  /v1/closings:
+    get:
+      summary: List closings (leads.view; scoped)
+      responses:
+        '200':
+          description: Closing list
+        '403':
+          description: Forbidden
+  /v1/closings/{closing}:
+    get:
+      summary: Closing detail
+      parameters:
+        - name: closing
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Closing profile with workflow metadata
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    patch:
+      summary: Update closing status and fee lines (leads.manage)
+      parameters:
+        - name: closing
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                fee_lines:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                      amount_cents:
+                        type: integer
+      responses:
+        '200':
+          description: Updated closing
+        '403':
+          description: Forbidden
+        '422':
+          description: Invalid transition or payload
 components:
   schemas:
     GridQueryRequest:

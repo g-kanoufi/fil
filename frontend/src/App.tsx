@@ -31,6 +31,8 @@ import {
   SettingsPage,
   StoreDetailPage,
   ContactDetailPage,
+  ClosingsPage,
+  ClosingDetailPage,
   WidgetFormBuilderPage,
 } from '@/routes/lazyPages';
 
@@ -96,6 +98,22 @@ export function AppRoutes() {
             element={
               <RequirePermission permission="contacts.view">
                 <ContactDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/reports/closings"
+            element={
+              <RequirePermission permission="leads.view">
+                <ClosingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/reports/closings/:id"
+            element={
+              <RequirePermission permission="leads.view">
+                <ClosingDetailPage />
               </RequirePermission>
             }
           />

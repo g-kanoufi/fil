@@ -10,6 +10,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | Item | Notes |
 |------|--------|
+| Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
 | Activity CSV export | History page + lead/store/contact timelines (client-side) |
 | `mvp:staging-check` | No crash when roles not seeded |
@@ -23,10 +24,9 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | **Closing detail workflow UI** | 1–2d | Status transitions, fee line display (read/write against existing API) |
-| 2 | **Grid export polish** | 0.5d | Consistent export button placement, filename conventions |
-| 3 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
-| 4 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
+| 1 | **Grid export polish** | 0.5d | Consistent export button placement, filename conventions |
+| 2 | **Legacy import dry-run docs** | 0.5d | Document `legacy:import --dry-run` checklist for Phase 4 prep |
+| 3 | **PHPUnit coverage gaps** | 1d | Activity export auth paths, document scope edge cases |
 
 ### P2 — Quality & design
 
@@ -66,10 +66,10 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ```bash
 git checkout dev && git pull
-git checkout -b feature/closing-detail-workflow
+git checkout -b feature/grid-export-polish
 ```
 
-**Scope:** Closing detail status transitions and fee line display against existing API.
+**Scope:** Consistent CSV export buttons and filename conventions across grids and timelines.
 
 ---
 
