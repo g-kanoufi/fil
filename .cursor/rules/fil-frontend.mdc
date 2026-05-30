@@ -1,0 +1,157 @@
+---
+description: FIL React frontend — Wes Bos / modern React conventions
+globs: frontend/**/*
+alwaysApply: false
+---
+
+# FIL frontend (Wes Bos style)
+
+Practical, readable React — **hooks over classes, small files, explicit types, no clever abstractions.**
+
+## Stack
+
+- React 19, TypeScript 5.9+, Vite 8, Vitest 4
+- Vitest + Testing Library
+- `@fil/app` (staff SPA), `@fil/widget` (embed)
+- Path alias: `@/` → `src/`
+
+## Folder layout
+
+```
+src/
+  components/       # Presentational + container split when it helps
+  hooks/            # useHealth, useGridQuery, useSession — data & UI state
+  lib/api/          # fetch client + per-resource API functions
+  pages/            # Route-level components (when router added)
+  types/            # Shared TS types (api.ts, grid.ts)
+  __tests__/        # Mirror src structure
+widget/src/         # Separate IIFE bundle — keep tiny
+```
+
+## Components
+
+- **Function components only** — no class components
+- **Named exports** for components (`export function LeadGrid()`)
+- One main component per file; colocate small subcomponents if <30 lines and private
+- Props: define `interface LeadGridProps { … }` above the component
+- Keep JSX readable — extract handlers and derived values before `return`
+- When adapting legacy grids: keep AG Grid patterns; strip multisite concepts
+
+## Hooks (custom hooks for everything reusable)
+
+- Data fetching → `useHealth`, `useSession`, `useGridQuery`
+- Wrap async in hooks; components call the hook, not raw `fetch`
+- Return stable shapes: `{ data, error, isLoading, refetch }`
+- `useMemo` / `useCallback` only when profiling or deps for child memoization warrant it — not by default
+
+```tsx
+// hooks/useHealth.ts
+export function useHealth() {
+  const [state, setState] = useState<AsyncState<HealthResponse>>({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHealth()
+      .then((data) => { if (!cancelled) setState({ status: 'success', data }); })
+      .catch((error) => { if (!cancelled) setState({ status: 'error', error }); });
+    return () => { cancelled = true; };
+  }, []);
+
+  return state;
+}
+```
+
+When building grids: **SWR** or **useSWRMutation** — one hook per API surface.
+
+## API layer (`lib/api/`)
+
+- **`client.ts`** — shared `apiGet`, `apiPost`, `apiDelete`; credentials `include` for Sanctum
+- Throw **`ApiError`** with `status` and body — don’t swallow failures
+- **One file per resource**: `health.ts`, `session.ts`, `leads.ts`
+- Types live in `types/api.ts` or next to the fetch function
+- Base URL: `import.meta.env.VITE_API_URL ?? '/api'`
+
+```ts
+// lib/api/client.ts pattern
+export class ApiError extends Error {
+  constructor(public status: number, message: string, public body?: unknown) {
+    super(message);
+  }
+}
+```
+
+No API calls inside random components — always go through `lib/api` or hooks.
+
+## Auth (staff app)
+
+- **`AuthProvider`** loads `GET /api/v1/session` on boot; 401 → `/login`
+- **`RequireAuth`** wraps staff routes; **`RequirePermission`** gates pages
+- **`useAuth()`** / **`useCan('leads.view')`** — no hard-coded role strings
+- Nav from **`user.navigation`** (server-driven); see `docs/AUTH.md`
+
+## TypeScript
+
+- Prefer `interface` for object shapes; `type` for unions and utilities
+- Avoid `any`; use `unknown` + narrowing for catch blocks
+- Use `satisfies` for config objects when useful
+- Don't over-generic hooks unless reused 3+ times
+
+## State
+
+- Local UI state: `useState`
+- Server state: hooks + SWR (stale-while-revalidate) when we port listings
+- Avoid Redux/Zustand until cross-page state actually hurts
+- URL state for filters/tabs when possible (shareable, bookmarkable)
+
+## Styling (theme tokens)
+
+FIL uses **CSS variables in `index.css`** + **Tailwind class strings in `lib/ui/tokens.ts`**. Theme switching is automatic via `[data-theme='dark']` on `<html>` — do not add per-component `dark:` overrides for semantic colors.
+
+### Where to change things
+
+| Need | Edit |
+| ---- | ---- |
+| New color that must work in light + dark | Add paired `--color-*` vars in `index.css` `@theme` + `[data-theme='dark']`, then expose a token in `tokens.ts` |
+| Text link | `<TextLink>` or `textLink` / `textLinkPlain` |
+| Form input | `formControl` + `formFocus` (see `FormField`) |
+| Filter/chip pill | `chipActive` / `chipInactive` |
+| Badge / alert | `<Badge>` / `<Alert>` (backed by `badge` / `alert` tokens) |
+| Button | `<Button>` (backed by `button` tokens) |
+| Tinted callout / metric card | `surface.*` helpers |
+| Primary CTA color | `bg-primary`, `text-link`, `text-primary` — not raw `brand-600` |
+
+### Do not
+
+- Pair `bg-brand-50` with `text-brand-700` (breaks in dark mode)
+- Use `text-brand-600 dark:text-brand-400` — use `text-link` instead
+- Use light-only Tailwind palette for status (`green-100`, `amber-100`) — use `tone-*` tokens
+- Import from `lib/ui/surfaces.ts` in new code — use `lib/ui/tokens.ts`
+
+Verify new UI in **both light and dark** before finishing.
+
+## Testing (Vitest)
+
+- `@testing-library/react` — test behavior, not implementation
+- Mock **`lib/api`** modules or hooks, not deep fetch internals
+- `findBy*` for async UI; `getByRole` over test IDs when accessible
+- Run: `npm run test:run`
+
+## Widget (`frontend/widget/`)
+
+- Minimal IIFE; no React router
+- PostMessage / `data-site-key` contract documented in OpenAPI
+- Separate Vite config; output to `backend/public/widget/`
+
+## Do not
+
+- Vendor-specific legacy constants or proxy URLs in new code
+- Fetch in `useEffect` without cleanup (cancel flag or AbortController)
+- Giant `App.tsx` — split into pages as routes land
+- Default exports for components (except `main.tsx` entry)
+- Copy-paste ES hooks — adapt to `useGridQuery` + `/api/v1/query/*`
+
+## Iteration gate (every chunk)
+
+Before the next feature chunk: dedupe API hooks/components, simplify, run `npm run test:run` (and `npm run build` if routes changed). Do not add pages without tests.
+
+Verification: `cd frontend && npm run test:run`

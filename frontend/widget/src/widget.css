@@ -1,0 +1,186 @@
+/*
+ * FIL embed widget — self-contained styles scoped to [data-fil-widget].
+ * Override any token on the mount element, via form-config theme, or postMessage.
+ */
+[data-fil-widget] {
+  --fil-font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --fil-text: hsl(222 28% 11%);
+  --fil-label: hsl(215 16% 28%);
+  --fil-muted: hsl(215 14% 38%);
+  --fil-surface: #ffffff;
+  --fil-border: hsl(214 18% 88%);
+  --fil-border-focus: #2563eb;
+  --fil-primary: #1d4ed8;
+  --fil-primary-hover: #1e40af;
+  --fil-primary-fg: #ffffff;
+  --fil-error: #dc2626;
+  --fil-error-bg: #fee2e2;
+  --fil-error-border: #fca5a5;
+  --fil-success: #15803d;
+  --fil-success-bg: #dcfce7;
+  --fil-success-border: #86efac;
+  --fil-input-bg: #ffffff;
+  --fil-input-radius: 0.375rem;
+  --fil-button-radius: 0.375rem;
+  --fil-gap: 0.75rem;
+  --fil-focus-ring: 0 0 0 3px rgb(37 99 235 / 0.25);
+
+  box-sizing: border-box;
+  color: var(--fil-text);
+  font-family: var(--fil-font-family);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+[data-fil-widget] *,
+[data-fil-widget] *::before,
+[data-fil-widget] *::after {
+  box-sizing: border-box;
+}
+
+[data-fil-widget] .fil-form {
+  display: grid;
+  gap: var(--fil-gap);
+  max-width: 28rem;
+  margin: 0;
+}
+
+[data-fil-widget] .fil-form__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--fil-text);
+}
+
+[data-fil-widget] .fil-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+[data-fil-widget] .fil-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--fil-label);
+}
+
+[data-fil-widget] .fil-label--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+[data-fil-widget] .fil-input,
+[data-fil-widget] .fil-textarea,
+[data-fil-widget] .fil-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--fil-border);
+  border-radius: var(--fil-input-radius);
+  background: var(--fil-input-bg);
+  color: var(--fil-text);
+  font: inherit;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-fil-widget] .fil-textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+[data-fil-widget] .fil-input::placeholder,
+[data-fil-widget] .fil-textarea::placeholder {
+  color: var(--fil-muted);
+  opacity: 1;
+}
+
+[data-fil-widget] .fil-input:focus,
+[data-fil-widget] .fil-textarea:focus,
+[data-fil-widget] .fil-select:focus {
+  outline: none;
+  border-color: var(--fil-border-focus);
+  box-shadow: var(--fil-focus-ring);
+}
+
+[data-fil-widget] .fil-input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  accent-color: var(--fil-primary);
+}
+
+[data-fil-widget] .fil-field--error .fil-input,
+[data-fil-widget] .fil-field--error .fil-textarea,
+[data-fil-widget] .fil-field--error .fil-select {
+  border-color: var(--fil-error-border);
+  background: var(--fil-error-bg);
+}
+
+[data-fil-widget] .fil-field--error .fil-input:focus,
+[data-fil-widget] .fil-field--error .fil-textarea:focus,
+[data-fil-widget] .fil-field--error .fil-select:focus {
+  border-color: var(--fil-error);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fil-error) 25%, transparent);
+}
+
+[data-fil-widget] .fil-field-error {
+  display: none;
+  font-size: 0.8125rem;
+  color: var(--fil-error);
+}
+
+[data-fil-widget] .fil-field--error .fil-field-error {
+  display: block;
+}
+
+[data-fil-widget] .fil-btn {
+  justify-self: start;
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: var(--fil-button-radius);
+  background: var(--fil-primary);
+  color: var(--fil-primary-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+[data-fil-widget] .fil-btn:hover:not(:disabled) {
+  background: var(--fil-primary-hover);
+}
+
+[data-fil-widget] .fil-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--fil-focus-ring);
+}
+
+[data-fil-widget] .fil-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+[data-fil-widget] .fil-status {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--fil-muted);
+}
+
+[data-fil-widget] .fil-status--success {
+  color: var(--fil-success);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--fil-success-border);
+  border-radius: var(--fil-input-radius);
+  background: var(--fil-success-bg);
+}
+
+[data-fil-widget] .fil-status--error {
+  color: var(--fil-error);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--fil-error-border);
+  border-radius: var(--fil-input-radius);
+  background: var(--fil-error-bg);
+}

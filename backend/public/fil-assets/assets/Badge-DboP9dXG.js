@@ -1,0 +1,1 @@
+import{r as e}from"./dwolla-D65No0mJ.js";import{N as t,f as n}from"./main-BBbzRN_5.js";var r=e();function i({children:e,variant:i=`default`,className:a}){return(0,r.jsx)(`span`,{className:t(`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium`,n[i],a),children:e})}export{i as t};

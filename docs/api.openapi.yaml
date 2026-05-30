@@ -1,0 +1,192 @@
+openapi: 3.1.0
+info:
+  title: FIL API
+  version: 0.1.0
+  description: Franchise Intelligence Layer — per-client CRM API
+servers:
+  - url: /api
+paths:
+  /health:
+    get:
+      summary: API health check
+      responses:
+        '200':
+          description: OK
+  /v1/session:
+    post:
+      summary: Create session (login)
+    get:
+      summary: Current session
+    delete:
+      summary: Destroy session (logout)
+  /v1/profile:
+    get:
+      summary: Current user profile
+    patch:
+      summary: Update current user profile (name, email, phone, optional password)
+  /v1/fields:
+    post:
+      summary: Create a configurable field (admin; fields.manage)
+  /v1/fields/{field}:
+    patch:
+      summary: Update a configurable field (admin; fields.manage)
+    delete:
+      summary: Delete a configurable field (admin; fields.manage)
+  /v1/fields/reorder:
+    post:
+      summary: Reorder fields / move between groups (admin; fields.manage)
+  /v1/fields/relatable-entities:
+    get:
+      summary: Field type catalogue + whitelisted relational target entities
+  /v1/field-groups:
+    get:
+      summary: Field groups with their fields (admin tree)
+    post:
+      summary: Create a field group (admin; fields.manage)
+  /v1/field-groups/{fieldGroup}:
+    patch:
+      summary: Update a field group (admin; fields.manage)
+    delete:
+      summary: Delete a field group (admin; fields.manage)
+  /v1/widget-forms:
+    get:
+      summary: List embeddable widget forms (admin; fields.manage)
+    post:
+      summary: Create a widget form (admin; fields.manage)
+  /v1/widget-forms/{widgetForm}:
+    get:
+      summary: Show a widget form with its ordered fields
+    patch:
+      summary: Update a widget form (name, site_key, status, settings)
+  /v1/widget-forms/{widgetForm}/fields:
+    put:
+      summary: Sync widget form fields (add/remove/reorder in one call)
+  /public/v1/form-config:
+    get:
+      summary: Embeddable lead form field schema (resolved from active widget form)
+  /public/v1/leads:
+    post:
+      summary: Public lead intake (widget)
+  /v1/query/{resource}:
+    post:
+      summary: Grid rows + aggregations (Postgres; ES-compatible aggregations shape)
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [leads, stores, contacts, areas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridQueryRequest'
+      responses:
+        '200':
+          description: Rows and/or aggregation buckets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridQueryResponse'
+  /v1/contacts/{contact}:
+    get:
+      summary: Contact detail (staff user with roles; contacts.view)
+      parameters:
+        - name: contact
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Contact profile
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+components:
+  schemas:
+    GridQueryRequest:
+      type: object
+      properties:
+        search:
+          type: string
+        filters:
+          type: object
+          additionalProperties: true
+        sort:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              direction:
+                type: string
+                enum: [asc, desc]
+        cursor:
+          type: string
+          nullable: true
+        limit:
+          type: integer
+          default: 50
+        size:
+          type: integer
+          description: Legacy alias; 0 = aggregation-only (no rows)
+        include_aggregations:
+          type: boolean
+          default: true
+        aggregations:
+          type: array
+          description: Facet keys to compute; defaults per resource if omitted
+          items:
+            type: string
+            example: meta.lead_status
+    AggBucket:
+      type: object
+      properties:
+        key:
+          oneOf:
+            - type: string
+            - type: number
+        doc_count:
+          type: integer
+    AggBranch:
+      type: object
+      properties:
+        buckets:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggBucket'
+    GridQueryResponse:
+      type: object
+      properties:
+        hits:
+          type: object
+          properties:
+            total:
+              type: object
+              properties:
+                value:
+                  type: integer
+            hits:
+              type: array
+              items:
+                type: object
+        aggregations:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AggBranch'
+        data:
+          type: array
+          description: Simplified row alias for new clients
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            next_cursor:
+              type: string
+              nullable: true

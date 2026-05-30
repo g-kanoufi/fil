@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+/*
+ * FIL design tokens (Tailwind v4 @theme)
+ * ─────────────────────────────────────
+ * Semantic tokens switch automatically via [data-theme='dark'] on <html>.
+ * Components should use classes from lib/ui/tokens.ts — not raw palette pairs.
+ */
+@theme {
+  /* Brand scale — interactive accents only (buttons, focus); not for tinted surfaces */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-950: #172554;
+
+  /* Layout & typography — light mode tuned for contrast on soft gray canvas */
+  --color-foreground: hsl(222 28% 11%);
+  --color-surface: #ffffff;
+  --color-surface-muted: hsl(214 28% 96%);
+  --color-border: hsl(214 18% 88%);
+  --color-border-strong: hsl(214 14% 78%);
+  --color-muted: hsl(215 14% 38%);
+
+  /* Primary — slightly deeper blue for WCAG on white */
+  --color-link: #1d4ed8;
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+  --color-primary-fg: #ffffff;
+  --color-focus: #2563eb;
+
+  /* Sidebar (fixed dark chrome) */
+  --color-sidebar: #252f3f;
+  --color-sidebar-hover: rgba(255 255 255 / 0.08);
+  --color-sidebar-active: rgba(255 255 255 / 0.14);
+
+  /* Legacy status hues (prefer tone-* for tinted surfaces) */
+  --color-success: hsl(107 25% 44%);
+  --color-error: hsl(6 78% 57%);
+  --color-notice: hsl(193 100% 29%);
+
+  /* Accent surfaces — visible but calm on light gray */
+  --color-accent-soft: #eef4ff;
+  --color-accent-soft-fg: #1e3a8a;
+  --color-accent-soft-muted: #475569;
+  --color-accent-soft-border: #c7d9f8;
+
+  /* Status tones — badges & alerts */
+  --color-tone-success-bg: #dcfce7;
+  --color-tone-success-fg: #14532d;
+  --color-tone-success-border: #86efac;
+  --color-tone-warning-bg: #fef3c7;
+  --color-tone-warning-fg: #78350f;
+  --color-tone-warning-border: #fcd34d;
+  --color-tone-error-bg: #fee2e2;
+  --color-tone-error-fg: #991b1b;
+  --color-tone-error-border: #fca5a5;
+  --color-tone-info-bg: #e0f2fe;
+  --color-tone-info-fg: #0c4a6e;
+  --color-tone-info-border: #7dd3fc;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.05), 0 1px 3px -1px rgb(15 23 42 / 0.08);
+  --shadow-elevated: 0 4px 24px -4px rgb(29 78 216 / 0.12), 0 2px 8px -2px rgb(15 23 42 / 0.06);
+}
+
+:root {
+  --header-height: 3.75rem;
+  --sidebar-width: 16rem;
+  --body-bg-color: var(--color-surface-muted);
+  --body-color: var(--color-foreground);
+}
+
+[data-theme='dark'] {
+  --color-foreground: hsl(210 20% 96%);
+  --color-surface: hsl(222 24% 14%);
+  --color-surface-muted: hsl(222 22% 10%);
+  --color-border: hsl(222 16% 22%);
+  --color-border-strong: hsl(222 14% 30%);
+  --color-muted: hsl(215 12% 62%);
+
+  --color-link: hsl(214 90% 68%);
+  --color-primary: hsl(214 85% 55%);
+  --color-primary-hover: hsl(214 85% 62%);
+  --color-primary-fg: #ffffff;
+  --color-focus: hsl(214 85% 55%);
+
+  --color-sidebar: #1e2633;
+
+  --color-accent-soft: hsl(222 45% 20%);
+  --color-accent-soft-fg: hsl(214 90% 88%);
+  --color-accent-soft-muted: hsl(214 65% 72%);
+  --color-accent-soft-border: hsl(222 35% 32%);
+
+  --color-tone-success-bg: hsl(142 35% 16%);
+  --color-tone-success-fg: hsl(142 55% 78%);
+  --color-tone-success-border: hsl(142 30% 28%);
+  --color-tone-warning-bg: hsl(38 35% 16%);
+  --color-tone-warning-fg: hsl(38 85% 78%);
+  --color-tone-warning-border: hsl(38 30% 28%);
+  --color-tone-error-bg: hsl(0 35% 16%);
+  --color-tone-error-fg: hsl(0 75% 78%);
+  --color-tone-error-border: hsl(0 30% 28%);
+  --color-tone-info-bg: hsl(199 35% 16%);
+  --color-tone-info-fg: hsl(199 75% 78%);
+  --color-tone-info-border: hsl(199 30% 28%);
+
+  --body-bg-color: var(--color-surface-muted);
+  --body-color: var(--color-foreground);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.35), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --shadow-elevated: 0 4px 24px -4px rgb(0 0 0 / 0.45), 0 2px 8px -2px rgb(0 0 0 / 0.3);
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --sidebar-width: 15.625rem;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--body-color);
+  background-color: var(--body-bg-color);
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme='dark'] input:not([type='checkbox']):not([type='radio']):not([type='range']),
+[data-theme='dark'] select,
+[data-theme='dark'] textarea {
+  color: var(--color-foreground);
+  background-color: var(--color-surface);
+}
+
+[data-theme='dark'] option {
+  color: var(--color-foreground);
+  background-color: var(--color-surface);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-from-right 0.2s ease-out;
+}

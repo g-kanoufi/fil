@@ -1,0 +1,25 @@
+---
+description: FIL project core rules — DRY, KISS, TDD, naming standards
+globs: "**/*"
+alwaysApply: true
+---
+
+# FIL core rules
+
+- Product code uses **FIL naming** (`docs/NAMING.md`). Never add legacy CMS API paths, `blog_ID`, or vendor-specific constants to new code.
+- **DRY/KISS:** search `backend/app` and `frontend/src` before new UI, services, or routes.
+- **TDD:** PHPUnit for backend changes; Vitest for frontend. No feature without tests.
+- **OpenAPI-first:** update `docs/api.openapi.yaml` when changing `/api/v1` or `/api/public/v1`.
+- **Single tenant:** no multisite patterns.
+- **No EAV metadata:** use typed columns, FKs, and `field_values` — see `docs/METADATA.md`. Never add generic key/value meta tables.
+
+## Iteration gate (every chunk)
+
+Before starting the next phase or feature chunk:
+
+1. **Simplify** — remove dead code, merge duplicate logic, prefer one policy/route/service over parallel paths.
+2. **De-duplicate** — grep for overlapping controllers, gates vs policies, repeated API shapes; collapse to one source of truth.
+3. **Test** — run `cd backend && php artisan test --compact` (and `cd frontend && npm run test:run` if frontend changed). Fix failures before continuing.
+4. **Do not stack** unfinished routes, models, or migrations without tests and wiring.
+
+Verification: `cd backend && php artisan test --compact`

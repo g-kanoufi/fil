@@ -1,0 +1,136 @@
+---
+description: FIL Laravel backend — Jeffrey Way / Laracasts conventions
+globs: backend/**/*
+alwaysApply: false
+---
+
+# FIL backend (Laravel specialist)
+
+Write Laravel the way Jeffrey Way teaches on Laracasts: **thin controllers, fat domain edges, explicit types, feature tests first.**
+
+## Stack
+
+- Laravel 13, PHP 8.4, PHPUnit
+- Sanctum (SPA session), spatie/laravel-permission
+- PostgreSQL; queues on `database` driver
+
+## File layout
+
+```
+app/
+  Actions/{Domain}/          # Single-purpose invokable classes (LoginUser, …)
+  Http/
+    Controllers/Api/         # Thin — delegate, return Resources
+    Requests/Api/            # Form Requests — all validation here
+    Resources/Api/           # JsonResource — API shape only
+  Models/                    # Eloquent + scopes, casts, relationships
+  Policies/                  # Authorization (not inline in controllers)
+  Services/{Domain}/         # Multi-step domain logic (PipelineService, GridQueryService)
+  Jobs/{Domain}/             # Async: ShouldQueue, serializable, idempotent where possible
+  Console/Commands/          # legacy:inventory, legacy:import
+```
+
+**When to use what**
+
+| Layer | Use for |
+| ----- | ------- |
+| Form Request | Input validation, `authorize()`, typed accessors |
+| Action | One HTTP/command operation (login, enroll drip, send FDD) |
+| Service | Orchestration reused by Actions, Jobs, Commands |
+| Job | Anything slow, retriable, or webhook-driven |
+| Resource | Transform Model → JSON; never leak Eloquent in controllers |
+| Policy | `$this->authorize('update', $lead)` |
+
+## PHP style
+
+- `declare(strict_types=1);` on every new PHP file
+- `final` on classes not meant to be extended
+- Constructor property promotion; readonly where appropriate
+- Return types and `@param` arrays only when generics help
+- Prefer `match`, nullsafe, and early returns over nested ifs
+- No `env()` outside `config/` — use `config('fil.ai_service_url')`
+
+## Controllers
+
+- **Invokable controllers** for single-action routes (`HealthController`, `FormConfigController`)
+- **Resource controllers** stay thin — 3–10 lines per method
+- Never validate in controllers; never query without scopes/services when logic grows
+- Always return `JsonResource`, `ResourceCollection`, or explicit `JsonResponse` with correct status
+
+```php
+// Good
+public function store(StoreLeadRequest $request, CreateLead $createLead): JsonResponse
+{
+    $lead = $createLead->handle($request->toDto());
+
+    return (new LeadResource($lead))
+        ->response()
+        ->setStatusCode(201);
+}
+```
+
+## Form requests
+
+- One request class per write endpoint
+- Named accessors for validated subsets: `credentials()`, `toDto()`, `filters()`
+- Custom `messages()` and `attributes()` for user-facing errors
+- `authorize()` returns Policy checks or `true` for public routes with other guards
+
+## API resources
+
+- Wrap collections consistently; register `JsonResource::wrap('data')` in `AppServiceProvider` if using root wrapper
+- `whenLoaded()` for relationships; avoid N+1
+- Hide internal columns (`legacy_post_id` only when needed for admin/import tools)
+
+## Eloquent
+
+- `$fillable` or `$guarded = []` with explicit Form Request validation
+- `casts()` method for dates, enums, JSON
+- **Scopes** for repeated filters: `Lead::query()->forOwner($user)->active()`
+- Foreign keys over strings (`owner_user_id`, not `lead_owner` text)
+- See `docs/METADATA.md` — no postmeta-style EAV
+
+## Routes
+
+- Named routes: `->name('api.v1.leads.update')`
+- Group by prefix + middleware in `routes/api.php`
+- Route model binding: `Lead $lead` with scoped bindings when needed
+- Throttle public routes; Sanctum + policies for authenticated
+- Staff routes: `middleware(['auth:sanctum', 'staff'])`; web SPA: `auth` + `staff`
+- Permissions + navigation in `config/fil.php`; seed with `RolesAndPermissionsSeeder`
+
+## Testing (PHPUnit)
+
+- **Feature tests** for every route (happy path + validation + auth failure)
+- Use factories and `RefreshDatabase`
+- `assertJsonPath`, `assertJsonStructure`, `assertForbidden`, `assertUnprocessable`
+- Unit-test Services and Actions with edge cases
+- Run: `php artisan test --compact`
+
+## Commands & jobs
+
+- Commands: `legacy:inventory`, `legacy:import` — progress output, dry-run flags
+- Jobs: small `handle()` delegating to Services; `$tries`, `failed()` logging
+
+## Config
+
+- Product keys in `config/fil.php` backed by `FIL_*` env vars
+- Third-party credentials in dedicated config files (`config/services.php` extensions)
+
+## Do not
+
+- Fat controllers with business logic
+- Raw `DB::` in controllers (use Services or Actions)
+- Returning Eloquent models directly from API
+- Legacy CMS naming (`blog_ID`, vendor REST paths)
+- Generic `meta` JSON for domain fields (use columns + `field_values`)
+
+## Iteration gate (every chunk)
+
+Before moving to the next feature chunk:
+
+1. Search for **duplicates** (second controller, gate + policy for same ability, unused migration/model).
+2. **Simplify** — thin controllers stay thin; extract only when reused twice.
+3. **Wire + test** — every new route gets a feature test; run `php artisan test --compact` green before the next chunk.
+
+Verification: `cd backend && php artisan test --compact`
