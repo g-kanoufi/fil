@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { IconChevronDown, IconChevronRight, NavIcon } from '@/components/icons/NavIcons';
 import { cn } from '@/lib/cn';
+import { focusRing } from '@/lib/ui/tokens';
 import {
   navItemHasActiveDescendant,
   navItemMatches,
@@ -30,7 +31,7 @@ function itemIsExpandedAncestor(
   return navItemHasActiveDescendant(locationPath, locationSearch, item.children ?? []);
 }
 
-function navLinkClass({
+function navRowClass({
   depth,
   directlyActive,
   hasActiveChild,
@@ -40,18 +41,20 @@ function navLinkClass({
   hasActiveChild: boolean;
 }) {
   return cn(
-    'flex min-w-0 items-center gap-3 rounded-md py-2 text-sm font-medium transition-colors',
-    depth === 0 ? 'px-3' : 'pr-3 text-[13px]',
+    'flex w-full min-w-0 items-center gap-2.5 rounded-md text-left transition-colors',
+    depth === 0 ? 'px-3 py-2.5 text-sm font-medium' : 'py-2 pr-3 text-[13px] font-normal',
     directlyActive &&
       (depth === 0
-        ? 'bg-white/10 text-white'
-        : 'border-l-2 border-white/35 bg-white/5 pl-2.5 text-white'),
+        ? 'bg-[var(--color-sidebar-active)] text-white shadow-[inset_3px_0_0_0_rgba(255,255,255,0.85)]'
+        : 'bg-[var(--color-sidebar-active)] font-medium text-white shadow-[inset_3px_0_0_0_rgba(96,165,250,0.95)]'),
     !directlyActive &&
       hasActiveChild &&
-      (depth === 0 ? 'text-white/90' : 'text-white/80'),
+      (depth === 0
+        ? 'bg-[var(--color-sidebar-hover)] text-white'
+        : 'text-white/85'),
     !directlyActive &&
       !hasActiveChild &&
-      'text-white/65 hover:bg-white/5 hover:text-white',
+      'text-white/70 hover:bg-[var(--color-sidebar-hover)] hover:text-white',
   );
 }
 
@@ -71,18 +74,23 @@ function NavMenuItem({
     hasChildren &&
     !directlyActive &&
     navItemHasActiveDescendant(locationPath, locationSearch, item.children ?? []);
-  const paddingLeft = depth === 0 ? undefined : `${0.5 + depth * 0.65}rem`;
+  const paddingLeft = depth === 0 ? undefined : `${0.75 + depth * 0.625}rem`;
 
   if (hasChildren) {
     return (
-      <li>
-        <div className="flex items-center">
+      <li className="w-full">
+        <div
+          className={cn(
+            'flex w-full min-w-0 items-stretch',
+            navRowClass({ depth, directlyActive, hasActiveChild }),
+          )}
+        >
           <NavLink
             to={item.path}
             onClick={onClose}
             style={{ paddingLeft }}
             end={!item.path.includes('?')}
-            className={navLinkClass({ depth, directlyActive, hasActiveChild })}
+            className="flex min-w-0 flex-1 items-center gap-2.5 outline-none"
           >
             {depth === 0 ? <NavIcon id={item.id} /> : null}
             <span className="truncate">{item.label}</span>
@@ -92,16 +100,19 @@ function NavMenuItem({
             aria-expanded={isExpanded}
             aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.label}`}
             className={cn(
-              'rounded-md px-2 py-2 transition-colors',
-              hasActiveChild ? 'text-white/75' : 'text-white/45 hover:bg-white/5 hover:text-white/80',
+              'mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-white',
+              focusRing,
             )}
-            onClick={() => toggleExpanded(item.id)}
+            onClick={(event) => {
+              event.preventDefault();
+              toggleExpanded(item.id);
+            }}
           >
             {isExpanded ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
           </button>
         </div>
         {isExpanded ? (
-          <ul className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
+          <ul className="mt-0.5 space-y-0.5 border-l border-white/10 py-0.5 pl-2" style={{ marginLeft: depth === 0 ? '0.75rem' : '1.25rem' }}>
             {(item.children ?? []).map((child) => (
               <NavMenuItem
                 key={child.id}
@@ -121,14 +132,14 @@ function NavMenuItem({
   }
 
   return (
-    <li>
+    <li className="w-full">
       <NavLink
         to={item.path}
         onClick={onClose}
         end={!item.path.includes('?')}
         style={{ paddingLeft }}
         className={({ isActive: linkActive }) =>
-          navLinkClass({
+          navRowClass({
             depth,
             directlyActive: linkActive || navItemMatches(locationPath, locationSearch, item.path),
             hasActiveChild: false,
@@ -191,12 +202,12 @@ export function NavMenu({ items, onClose }: NavMenuProps) {
   };
 
   return (
-    <ul className="space-y-0.5">
+    <ul className="flex w-full flex-col gap-0.5">
       {items.map((entry) => {
         if ('type' in entry && entry.type === 'section') {
           return (
-            <li key={`section-${entry.label}`} className="pt-3">
-              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">
+            <li key={`section-${entry.label}`} className="w-full pt-3 first:pt-0">
+              <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
                 {entry.label}
               </p>
             </li>

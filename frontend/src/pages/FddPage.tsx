@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { surface, tabActive, textLink } from '@/lib/ui/tokens';
+import { PageTabs } from '@/components/ui/PageTabs';
+import { surface, textLink } from '@/lib/ui/tokens';
 import { TextLink } from '@/components/ui/TextLink';
 import { cn } from '@/lib/cn';
 import { StatCard } from '@/components/ui/StatCard';
@@ -199,24 +200,16 @@ export function FddPage() {
         </div>
       ) : null}
 
-      <div className="mb-6 flex flex-wrap gap-2 border-b border-border pb-3">
-        {tabs.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setTab(item.id)}
-            className={cn(
-              'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-              tab === item.id ? tabActive : surface.tabInactive,
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <PageTabs
+        ariaLabel="FDD manager"
+        items={tabs}
+        value={tab}
+        onChange={(id) => setTab(id as TabId)}
+      />
 
       {tab === 'catalog' ? (
-        <Card>
+        <div id="tabpanel-catalog" role="tabpanel" aria-labelledby="tab-catalog">
+          <Card>
           <CardHeader
             title="Disclosure documents"
             description="Unit and area FDDs available for delivery. Upload PDFs and manage active catalog entries."
@@ -293,10 +286,12 @@ export function FddPage() {
             </table>
           </div>
           {fdds.length === 0 ? <p className="text-sm text-muted">No FDDs configured yet.</p> : null}
-        </Card>
+          </Card>
+        </div>
       ) : null}
 
       {tab === 'send' ? (
+        <div id="tabpanel-send" role="tabpanel" aria-labelledby="tab-send">
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader title="Send to one lead" description="Search in plain language — name, temperature, pipeline stage, and more." />
@@ -411,9 +406,11 @@ export function FddPage() {
             ) : null}
           </Card>
         </div>
+        </div>
       ) : null}
 
       {tab === 'deliveries' ? (
+        <div id="tabpanel-deliveries" role="tabpanel" aria-labelledby="tab-deliveries">
         <Card>
           <CardHeader title="Recent deliveries" description="Track sent FDDs, resend emails, and record signatures." />
           <div className="overflow-x-auto">
@@ -500,6 +497,7 @@ export function FddPage() {
           </div>
           {deliveries.length === 0 ? <p className="text-sm text-muted">No deliveries yet.</p> : null}
         </Card>
+        </div>
       ) : null}
 
       <FddFormModal

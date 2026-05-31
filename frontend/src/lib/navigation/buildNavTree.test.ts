@@ -73,4 +73,52 @@ describe('buildNavigationTree', () => {
       'South',
     ]);
   });
+
+  it('unwraps a lone settings parent under an admin section', () => {
+    const navigation = [
+      { type: 'section', label: 'Admin' },
+      {
+        id: 'settings',
+        label: 'Settings',
+        path: '/settings',
+        children: [
+          { id: 'profile', label: 'My profile', path: '/profile' },
+          { id: 'settings-widget', label: 'Widget form', path: '/settings/widget' },
+        ],
+      },
+    ] as const;
+
+    const tree = buildNavigationTree(navigation as unknown as NavItem[], null, () => false);
+
+    expect(tree).toHaveLength(3);
+    expect(tree[0]).toMatchObject({ type: 'section', label: 'Admin' });
+    expect(tree[1]).toMatchObject({ id: 'profile', label: 'My profile' });
+    expect(tree[2]).toMatchObject({ id: 'settings-widget', label: 'Widget form' });
+  });
+
+  it('flattens the only nested filter group under a report', () => {
+    const menusOnlyStatus = {
+      options: { brandName: 'FIL' },
+      menus: {
+        top_menus: [],
+        menus_with_columns: {
+          stores: {
+            menuItems: { store_status: { label: 'Unit statuses', slug: 'store_status' } },
+            subMenuItems: {
+              store_status: {
+                open: { label: 'open', slug: 'open' },
+                pending: { label: 'pending', slug: 'pending' },
+              },
+            },
+          },
+        },
+      },
+    } as const;
+
+    const navigation: NavItem[] = [{ id: 'stores', label: 'My Units', path: '/reports/stores' }];
+    const tree = buildNavigationTree(navigation, menusOnlyStatus, () => false);
+    const stores = tree[0] as NavItem;
+
+    expect((stores.children ?? []).map((child) => child.label)).toEqual(['open', 'pending']);
+  });
 });

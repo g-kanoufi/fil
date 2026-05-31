@@ -42,7 +42,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           <BrandMark variant="sidebar" />
         </div>
 
-        <nav aria-label="Staff navigation" className="flex-1 overflow-y-auto px-3 py-4">
+        <nav aria-label="Staff navigation" className="flex-1 overflow-y-auto px-2 py-3">
           <NavMenu items={navigation} onClose={onClose} />
         </nav>
       </aside>

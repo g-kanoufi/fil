@@ -48,7 +48,7 @@ export const formControlError =
 /** Compact native select matching form fields. */
 export const selectControl = cn(formControl, formFocus, 'w-auto py-2');
 
-/** Active tab (segmented nav, FDD manager). */
+/** Active tab (segmented nav, FDD manager). @deprecated Prefer PageTabs for page-level tabs. */
 export const tabActive = 'bg-primary text-primary-fg';
 
 /** Filter / toggle chips (pill buttons). */
