@@ -142,3 +142,49 @@ test('non manager cannot create fields', function () {
         ])
         ->assertForbidden();
 });
+test('field groups context widget returns only application and user groups', function () {
+    $applications = group();
+    $userGroup = FieldGroup::query()->create([
+        'key' => 'user',
+        'title' => 'User',
+        'slug' => 'user',
+        'sort_order' => 2,
+        'status' => 'active',
+    ]);
+    FieldGroup::query()->create([
+        'key' => 'internal_ops',
+        'title' => 'Internal ops',
+        'slug' => 'internal-ops',
+        'sort_order' => 3,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $applications->id,
+        'entity' => 'lead',
+        'key' => 'lead_source',
+        'name' => 'Lead Source',
+        'type' => 'text',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+    Field::query()->create([
+        'field_group_id' => $userGroup->id,
+        'entity' => 'lead',
+        'key' => 'referral_notes',
+        'name' => 'Referral notes',
+        'type' => 'textarea',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $response = $this->actingAs(fieldAdminUser())
+        ->getJson('/api/v1/field-groups?entity=lead&context=widget')
+        ->assertOk();
+
+    $keys = collect($response->json('data'))->pluck('key')->all();
+
+    expect($keys)->toEqual(['applications', 'user']);
+});

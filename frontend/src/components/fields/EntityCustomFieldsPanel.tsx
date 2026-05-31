@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { CardHeader } from '@/components/ui/Card';
 import { useAuth } from '@/providers/AuthProvider';
 import { fetchFieldSchema, type FieldDef, type FieldGroupDef } from '@/lib/api/fields';
+import { choiceOptions } from '@/lib/fields/fieldChoices';
 
 const SCALAR_TYPES = new Set([
   'text',
@@ -24,26 +25,6 @@ interface EntityCustomFieldsPanelProps {
   values: Record<string, unknown>;
   canEdit: boolean;
   onSave: (custom: Record<string, unknown>) => Promise<void>;
-}
-
-function choiceOptions(field: FieldDef): Array<{ value: string; label: string }> {
-  const choices = field.config?.choices;
-
-  if (!choices) {
-    return [];
-  }
-
-  if (Array.isArray(choices)) {
-    return choices.map((item) => ({
-      value: String(item.value),
-      label: String(item.label ?? item.value),
-    }));
-  }
-
-  return Object.entries(choices).map(([value, label]) => ({
-    value,
-    label: String(label),
-  }));
 }
 
 function renderFieldInput(

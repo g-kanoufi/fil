@@ -82,7 +82,7 @@ describe('buildNavigationTree', () => {
         label: 'Settings',
         path: '/settings',
         children: [
-          { id: 'profile', label: 'My profile', path: '/profile' },
+          { id: 'settings-mail', label: 'Mail delivery', path: '/settings/mail' },
           { id: 'settings-widget', label: 'Widget form', path: '/settings/widget' },
         ],
       },
@@ -92,8 +92,35 @@ describe('buildNavigationTree', () => {
 
     expect(tree).toHaveLength(3);
     expect(tree[0]).toMatchObject({ type: 'section', label: 'Admin' });
-    expect(tree[1]).toMatchObject({ id: 'profile', label: 'My profile' });
+    expect(tree[1]).toMatchObject({ id: 'settings-mail', label: 'Mail delivery' });
     expect(tree[2]).toMatchObject({ id: 'settings-widget', label: 'Widget form' });
+  });
+
+  it('keeps notifications and settings as separate parents under admin', () => {
+    const navigation = [
+      { type: 'section', label: 'Admin' },
+      {
+        id: 'notifications',
+        label: 'Notifications',
+        path: '/settings/notifications',
+        children: [
+          { id: 'settings-notifications', label: 'My notifications', path: '/settings/notifications' },
+          { id: 'settings-drips', label: 'Drip sequences', path: '/settings/drips' },
+        ],
+      },
+      {
+        id: 'settings',
+        label: 'Settings',
+        path: '/settings',
+        children: [{ id: 'settings-mail', label: 'Mail delivery', path: '/settings/mail' }],
+      },
+    ] as const;
+
+    const tree = buildNavigationTree(navigation as unknown as NavItem[], null, () => false);
+
+    expect(tree).toHaveLength(3);
+    expect(tree[1]).toMatchObject({ id: 'notifications', label: 'Notifications' });
+    expect(tree[2]).toMatchObject({ id: 'settings', label: 'Settings' });
   });
 
   it('flattens the only nested filter group under a report', () => {

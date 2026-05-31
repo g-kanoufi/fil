@@ -6,10 +6,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => array_values(array_filter(array_map(
-        trim(...),
-        explode(',', (string) env('FIL_EMBED_ALLOWED_ORIGINS', ''))
-    ))),
+    'allowed_origins' => config('fil.embed_allowed_origins', []),
 
     'allowed_origins_patterns' => [],
 

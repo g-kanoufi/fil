@@ -25,7 +25,7 @@ final class StoreFieldRequest extends FormRequest
     {
         return [
             'field_group_id' => ['required', 'integer', 'exists:field_groups,id'],
-            'entity' => ['required', 'string', Rule::in(['lead', 'store', 'area', 'contact', 'user'])],
+            'entity' => ['required', 'string', Rule::in(['lead', 'store', 'area', 'contact', 'user', 'organization'])],
             'key' => [
                 'required',
                 'string',

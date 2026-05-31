@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Fields;
 
 use App\Models\Field;
+use App\Support\Fields\FieldConfigNormalizer;
 
 final class UpdateField
 {
@@ -24,7 +25,9 @@ final class UpdateField
         ));
 
         if (array_key_exists('config', $attributes)) {
-            $field->config = $attributes['config'];
+            $field->config = FieldConfigNormalizer::normalize(
+                is_array($attributes['config']) ? $attributes['config'] : null,
+            );
         }
 
         foreach (['required', 'is_filterable', 'is_sortable', 'is_facetable'] as $flag) {

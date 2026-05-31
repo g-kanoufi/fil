@@ -95,10 +95,14 @@ test('embed intake rejects any key when allowlist empty in production', function
         'first_name' => 'Test',
         'last_name' => 'Lead',
         'email' => 'test@example.com',
-    ])->assertForbidden();
+    ], ['Origin' => 'https://client.example.com'])->assertForbidden();
 });
 test('embed intake accepts allowlisted key in production', function () {
-    config(['fil.embed.site_keys' => ['pk_client_prod']]);
+    config([
+        'fil.embed.site_keys' => ['pk_client_prod'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'app.url' => 'https://crm.example.com',
+    ]);
     app()->detectEnvironment(fn (): string => 'production');
 
     $this->postJson('/api/public/v1/leads', [
@@ -106,10 +110,47 @@ test('embed intake accepts allowlisted key in production', function () {
         'first_name' => 'Test',
         'last_name' => 'Lead',
         'email' => 'test@example.com',
-    ])->assertCreated();
+    ], ['Origin' => 'https://client.example.com'])->assertCreated();
+});
+test('embed intake rejects disallowed origin in production', function () {
+    config([
+        'fil.embed.site_keys' => ['pk_client_prod'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'app.url' => 'https://crm.example.com',
+    ]);
+    app()->detectEnvironment(fn (): string => 'production');
+
+    $this->postJson('/api/public/v1/leads', [
+        'site_key' => 'pk_client_prod',
+        'first_name' => 'Test',
+        'last_name' => 'Lead',
+        'email' => 'test@example.com',
+    ], ['Origin' => 'https://evil.example.com'])
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Origin not allowed.');
+});
+test('embed intake rejects missing origin when allowlist required in production', function () {
+    config([
+        'fil.embed.site_keys' => ['pk_client_prod'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'app.url' => 'https://crm.example.com',
+    ]);
+    app()->detectEnvironment(fn (): string => 'production');
+
+    $this->postJson('/api/public/v1/leads', [
+        'site_key' => 'pk_client_prod',
+        'first_name' => 'Test',
+        'last_name' => 'Lead',
+        'email' => 'test@example.com',
+    ])->assertForbidden()
+        ->assertJsonPath('message', 'Origin not allowed.');
 });
 test('embed intake accepts active widget form site key without env entry', function () {
-    config(['fil.embed.site_keys' => []]);
+    config([
+        'fil.embed.site_keys' => [],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'app.url' => 'https://crm.example.com',
+    ]);
     app()->detectEnvironment(fn (): string => 'production');
 
     WidgetForm::query()->create([
@@ -124,5 +165,5 @@ test('embed intake accepts active widget form site key without env entry', funct
         'first_name' => 'Test',
         'last_name' => 'Lead',
         'email' => 'test@example.com',
-    ])->assertCreated();
+    ], ['Origin' => 'https://client.example.com'])->assertCreated();
 });

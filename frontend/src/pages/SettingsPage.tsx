@@ -77,9 +77,14 @@ export function SettingsPage() {
               title="Widget form builder"
               description="Drag application fields into the embeddable lead form and reorder them."
             />
-            <Link to="/settings/widget" className="text-sm font-medium text-link hover:underline">
-              Build widget form →
-            </Link>
+            <div className="flex flex-col gap-2">
+              <Link to="/settings/widget" className="text-sm font-medium text-link hover:underline">
+                Build widget form →
+              </Link>
+              <Link to="/settings/widget/demo" className="text-sm font-medium text-link hover:underline">
+                Preview embed widget →
+              </Link>
+            </div>
           </Card>
         ) : null}
       </div>

@@ -241,7 +241,7 @@ Route::prefix('public/v1')->middleware(['throttle:60,1'])->group(function (): vo
     Route::get('/branding', BrandingController::class)->name('api.public.v1.branding');
 });
 
-Route::prefix('public/v1')->middleware(['throttle:60,1', 'embed.site_key'])->group(function (): void {
+Route::prefix('public/v1')->middleware(['throttle:60,1', 'embed.site_key', 'embed.origin'])->group(function (): void {
     Route::get('/form-config', FormConfigController::class)->name('api.public.v1.form-config');
     Route::post('/leads', [LeadIntakeController::class, 'store'])->name('api.public.v1.leads.store');
 });

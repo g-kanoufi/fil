@@ -65,10 +65,18 @@ export interface CreateFieldPayload {
   config?: FieldConfig | null;
 }
 
-export function fetchFieldGroups(entity = 'lead'): Promise<FieldGroupDef[]> {
-  return apiGet<{ data: FieldGroupDef[] }>(
-    `/v1/field-groups?entity=${encodeURIComponent(entity)}`,
-  ).then((body) => body.data);
+export function fetchFieldGroups(
+  entity = 'lead',
+  options?: { context?: 'widget' },
+): Promise<FieldGroupDef[]> {
+  const params = new URLSearchParams({ entity });
+  if (options?.context) {
+    params.set('context', options.context);
+  }
+
+  return apiGet<{ data: FieldGroupDef[] }>(`/v1/field-groups?${params.toString()}`).then(
+    (body) => body.data,
+  );
 }
 
 /** Role-aware schema for entity detail forms (not admin field-groups). */

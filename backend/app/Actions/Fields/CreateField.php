@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Fields;
 
 use App\Models\Field;
+use App\Support\Fields\FieldConfigNormalizer;
 
 final class CreateField
 {
@@ -28,7 +29,9 @@ final class CreateField
             'type' => $attributes['type'],
             'storage' => 'field_value',
             'maps_to_column' => null,
-            'config' => $attributes['config'] ?? null,
+            'config' => FieldConfigNormalizer::normalize(
+                is_array($attributes['config'] ?? null) ? $attributes['config'] : null,
+            ),
             'required' => (bool) ($attributes['required'] ?? false),
             'is_filterable' => (bool) ($attributes['is_filterable'] ?? false),
             'is_sortable' => (bool) ($attributes['is_sortable'] ?? false),

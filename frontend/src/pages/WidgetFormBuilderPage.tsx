@@ -94,7 +94,7 @@ export function WidgetFormBuilderPage() {
     try {
       const [loadedForms, groups] = await Promise.all([
         fetchWidgetForms(),
-        fetchFieldGroups('lead'),
+        fetchFieldGroups('lead', { context: 'widget' }),
       ]);
       setForms(loadedForms);
       setLeadFields(groups.flatMap((group) => group.fields));
@@ -248,7 +248,7 @@ export function WidgetFormBuilderPage() {
     <>
       <PageHeader
         title="Widget form builder"
-        description="Drag application fields into the embeddable lead form and reorder them."
+        description="Drag Application and User fields into the embeddable lead form and reorder them."
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -314,16 +314,11 @@ export function WidgetFormBuilderPage() {
         <Card className="mb-6">
           <CardHeader
             title="Embed on client site"
-            description="The site key is publishable (safe in HTML). Intake is protected by key allowlisting, rate limits, and reCAPTCHA in production."
+            description="The site key is publishable (safe in HTML). Intake is protected by key allowlisting, origin allowlisting in production, rate limits, and reCAPTCHA."
             actions={
-              <a
-                href="/embed-demo"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-link hover:underline"
-              >
+              <Link to="/settings/widget/demo" className="text-sm text-link hover:underline">
                 Open staff preview →
-              </a>
+              </Link>
             }
           />
           <div className="space-y-3 text-sm text-muted">
@@ -332,6 +327,10 @@ export function WidgetFormBuilderPage() {
               <li>
                 Set <code className="text-foreground">data-api-base</code> to this FIL instance URL if the page
                 is not on the same host.
+              </li>
+              <li>
+                In production, ensure the client marketing origin is listed in{' '}
+                <code className="text-foreground">FIL_EMBED_ALLOWED_ORIGINS</code> on the server.
               </li>
               <li>Submit a test lead and confirm it appears under Leads.</li>
               <li>If the key is exposed, rotate it and update the client snippet.</li>
@@ -361,7 +360,10 @@ export function WidgetFormBuilderPage() {
       {!loading && selectedId ? (
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
-            <CardHeader title="Available fields" description="Click to add to the form." />
+            <CardHeader
+              title="Available fields"
+              description="Application and User field groups only."
+            />
             <ul className="flex flex-col gap-2">
               {palette.map((field) => (
                 <li key={field.id}>
@@ -383,7 +385,7 @@ export function WidgetFormBuilderPage() {
                 </li>
               ))}
               {palette.length === 0 ? (
-                <li className="text-sm text-muted">All lead fields are on the form.</li>
+                <li className="text-sm text-muted">All eligible fields are on the form.</li>
               ) : null}
             </ul>
           </Card>

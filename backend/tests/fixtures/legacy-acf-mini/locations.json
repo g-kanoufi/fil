@@ -1,0 +1,25 @@
+{
+    "key": "group_570fc6f67d6f6",
+    "title": "Locations",
+    "fields": [
+        {
+            "key": "field_570fcb4f2bd9e",
+            "label": "Status",
+            "name": "status",
+            "type": "select",
+            "choices": {
+                "Leasing": {
+                    "1": "Site Search",
+                    "4": "Lease Negotiations"
+                },
+                "7": "Open"
+            }
+        },
+        {
+            "key": "field_5718c53017305",
+            "label": "Status Value",
+            "name": "status_value",
+            "type": "hidden"
+        }
+    ]
+}

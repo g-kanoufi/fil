@@ -20,6 +20,10 @@ return [
             explode(',', (string) env('FIL_EMBED_SITE_KEYS', 'pk_dev'))
         ))),
     ],
+    'widget' => [
+        /** Field groups whose lead fields may be added to embed widget forms. */
+        'allowed_field_group_keys' => ['applications', 'user'],
+    ],
     'documents' => [
         'preview_url_hosts' => array_values(array_filter(array_map(
             trim(...),
@@ -198,16 +202,23 @@ return [
         ['id' => 'ai', 'label' => 'Assistant', 'path' => '/ai', 'policy' => AiAssistant::class, 'ability' => 'access'],
         ['type' => 'section', 'label' => 'Admin'],
         [
+            'id' => 'notifications',
+            'label' => 'Notifications',
+            'path' => '/settings/notifications',
+            'permission' => 'app.access',
+            'children' => [
+                ['id' => 'settings-notifications', 'label' => 'My notifications', 'path' => '/settings/notifications', 'permission' => 'app.access'],
+                ['id' => 'settings-rules', 'label' => 'Notification rules', 'path' => '/settings/notifications/rules', 'permission' => 'settings.manage'],
+                ['id' => 'settings-drips', 'label' => 'Drip sequences', 'path' => '/settings/drips', 'permission' => 'settings.manage'],
+            ],
+        ],
+        [
             'id' => 'settings',
             'label' => 'Settings',
             'path' => '/settings',
             'permission' => 'app.access',
             'children' => [
-                ['id' => 'profile', 'label' => 'My profile', 'path' => '/profile', 'permission' => 'app.access'],
-                ['id' => 'settings-notifications', 'label' => 'My notifications', 'path' => '/settings/notifications', 'permission' => 'app.access'],
-                ['id' => 'settings-rules', 'label' => 'Notification rules', 'path' => '/settings/notifications/rules', 'permission' => 'settings.manage'],
                 ['id' => 'settings-mail', 'label' => 'Mail delivery', 'path' => '/settings/mail', 'permission' => 'settings.manage'],
-                ['id' => 'settings-drips', 'label' => 'Drip sequences', 'path' => '/settings/drips', 'permission' => 'settings.manage'],
                 ['id' => 'settings-fields', 'label' => 'Custom fields', 'path' => '/settings/fields', 'permission' => 'fields.manage'],
                 ['id' => 'settings-widget', 'label' => 'Widget form', 'path' => '/settings/widget', 'permission' => 'fields.manage'],
             ],

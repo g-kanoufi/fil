@@ -43,6 +43,17 @@ paths:
   /v1/field-groups:
     get:
       summary: Field groups with their fields (admin tree)
+      parameters:
+        - name: entity
+          in: query
+          schema:
+            type: string
+        - name: context
+          in: query
+          schema:
+            type: string
+            enum: [widget]
+          description: When widget, only groups allowed on embed forms (Application + User)
     post:
       summary: Create a field group (admin; fields.manage)
   /v1/field-groups/{fieldGroup}:

@@ -1,0 +1,16 @@
+{
+    "key": "group_5654f5590ab60",
+    "title": "Applications",
+    "fields": [
+        {
+            "key": "field_5b19b6972fa71",
+            "label": "Lead Status",
+            "name": "lead_status",
+            "type": "select",
+            "choices": {
+                "1": "New Lead",
+                "6": "Spoke with Prospect"
+            }
+        }
+    ]
+}

@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureStaffAccess;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleStaffLogin;
+use App\Http\Middleware\ValidateEmbedOrigin;
 use App\Http\Middleware\ValidateEmbedSiteKey;
 use App\Support\Api\ApiProblem;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'staff' => EnsureStaffAccess::class,
             'embed.site_key' => ValidateEmbedSiteKey::class,
+            'embed.origin' => ValidateEmbedOrigin::class,
             'throttle.staff_login' => ThrottleStaffLogin::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));

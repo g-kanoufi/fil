@@ -18,7 +18,7 @@ test('lead owner can fetch lead field schema', function () {
     $user = User::factory()->create();
     $user->assignRole('lead_owner');
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->getJson('/api/v1/fields?entity=lead')
         ->assertOk()
         ->assertJsonStructure([
@@ -31,8 +31,10 @@ test('lead owner can fetch lead field schema', function () {
                 'readonly_field_keys',
             ],
         ])
-        ->assertJsonPath('data.entity', 'lead')
-        ->assertJsonMissingPath('data.groups.0.fields.2');
+        ->assertJsonPath('data.entity', 'lead');
+
+    $fieldKeys = collect($response->json('data.groups.0.fields'))->pluck('key');
+    expect($fieldKeys)->not->toContain('internal_margin_notes');
 });
 
 test('session includes field access keys', function () {

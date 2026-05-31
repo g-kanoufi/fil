@@ -135,7 +135,7 @@ SANCTUM_STATEFUL_DOMAINS=localhost,localhost:5173,127.0.0.1,127.0.0.1:8000
 
 ### 5. Public lead widget
 
-1. Log in to the staff app, then open **http://127.0.0.1:8000/embed-demo** (staff-only preview — not for client sites)
+1. Log in to the staff app, then open **Settings → Widget form → Preview embed widget** (`/app/settings/widget/demo`) — staff-only; not for client sites
 2. Or use **Settings → Widget form → Open staff preview** for the embed snippet and site key
 3. Fill first name, last name, email → Submit
 4. Expect “Thanks — we received your inquiry.”
@@ -201,6 +201,6 @@ Browser verification is worth doing after:
 - Auth / session changes
 - New SPA routes or grid wiring
 - Widget or public API changes
-- Anything visible on `/app`, `/embed-demo`, or Mailhog
+- Anything visible on `/app`, `/app/settings/widget/demo`, or Mailhog
 
 Run backend tests first (`php artisan test --compact`), then the checklist above.

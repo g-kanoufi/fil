@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/app');
 
 Route::middleware(['auth', 'staff'])->group(function (): void {
-    Route::get('/embed-demo', [WidgetDemoController::class, 'show'])->name('widget.demo');
+    Route::redirect('/embed-demo', '/app/settings/widget/demo')->name('widget.demo');
+    Route::get('/embed-demo/inline', [WidgetDemoController::class, 'inline'])->name('widget.demo.inline');
     Route::get('/embed-demo/frame', [WidgetDemoController::class, 'frame'])->name('widget.demo.frame');
 });
 

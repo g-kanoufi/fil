@@ -23,7 +23,7 @@ final class ListFieldsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'entity' => ['sometimes', 'string', Rule::in(['lead', 'store', 'area', 'contact', 'user'])],
+            'entity' => ['sometimes', 'string', Rule::in(['lead', 'store', 'area', 'contact', 'user', 'organization'])],
         ];
     }
 

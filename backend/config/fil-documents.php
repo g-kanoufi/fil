@@ -29,8 +29,8 @@ return [
 
     /** ACF field group JSON used to discover file meta patterns during legacy import. */
     'acf_field_groups' => [
-        'store' => 'resources/legacy-acf/store.json',
-        'franchise_location' => 'resources/legacy-acf/franchise_location.json',
+        'store' => 'resources/legacy-acf/store-client-fields.json',
+        'franchise_location' => 'resources/legacy-acf/locations.json',
     ],
 
     /** Optional path to legacy uploads for binary copy during import. */

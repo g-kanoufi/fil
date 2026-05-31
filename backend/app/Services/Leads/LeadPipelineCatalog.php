@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Services\Leads;
 
 use App\Models\Lead;
+use App\Support\Fields\FieldChoiceCatalog;
 use Illuminate\Support\Str;
 
 final class LeadPipelineCatalog
 {
+    public function __construct(
+        private readonly FieldChoiceCatalog $choices,
+    ) {}
+
     /**
      * @return array<int, array{label: string, description: string}>
      */
@@ -163,31 +168,20 @@ final class LeadPipelineCatalog
 
         $trimmed = trim($value);
 
-        /** @var array<string, string> $numeric */
-        $numeric = config('fil-pipeline.lead_status_labels', []);
+        return $this->choices->label('lead', 'lead_fdd_status', $trimmed)
+            ?? $this->choices->label('lead', 'lead_status', $trimmed)
+            ?? $this->humanizeUnknownLabel($trimmed);
+    }
 
-        if (isset($numeric[$trimmed])) {
-            return $numeric[$trimmed];
-        }
-
-        $lower = strtolower($trimmed);
-
-        /** @var array<string, string> $fdd */
-        $fdd = config('fil-pipeline.fdd_status_labels', []);
-
-        if (isset($fdd[$lower])) {
-            return $fdd[$lower];
-        }
-
-        if (is_numeric($trimmed) && isset($numeric[(string) (int) $trimmed])) {
-            return $numeric[(string) (int) $trimmed];
-        }
+    private function humanizeUnknownLabel(string $value): ?string
+    {
+        $lower = strtolower($value);
 
         if ($lower === 'unknown' || $lower === 'null') {
             return null;
         }
 
-        return ucwords(str_replace(['_', '-'], ' ', $trimmed));
+        return ucwords(str_replace(['_', '-'], ' ', $value));
     }
 
     private function phaseHintFromStatus(?string $status): ?int
@@ -196,45 +190,10 @@ final class LeadPipelineCatalog
             return null;
         }
 
-        $key = strtolower(trim($status));
-        /** @var array<string, int> $hints */
-        $hints = config('fil-pipeline.status_phase_hints', []);
+        $trimmed = trim($status);
 
-        if (isset($hints[$key])) {
-            return $hints[$key];
-        }
-
-        $label = $this->resolveStatusLabel($status);
-
-        if ($label !== null) {
-            $slug = strtolower($label);
-
-            if (isset($hints[$slug])) {
-                return $hints[$slug];
-            }
-
-            if (str_contains($slug, 'award')) {
-                return 10;
-            }
-
-            if (str_contains($slug, 'waiting period') && ! str_contains($slug, 'out of')) {
-                return 8;
-            }
-
-            if (str_contains($slug, 'out of waiting')) {
-                return 9;
-            }
-
-            if (str_contains($slug, 'viewed fdd') || str_contains($slug, 'viewed intro')) {
-                return 6;
-            }
-
-            if (str_contains($slug, 'fdd sent') || str_contains($slug, 'sent fdd') || str_contains($slug, 'sent prior')) {
-                return 5;
-            }
-        }
-
-        return null;
+        return $this->choices->pipelinePhaseHint('lead', 'lead_fdd_status', $trimmed)
+            ?? $this->choices->pipelinePhaseHint('lead', 'lead_status', $trimmed);
     }
 
     private function isClosedStatus(?string $status): bool
@@ -243,12 +202,10 @@ final class LeadPipelineCatalog
             return false;
         }
 
-        $key = strtolower(trim($status));
-        /** @var list<string> $closed */
-        $closed = config('fil-pipeline.closed_status_keys', []);
+        $trimmed = trim($status);
 
-        return in_array($key, $closed, true)
-            || in_array((string) (int) $status, $closed, true);
+        return $this->choices->isClosed('lead', 'lead_fdd_status', $trimmed)
+            || $this->choices->isClosed('lead', 'lead_status', $trimmed);
     }
 
     private function isValidPhase(int $phase): bool

@@ -34,6 +34,7 @@ import {
   ClosingsPage,
   ClosingDetailPage,
   WidgetFormBuilderPage,
+  WidgetDemoPage,
 } from '@/routes/lazyPages';
 
 function AuthApiNavigationBridge() {
@@ -196,6 +197,14 @@ export function AppRoutes() {
             element={
               <RequirePermission permission="fields.manage">
                 <FieldsAdminPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/settings/widget/demo"
+            element={
+              <RequirePermission permission="fields.manage">
+                <WidgetDemoPage />
               </RequirePermission>
             }
           />

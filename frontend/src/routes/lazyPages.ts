@@ -59,6 +59,9 @@ export const FieldsAdminPage = lazy(() =>
 export const WidgetFormBuilderPage = lazy(() =>
   import('@/pages/WidgetFormBuilderPage').then((m) => ({ default: m.WidgetFormBuilderPage })),
 );
+export const WidgetDemoPage = lazy(() =>
+  import('@/pages/WidgetDemoPage').then((m) => ({ default: m.WidgetDemoPage })),
+);
 export const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 );

@@ -38,7 +38,8 @@ test('session includes roles permissions and navigation', function () {
         ->pluck('id');
 
     expect($navigation->contains('leads'))->toBeTrue();
-    expect($navigation->contains('settings'))->toBeTrue();
+    expect($navigation->contains('notifications'))->toBeTrue();
+    expect($navigation->contains('settings'))->toBeFalse();
 });
 
 test('prospect cannot log in to staff app', function () {

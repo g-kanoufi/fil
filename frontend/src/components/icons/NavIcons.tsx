@@ -238,6 +238,7 @@ const navIconMap = {
   ach: IconAch,
   ai: IconAi,
   profile: IconProfile,
+  notifications: IconBell,
   settings: IconSettings,
   'settings-notifications': IconBell,
   'settings-rules': IconBell,

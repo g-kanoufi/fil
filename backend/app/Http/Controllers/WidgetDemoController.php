@@ -12,9 +12,9 @@ use Illuminate\Contracts\View\View;
  */
 final class WidgetDemoController extends Controller
 {
-    public function show(): View
+    public function inline(): View
     {
-        return view('widget-demo', [
+        return view('widget-demo-inline', [
             'siteKey' => $this->resolveDemoSiteKey(),
             'apiBase' => url('/'),
         ]);

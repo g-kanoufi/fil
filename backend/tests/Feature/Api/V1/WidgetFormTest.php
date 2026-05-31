@@ -136,6 +136,49 @@ test('widget form management requires permission', function () {
         ->postJson('/api/v1/widget-forms', ['key' => 'x', 'name' => 'X'])
         ->assertForbidden();
 });
+test('widget form sync rejects fields outside application and user groups', function () {
+    $allowed = leadField('referral_notes');
+
+    $internalGroup = FieldGroup::query()->create([
+        'key' => 'internal_ops',
+        'title' => 'Internal ops',
+        'sort_order' => 99,
+        'status' => 'active',
+    ]);
+    $blocked = Field::query()->create([
+        'field_group_id' => $internalGroup->id,
+        'entity' => 'lead',
+        'key' => 'internal_margin_notes',
+        'name' => 'Internal Margin Notes',
+        'type' => 'textarea',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $admin = widgetAdminUser();
+    $formId = $this->actingAs($admin)
+        ->postJson('/api/v1/widget-forms', ['key' => 'lead_short', 'name' => 'Short'])
+        ->assertCreated()
+        ->json('data.id');
+
+    $this->actingAs($admin)
+        ->putJson("/api/v1/widget-forms/{$formId}/fields", [
+            'fields' => [
+                ['field_id' => $blocked->id, 'sort_order' => 0],
+            ],
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['fields.0.field_id']);
+
+    $this->actingAs($admin)
+        ->putJson("/api/v1/widget-forms/{$formId}/fields", [
+            'fields' => [
+                ['field_id' => $allowed->id, 'sort_order' => 0],
+            ],
+        ])
+        ->assertOk();
+});
 test('admin can rotate widget form site key', function () {
     $admin = widgetAdminUser();
 

@@ -68,8 +68,8 @@ return [
         '11' => 'Dead Deal',
         '12' => 'Close Application',
         '13' => 'Deny Application',
-        '14' => 'Award Franchise',
-        '15' => 'Award Area',
+        '14' => 'Award Franchise (Agreement Signed)',
+        '15' => 'Award Area (Master Agreement Signed)',
     ],
 
     'fdd_status_labels' => [

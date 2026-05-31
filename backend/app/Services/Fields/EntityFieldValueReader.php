@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Fields;
 
+use App\Models\Area;
 use App\Models\Field;
 use App\Models\FieldRelationLink;
 use App\Models\FieldValue;
 use App\Models\Lead;
+use App\Models\Organization;
 use App\Models\Store;
 use App\Models\User;
 use App\Support\Fields\FieldTypes;
@@ -101,6 +103,8 @@ final class EntityFieldValueReader
         return match ($entityType) {
             'lead' => Lead::class,
             'store' => Store::class,
+            'area' => Area::class,
+            'organization' => Organization::class,
             'contact' => User::class,
             default => null,
         };

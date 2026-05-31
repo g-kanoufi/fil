@@ -15,10 +15,11 @@ beforeEach(function () {
 
 test('embed demo requires staff authentication', function () {
     $this->get('/embed-demo')->assertRedirect('/app/login');
+    $this->get('/embed-demo/inline')->assertRedirect('/app/login');
     $this->get('/embed-demo/frame')->assertRedirect('/app/login');
 });
 
-test('staff can open embed demo preview', function () {
+test('staff can open embed demo preview routes', function () {
     WidgetForm::query()->create([
         'key' => 'lead_short',
         'name' => 'Short',
@@ -31,9 +32,12 @@ test('staff can open embed demo preview', function () {
 
     $this->actingAs($user)
         ->get('/embed-demo')
+        ->assertRedirect('/app/settings/widget/demo');
+
+    $this->actingAs($user)
+        ->get('/embed-demo/inline')
         ->assertOk()
-        ->assertSee('Client site setup', false)
-        ->assertSee('pk_dev', false);
+        ->assertSee('data-site-key="pk_dev"', false);
 
     $this->actingAs($user)
         ->get('/embed-demo/frame')

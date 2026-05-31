@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Support\Legacy;
+
+use Illuminate\Support\Str;
+
+final class LegacyAcfGroupRegistry
+{
+    /**
+     * @return array{import: bool, key: string, title: string, entity: string, sort_order: int, merge_into?: string}|null
+     */
+    public function resolve(string $legacyGroupKey, string $acfTitle, array $locationRules = []): ?array
+    {
+        /** @var array<string, array<string, mixed>> $configured */
+        $configured = config('fil-legacy-acf.groups', []);
+
+        if (isset($configured[$legacyGroupKey])) {
+            $meta = $configured[$legacyGroupKey];
+
+            if (($meta['import'] ?? true) === false) {
+                return null;
+            }
+
+            return [
+                'import' => true,
+                'key' => (string) ($meta['merge_into'] ?? $meta['key'] ?? Str::slug($acfTitle)),
+                'title' => (string) ($meta['title'] ?? $acfTitle),
+                'entity' => (string) ($meta['entity'] ?? $this->inferEntity($locationRules) ?? 'lead'),
+                'sort_order' => (int) ($meta['sort_order'] ?? 100),
+                'merge_into' => isset($meta['merge_into']) ? (string) $meta['merge_into'] : null,
+            ];
+        }
+
+        $entity = $this->inferEntity($locationRules);
+
+        if ($entity === null) {
+            return null;
+        }
+
+        return [
+            'import' => true,
+            'key' => Str::slug($acfTitle),
+            'title' => $acfTitle,
+            'entity' => $entity,
+            'sort_order' => 100,
+            'merge_into' => null,
+        ];
+    }
+
+    /**
+     * @param  list<list<array<string, mixed>>>  $locationRules
+     */
+    private function inferEntity(array $locationRules): ?string
+    {
+        /** @var array<string, string> $map */
+        $map = config('fil-legacy-acf.post_type_entity', []);
+
+        foreach ($locationRules as $ruleSet) {
+            foreach ($ruleSet as $rule) {
+                $param = (string) ($rule['param'] ?? '');
+
+                if ($param === 'post_type') {
+                    $postType = (string) ($rule['value'] ?? '');
+
+                    if (isset($map[$postType])) {
+                        return $map[$postType];
+                    }
+                }
+
+                if ($param === 'user_form') {
+                    $form = 'user_form:'.(string) ($rule['value'] ?? '');
+
+                    if (isset($map[$form])) {
+                        return $map[$form];
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+}

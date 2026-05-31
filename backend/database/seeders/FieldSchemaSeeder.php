@@ -7,13 +7,25 @@ namespace Database\Seeders;
 use App\Models\Field;
 use App\Models\FieldGroup;
 use App\Models\FieldRoleRule;
+use App\Services\Fields\SystemFieldService;
+use App\Support\Fields\ApplicationFieldCatalog;
 use Illuminate\Database\Seeder;
 
 final class FieldSchemaSeeder extends Seeder
 {
     public function run(): void
     {
-        $group = FieldGroup::query()->updateOrCreate(
+        $this->call(LegacyAcfFieldSeeder::class);
+
+        app(SystemFieldService::class)->ensureSystemFields();
+        $this->ensureInternalMarginNotesField();
+        $this->applyInternalMarginNotesRules();
+        $this->deactivateMisassignedFields();
+    }
+
+    private function ensureInternalMarginNotesField(): void
+    {
+        $applications = FieldGroup::query()->firstOrCreate(
             ['key' => 'applications'],
             [
                 'title' => 'Applications',
@@ -24,87 +36,71 @@ final class FieldSchemaSeeder extends Seeder
             ],
         );
 
-        $fields = [
+        Field::query()->updateOrCreate(
             [
-                'key' => 'lead_stage',
-                'name' => 'Lead Stage',
-                'type' => 'select',
-                'storage' => 'column',
-                'maps_to_column' => 'lead_stage',
-                'config' => ['choices' => ['1' => 'Pre-Disclosure', '2' => 'Disclosed', '3' => 'Finalized']],
-            ],
-            [
-                'key' => 'lead_source',
-                'name' => 'Lead Source',
-                'type' => 'text',
-                'storage' => 'column',
-                'maps_to_column' => 'lead_source',
-            ],
-            [
+                'field_group_id' => $applications->id,
                 'key' => 'internal_margin_notes',
+            ],
+            [
+                'entity' => 'lead',
                 'name' => 'Internal Margin Notes',
                 'type' => 'textarea',
                 'storage' => 'field_value',
-            ],
-        ];
-
-        foreach ($fields as $index => $definition) {
-            $field = Field::query()->updateOrCreate(
-                [
-                    'field_group_id' => $group->id,
-                    'key' => $definition['key'],
-                ],
-                [
-                    'entity' => 'lead',
-                    'name' => $definition['name'],
-                    'type' => $definition['type'],
-                    'storage' => $definition['storage'],
-                    'maps_to_column' => $definition['maps_to_column'] ?? null,
-                    'config' => $definition['config'] ?? null,
-                    'sort_order' => $index + 1,
-                    'required' => false,
-                    'is_filterable' => in_array($definition['key'], ['lead_stage', 'lead_source'], true),
-                    'status' => 'active',
-                ],
-            );
-
-            if ($definition['key'] === 'internal_margin_notes') {
-                FieldRoleRule::query()->updateOrCreate(
-                    ['field_id' => $field->id, 'role' => 'lead_owner'],
-                    ['permission' => 'hidden'],
-                );
-                FieldRoleRule::query()->updateOrCreate(
-                    ['field_id' => $field->id, 'role' => 'franchisor'],
-                    ['permission' => 'write'],
-                );
-            }
-        }
-
-        $contactGroup = FieldGroup::query()->updateOrCreate(
-            ['key' => 'contact_profile'],
-            [
-                'title' => 'Contact profile',
-                'slug' => 'contact-profile',
-                'sort_order' => 2,
-                'status' => 'active',
-            ],
-        );
-
-        Field::query()->updateOrCreate(
-            [
-                'field_group_id' => $contactGroup->id,
-                'key' => 'contact_notes',
-            ],
-            [
-                'entity' => 'contact',
-                'name' => 'Contact notes',
-                'type' => 'textarea',
-                'storage' => 'field_value',
-                'sort_order' => 1,
+                'sort_order' => 500,
                 'required' => false,
                 'is_filterable' => false,
                 'status' => 'active',
             ],
         );
+    }
+
+    private function applyInternalMarginNotesRules(): void
+    {
+        $marginField = Field::query()->where('key', 'internal_margin_notes')->first();
+
+        if ($marginField === null) {
+            return;
+        }
+
+        FieldRoleRule::query()->updateOrCreate(
+            ['field_id' => $marginField->id, 'role' => 'lead_owner'],
+            ['permission' => 'hidden'],
+        );
+        FieldRoleRule::query()->updateOrCreate(
+            ['field_id' => $marginField->id, 'role' => 'franchisor'],
+            ['permission' => 'write'],
+        );
+    }
+
+    private function deactivateMisassignedFields(): void
+    {
+        /** @var list<string> $excluded */
+        $excluded = config('fil-legacy-acf.excluded_lead_field_keys', ApplicationFieldCatalog::excludedLeadFieldKeys());
+
+        Field::query()
+            ->where('entity', 'lead')
+            ->whereIn('key', $excluded)
+            ->update(['status' => 'inactive']);
+
+        $allowedGroupKeys = [
+            'applications',
+            'user',
+            'units',
+            'locations',
+            'areas',
+            'organizations',
+            'private-notes',
+            'administrative-notes',
+            'contact_profile',
+        ];
+
+        $staleGroupIds = FieldGroup::query()
+            ->whereNotIn('key', $allowedGroupKeys)
+            ->pluck('id');
+
+        if ($staleGroupIds->isNotEmpty()) {
+            Field::query()->whereIn('field_group_id', $staleGroupIds)->update(['status' => 'inactive']);
+            FieldGroup::query()->whereIn('id', $staleGroupIds)->update(['status' => 'inactive']);
+        }
     }
 }

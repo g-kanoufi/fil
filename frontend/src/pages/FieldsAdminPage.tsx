@@ -16,6 +16,7 @@ import {
   type FieldType,
   type RelatableCatalogue,
 } from '@/lib/api/fields';
+import { parseChoiceLines } from '@/lib/fields/fieldChoices';
 import { useAuth } from '@/providers/AuthProvider';
 
 const ENTITIES = ['lead', 'store', 'contact', 'area'] as const;
@@ -44,16 +45,8 @@ function emptyDraft(): NewFieldDraft {
   };
 }
 
-function parseChoices(text: string): Record<string, string> {
-  const choices: Record<string, string> = {};
-  for (const line of text.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const [value, ...rest] = trimmed.split('=');
-    const key = value.trim();
-    choices[key] = rest.length > 0 ? rest.join('=').trim() : key;
-  }
-  return choices;
+function parseChoices(text: string): Array<{ value: string; label: string; aliases?: string[] }> {
+  return parseChoiceLines(text);
 }
 
 function isChoiceType(type: FieldType): boolean {
@@ -285,7 +278,9 @@ export function FieldsAdminPage() {
 
           {isChoiceType(draft.type) ? (
             <label className="flex flex-col gap-1 text-sm md:col-span-2">
-              <span className="font-medium text-foreground">Choices (one per line, value=Label)</span>
+              <span className="font-medium text-foreground">
+                Choices (one per line: value=Label or value=Label|legacy,alias)
+              </span>
               <textarea
                 value={draft.choicesText}
                 onChange={(event) => setDraft({ ...draft, choicesText: event.target.value })}

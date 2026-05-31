@@ -12,7 +12,7 @@ Ship when **all** of these pass in staging:
 | ---- | --------------- | ------ |
 | Auth | Staff login, role nav, prospect blocked | Browser + `PolicyTest` |
 | Leads | Grid, show, update, phase transition | API tests + `/app/reports/leads` |
-| Widget | Public intake creates phase-1 lead | Settings → Widget form (staff preview at `/embed-demo`) + parity test |
+| Widget | Public intake creates phase-1 lead | Settings → Widget form → **Preview embed widget** (`/app/settings/widget/demo`) + parity test |
 | Drips | Queue sends email step (Mailgun in prod) | Mailgun sandbox + job logs |
 | FDD | List, single send, **bulk send from grid** | API tests + manual send |
 | Comms | **SMS/email composer** on lead detail | `POST /api/v1/communications` + browser |
@@ -63,7 +63,7 @@ Ship when **all** of these pass in staging:
 | `CACHE_STORE` | `file` |
 | `SANCTUM_STATEFUL_DOMAINS` | `crm.clientdomain.com` |
 | `FIL_EMBED_SITE_KEYS` | Optional extra allowlist; each widget form also gets an auto-generated `pk_live_*` key in Settings → Widget form |
-| `FIL_EMBED_ALLOWED_ORIGINS` | Client marketing site origins (when origin checks are enabled) |
+| `FIL_EMBED_ALLOWED_ORIGINS` | Client marketing site origins — **required** in staging/production; enforced on `/api/public/v1/leads` and `form-config` |
 | `MAIL_*` | Mailgun SMTP/API |
 | `MAILGUN_WEBHOOK_SIGNING_KEY` | Mailgun event + inbound route signing |
 | `FIL_AI_SERVICE_URL` | Client AI service (optional for v1) |

@@ -46,6 +46,7 @@ final class MvpStagingCheckCommand extends Command
             $this->checkSessionCookies(),
             $this->checkDemoUsers(),
             $this->checkEmbedKeys(),
+            $this->checkEmbedOrigins(),
             $this->checkSanctumDomains(),
             $this->checkMailgunWebhook(),
             $this->checkDwollaWebhook(),
@@ -292,6 +293,28 @@ final class MvpStagingCheckCommand extends Command
         }
 
         return ['Embed site keys', 'OK', 'Client keys configured'];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkEmbedOrigins(): array
+    {
+        if (! app()->environment('production', 'staging')) {
+            return ['Embed allowed origins', 'OK', 'Skipped outside staging/production'];
+        }
+
+        $origins = config('fil.embed_allowed_origins', []);
+
+        if (! is_array($origins) || $origins === []) {
+            return [
+                'Embed allowed origins',
+                'FAIL',
+                'Set FIL_EMBED_ALLOWED_ORIGINS to client marketing site origins',
+            ];
+        }
+
+        return ['Embed allowed origins', 'OK', count($origins).' origin(s) configured'];
     }
 
     /**

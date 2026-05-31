@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     $this->interpreter = new GridSearchInterpreterService(
-        new LeadPipelineCatalog,
+        app(LeadPipelineCatalog::class),
         app(ResourceScopeService::class),
     );
 });

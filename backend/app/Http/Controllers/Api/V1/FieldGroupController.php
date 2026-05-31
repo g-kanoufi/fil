@@ -10,6 +10,7 @@ use App\Http\Requests\Api\V1\UpdateFieldGroupRequest;
 use App\Http\Resources\Api\V1\FieldGroupResource;
 use App\Models\FieldGroup;
 use App\Support\Api\ApiResponse;
+use App\Support\Widget\WidgetFieldCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,8 +22,13 @@ final class FieldGroupController extends Controller
         $this->authorize('manageFields');
 
         $entity = $request->query('entity');
+        $context = $request->query('context');
 
         $groups = FieldGroup::query()
+            ->when(
+                $context === 'widget',
+                fn ($query) => $query->whereIn('key', WidgetFieldCatalog::allowedGroupKeys()),
+            )
             ->with(['fields' => function ($query) use ($entity): void {
                 if (is_string($entity) && $entity !== '') {
                     $query->where('entity', $entity);
