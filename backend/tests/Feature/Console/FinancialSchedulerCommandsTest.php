@@ -77,12 +77,14 @@ test('areas calculate royalties runs on configured day', function () {
     $area = Area::factory()->create(['extras' => ['area_royalty_percentage' => 1]]);
     $store = Store::factory()->create(['area_id' => $area->id, 'status' => 'open']);
 
+    $priorMonth = now()->startOfMonth()->subMonth();
+
     $period = RoyaltyPeriod::query()->create([
         'store_id' => $store->id,
         'frequency' => 'weekly',
-        'period_start' => now()->subMonth()->startOfMonth(),
-        'period_end' => now()->subMonth()->endOfMonth(),
-        'recorded_at' => now()->subMonth(),
+        'period_start' => $priorMonth->copy()->startOfMonth(),
+        'period_end' => $priorMonth->copy()->endOfMonth(),
+        'recorded_at' => $priorMonth->copy(),
         'gross_revenue' => 10000,
         'total_royalties' => 600,
         'status' => 'calculated',
