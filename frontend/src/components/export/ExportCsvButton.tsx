@@ -6,6 +6,8 @@ interface ExportCsvButtonProps {
   disabled?: boolean;
   size?: 'sm' | 'md';
   className?: string;
+  label?: string;
+  busyLabel?: string;
 }
 
 export function ExportCsvButton({
@@ -14,6 +16,8 @@ export function ExportCsvButton({
   disabled = false,
   size = 'sm',
   className,
+  label = 'Export CSV',
+  busyLabel = 'Exporting…',
 }: ExportCsvButtonProps) {
   return (
     <Button
@@ -24,7 +28,7 @@ export function ExportCsvButton({
       disabled={disabled || exporting}
       onClick={() => void onClick()}
     >
-      {exporting ? 'Exporting…' : 'Export CSV'}
+      {exporting ? busyLabel : label}
     </Button>
   );
 }

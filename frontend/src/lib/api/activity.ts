@@ -1,4 +1,5 @@
-import { apiGet } from './client';
+import { downloadBlob } from '@/lib/export/csv';
+import { apiGet, apiGetBlob } from './client';
 
 export interface ActivitySubject {
   type: string;
@@ -71,6 +72,24 @@ export async function fetchAllActivityFeed(days: number): Promise<ActivityItem[]
   } while (cursor);
 
   return items;
+}
+
+export async function downloadActivityExport(
+  days: number,
+  filename: string,
+  category?: string,
+): Promise<void> {
+  const search = new URLSearchParams({ days: String(days) });
+
+  if (category) {
+    search.set('category', category);
+  }
+
+  const blob = await apiGetBlob(`/v1/activity/export?${search.toString()}`, {
+    headers: { Accept: 'text/csv' },
+  });
+
+  downloadBlob(blob, filename);
 }
 
 export function fetchSubjectActivity(

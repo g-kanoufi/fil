@@ -44,4 +44,5 @@ return [
 
     'default_feed_days' => 30,
     'max_page_size' => 50,
+    'max_export_rows' => (int) env('FIL_ACTIVITY_MAX_EXPORT_ROWS', 10000),
 ];

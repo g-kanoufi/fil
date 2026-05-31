@@ -83,6 +83,42 @@ final class ActivityFeedService
     }
 
     /**
+     * Export audited activity events matching the same scope and filters as the
+     * global feed, ordered newest-first and capped at the configured export limit.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function exportEvents(
+        User $user,
+        int $days = 30,
+        ?int $actorUserId = null,
+        ?string $category = null,
+    ): array {
+        $maxRows = (int) config('fil-activity.max_export_rows', 10000);
+        $since = now()->subDays(max($days, 1));
+
+        $query = ActivityEvent::query()
+            ->where('occurred_at', '>=', $since)
+            ->orderByDesc('occurred_at')
+            ->orderByDesc('id');
+
+        if ($actorUserId !== null) {
+            $query->where('actor_user_id', $actorUserId);
+        }
+
+        if ($category !== null && $category !== '') {
+            $query->where('category', $category);
+        }
+
+        $this->scope->applyActivityEventScope($query, $user);
+
+        return $query->limit($maxRows)
+            ->get()
+            ->map(fn (ActivityEvent $event): array => $this->formatEvent($event))
+            ->all();
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     public function subjectTimeline(string $subjectType, int $subjectId, int $limit = 25): array

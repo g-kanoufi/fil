@@ -67,6 +67,7 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('api.v1.profile.update');
         Route::get('/dashboard', DashboardController::class)->name('api.v1.dashboard');
         Route::get('/activity', [ActivityController::class, 'index'])->name('api.v1.activity.index');
+        Route::get('/activity/export', [ActivityController::class, 'export'])->name('api.v1.activity.export');
         Route::get('/activity/subjects/{type}/{id}', [ActivityController::class, 'forSubject'])
             ->name('api.v1.activity.subjects');
         Route::get('/app-config', AppConfigController::class)->name('api.v1.app-config');

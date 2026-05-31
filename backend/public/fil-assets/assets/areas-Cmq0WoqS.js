@@ -1,1 +1,0 @@
-import{z as e}from"./main-DWKmfftZ.js";function t(){return e(`/v1/areas`).then(e=>e.data)}export{t};
