@@ -1,8 +1,15 @@
 # Next session — execution plan
 
 **Created:** 2026-05-31  
-**Branch:** `dev` (large uncommitted diff — land first)  
+**Branch:** `dev`  
 **North star:** [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md) (~62% → staging cutover)
+
+## Session log — 2026-05-31
+
+- **Block 1 — done.** Working tree was already clean (quality pass committed in `c618ba1`). Fixed a month-end date-fragility bug in the area-royalty scheduler test (`cffa8d6`), updated readiness doc counts to 294 Pest / 50 Vitest (`3593d07`). Full verification green; no remote configured so no `dev` → `staging` PR.
+- **Block 2 — skipped (blocked).** No Forge API token, no git remote, no VPS credentials available locally. Per "Do not start: Forge env work without VPS credentials."
+- **Block 3 — done (Option A: Audit log export API).** Added `GET /api/v1/activity/export` (CSV + `?format=json`), staff-only with franchise scoping + day/category/actor filters, OpenAPI entry, History "Export (server)" button. Merged `feature/activity-export-api` → `dev` (`1dc0e79`). Suite now **300 Pest / 52 Vitest**, OpenAPI 114/114.
+- **Browser e2e note:** Local `php artisan serve` on an ad-hoc port could not establish a persisted web session (login returns 200 but session cookie does not stick — pre-existing Sanctum first-party-domain/serve config issue, unrelated to the feature). Endpoint is fully covered by Pest feature tests through the real auth + scope stack.
 
 ---
 
@@ -31,8 +38,8 @@ Phase **1 Staff UX exit criteria are met**. Local Postgres is the default; legac
 | OpenAPI audit (`openapi:audit`, 113/113 routes) | Shipped (uncommitted) |
 | Pint + ESLint + CI gates | Shipped (uncommitted) |
 | Accessibility (`ModalDialog`, focus trap, grid/login ARIA) | Shipped (uncommitted) |
-| Backend tests | **294 Pest** passing |
-| Frontend tests | **50 Vitest** passing |
+| Backend tests | **300 Pest** passing |
+| Frontend tests | **52 Vitest** passing |
 | SEC-001–025 code fixes | Shipped — [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) |
 
 ### Production exit checklist (2 / 7)
@@ -66,8 +73,8 @@ Rough groups for commits (adjust if cleaner):
 
 ### Tasks
 
-- [ ] Review `git diff`; split into 2–4 logical commits on `dev` (or `feature/consolidate-quality-pass` → merge)
-- [ ] Full verification:
+- [x] Review `git diff`; split into 2–4 logical commits on `dev` — tree already clean; quality pass in `c618ba1`, scheduler test fix `cffa8d6`
+- [x] Full verification:
 
 ```bash
 docker compose up -d postgres   # if not running
@@ -86,8 +93,8 @@ cd ../frontend/widget
 npm run build
 ```
 
-- [ ] Update doc counts in `PRODUCTION_READINESS.md` and `NEXT_LOCAL_WORK.md` (294 Pest, 50 Vitest, a11y ☑)
-- [ ] If remote configured: open PR `dev` → `staging` when ready
+- [x] Update doc counts in `PRODUCTION_READINESS.md` and `NEXT_LOCAL_WORK.md` (now 300 Pest, 52 Vitest, a11y ☑)
+- [ ] If remote configured: open PR `dev` → `staging` when ready — **N/A, no git remote configured**
 
 ### Done when
 
@@ -120,15 +127,15 @@ Staging URL passes smoke + `mvp:staging-check`; demo users removed.
 
 ## Block 3 — Primary engineering (pick one)
 
-### Option A — Audit log export API (recommended if local-only)
+### Option A — Audit log export API ✅ DONE (merged to `dev` `1dc0e79`)
 
-**Effort:** ~1 day · **Phase:** 6.5 · **Branch:** `feature/activity-export-api`
+**Effort:** ~1 day · **Phase:** 6.5 · **Branch:** `feature/activity-export-api` (merged + deleted)
 
-- [ ] `GET /api/v1/activity/export` — CSV (+ optional JSON query param)
-- [ ] Same auth/scope as `GET /api/v1/activity` (staff-only, franchise scope)
-- [ ] OpenAPI entry in `docs/api.openapi.yaml`
-- [ ] Pest feature tests (admin, scoped user, forbidden)
-- [ ] Optional: History page button “Export (server)” alongside client-side CSV
+- [x] `GET /api/v1/activity/export` — CSV (+ optional `?format=json`)
+- [x] Same auth/scope as `GET /api/v1/activity` (staff-only, franchise scope) + day/category/actor filters; capped by `fil-activity.max_export_rows`
+- [x] OpenAPI entry in `docs/api.openapi.yaml` (audit 114/114)
+- [x] Pest feature tests (admin CSV, JSON, scoped area_rep, category filter, forbidden, unauth)
+- [x] History page button “Export (server)” alongside client-side CSV (+ Vitest)
 
 **Reference:** existing activity controller/service, client-side export on History page.
 
@@ -159,10 +166,15 @@ Staging URL passes smoke + `mvp:staging-check`; demo users removed.
 
 ## Block 4 — End of session
 
-- [ ] Tests green on branch merged to `dev`
-- [ ] Staging smoke noted (URL + checklist results) if Block 2 ran
-- [ ] Update this file: mark completed blocks, note blockers
-- [ ] Update [NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md) queue
+- [x] Tests green on branch merged to `dev` — 300 Pest, 52 Vitest, Pint, OpenAPI 114/114, lint
+- [ ] Staging smoke noted — N/A, Block 2 did not run (Forge blocked)
+- [x] Update this file: mark completed blocks, note blockers (see Session log above)
+- [x] Update [NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md) queue
+
+### Next session start here
+
+- **If Forge access arrives:** run Block 2 (Phase 0 staging ship) — top priority.
+- **Else, next local P3 engineering:** Option C (dependency audit CI) or Option D (compliance docs: `SECRETS_ROTATION.md`, PII retention draft). Audit log export API (Option A) is now done.
 
 ---
 

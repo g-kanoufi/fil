@@ -25,8 +25,9 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | Empty states audit | `EntityLoadState`, `AsyncSection`, compact `EmptyState` on detail pages |
 | OpenAPI sync audit | `php artisan openapi:audit`, 113/113 routes — [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
 | Pint / ESLint pass | `pint.json`, `eslint.config.js`, CI `pint --test` + `npm run lint` |
-| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 50 Vitest |
-| Pest 4 migration | 294 Pest tests; see [PEST_REVIEW.md](./PEST_REVIEW.md) |
+| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 52 Vitest |
+| Pest 4 migration | 300 Pest tests; see [PEST_REVIEW.md](./PEST_REVIEW.md) |
+| Activity export API | `GET /api/v1/activity/export` CSV/JSON, scoped + filters; History "Export (server)" button (`1dc0e79`) |
 
 ---
 
@@ -51,7 +52,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 10 | **Audit log export API** | 1d | Staff-only CSV/JSON export of `activity_events` (scoped) |
+| 10 | ~~**Audit log export API**~~ | — | Done — `GET /api/v1/activity/export` (CSV/JSON, scoped); merged `1dc0e79` |
 | 11 | **Secrets rotation runbook** | 0.5d | Doc only — `docs/SECRETS_ROTATION.md` |
 | 12 | **PII retention policy draft** | 0.5d | Doc only — align with client legal |
 | 13 | **Dependency audit automation** | 0.5d | CI fails on high/critical `composer audit` / `npm audit` |
