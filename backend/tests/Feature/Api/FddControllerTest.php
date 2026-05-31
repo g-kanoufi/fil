@@ -190,6 +190,22 @@ test('franchisor can update fdd metadata and replace pdf', function () {
     expect($fdd->document_id)->toBe($originalDocumentId);
 });
 
+test('rejects an upload that is not a real pdf', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
+
+    $fake = UploadedFile::fake()->createWithContent('evil.pdf', 'GIF89a definitely not a pdf');
+
+    $this->actingAs($user)
+        ->post('/api/v1/fdds', [
+            'type' => 'unit',
+            'title' => 'Bogus FDD',
+            'pdf' => $fake,
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['pdf']);
+});
+
 test('lead owner cannot create fdd', function () {
     $user = User::factory()->create();
     $user->assignRole('lead_owner');

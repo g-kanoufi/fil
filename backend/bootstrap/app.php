@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureStaffAccess;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleStaffLogin;
 use App\Http\Middleware\ValidateEmbedSiteKey;
 use App\Support\Api\ApiProblem;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'staff' => EnsureStaffAccess::class,
             'embed.site_key' => ValidateEmbedSiteKey::class,

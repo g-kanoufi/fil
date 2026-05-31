@@ -25,7 +25,9 @@ jobs:
       - run: ./vendor/bin/pint --test
       - run: php artisan test --compact
       - run: php artisan openapi:audit --fail-on-drift
-      - run: composer audit --no-dev || true
+      # Fails the build on any known advisory. Temporarily accept one via
+      # `composer config audit.ignore.<CVE> "<reason>"` (see docs/SECURITY_AUDIT.md).
+      - run: composer audit --no-dev
 
   frontend:
     runs-on: ubuntu-latest
@@ -42,7 +44,9 @@ jobs:
       - run: npm ci
       - run: npm run test:run
       - run: npm run lint
-      - run: npm audit --audit-level=high || true
+      # Fails the build on high/critical advisories. Resolve by upgrading; if a
+      # transitive advisory must be temporarily accepted, document it in the PR.
+      - run: npm audit --audit-level=high
 
   e2e:
     runs-on: ubuntu-latest

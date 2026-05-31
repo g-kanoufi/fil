@@ -78,6 +78,18 @@ test('dwolla client token rejects when not configured', function () {
         ->assertStatus(422)
         ->assertJsonPath('message', 'Dwolla is not configured.');
 });
+test('dwolla client token rejects actions outside the allowlist', function () {
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
+    $store = Store::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson("/api/v1/stores/{$store->id}/ach/dwolla/client-token", [
+            'action' => 'customer.delete',
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['action']);
+});
 test('certify ownership requires enrollment', function () {
     $user = User::factory()->create();
     $user->assignRole('franchisor');

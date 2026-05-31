@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1;
 
 use App\Models\Fdd;
+use App\Rules\PdfFile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -57,7 +58,7 @@ class UpdateFddRequest extends FormRequest
                 Rule::exists('areas', 'id'),
             ],
             'status' => ['sometimes', Rule::in(['active', 'inactive'])],
-            'pdf' => ['sometimes', 'file', 'mimes:pdf', 'max:51200'],
+            'pdf' => ['sometimes', 'file', 'mimes:pdf', 'max:51200', new PdfFile],
         ];
     }
 }
