@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Alert } from '@/components/ui/Alert';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { PageTabs } from '@/components/ui/PageTabs';
 import { Button } from '@/components/ui/Button';
 import { DataTable } from '@/components/ui/DataTable';
 import { FormField } from '@/components/ui/FormField';
@@ -112,27 +113,20 @@ export function DocumentsPage() {
         description="Browse franchise files by entity or search the full document library."
       />
 
-      <div className="mb-4 flex gap-2">
-        <Button
-          size="sm"
-          variant={tab === 'browse' ? 'primary' : 'secondary'}
-          onClick={() => setTab('browse')}
-        >
-          By entity
-        </Button>
-        <Button
-          size="sm"
-          variant={tab === 'library' ? 'primary' : 'secondary'}
-          onClick={() => setTab('library')}
-        >
-          Library
-        </Button>
-      </div>
+      <PageTabs
+        ariaLabel="Documents view"
+        items={[
+          { id: 'browse', label: 'By entity' },
+          { id: 'library', label: 'Library' },
+        ]}
+        value={tab}
+        onChange={(id) => setTab(id as TabId)}
+      />
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
 
       {tab === 'library' ? (
-        <>
+        <div id="tabpanel-library" role="tabpanel" aria-labelledby="tab-library">
           <Card className="mb-4">
             <div className="flex flex-wrap items-end gap-3">
               <FormField
@@ -201,9 +195,9 @@ export function DocumentsPage() {
               ]}
             />
           ) : null}
-        </>
+        </div>
       ) : (
-        <>
+        <div id="tabpanel-browse" role="tabpanel" aria-labelledby="tab-browse">
           <Card className="mb-4">
             <div className="flex flex-wrap items-end gap-3">
               <label className="flex min-w-[12rem] flex-col gap-1 text-sm">
@@ -299,7 +293,7 @@ export function DocumentsPage() {
                 </Card>
               ))
             : null}
-        </>
+        </div>
       )}
     </>
   );

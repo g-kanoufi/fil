@@ -35,6 +35,76 @@ function filterPath(basePath: string, filter: string, subKey?: string): string {
   return `${basePath}?filter=${filter}&subFilter=${subFilterSlug(subKey)}`;
 }
 
+/** Collapse nested filter groups when only one parent has children (stores/contacts). */
+function collapseLoneNestedFilterGroups(children: NavItem[]): NavItem[] {
+  if (children.length === 1 && (children[0].children?.length ?? 0) > 0) {
+    return children[0].children ?? [];
+  }
+
+  const nestedParents = children.filter((child) => (child.children?.length ?? 0) > 0);
+
+  if (nestedParents.length !== 1) {
+    return children;
+  }
+
+  const [onlyNested] = nestedParents;
+  const flatSiblings = children.filter((child) => !(child.children?.length ?? 0));
+
+  // Leads mix many flat status filters with one owner group — keep the group label.
+  if (flatSiblings.length > 2) {
+    return children;
+  }
+
+  return [...flatSiblings, ...(onlyNested.children ?? [])];
+}
+
+/**
+ * When a section contains a single parent with children (e.g. Admin → Settings),
+ * show the children directly under the section label.
+ */
+export function unwrapSingleParentSections(
+  navigation: Array<NavItem | NavSection>,
+): Array<NavItem | NavSection> {
+  const result: Array<NavItem | NavSection> = [];
+  let pendingSection: NavSection | null = null;
+  let sectionItems: NavItem[] = [];
+
+  const flushSection = () => {
+    if (!pendingSection) {
+      return;
+    }
+
+    result.push(pendingSection);
+
+    if (sectionItems.length === 1 && (sectionItems[0].children?.length ?? 0) > 0) {
+      result.push(...(sectionItems[0].children ?? []));
+    } else {
+      result.push(...sectionItems);
+    }
+
+    pendingSection = null;
+    sectionItems = [];
+  };
+
+  for (const entry of navigation) {
+    if ('type' in entry && entry.type === 'section') {
+      flushSection();
+      pendingSection = entry;
+      continue;
+    }
+
+    if (pendingSection) {
+      sectionItems.push(entry as NavItem);
+    } else {
+      result.push(entry);
+    }
+  }
+
+  flushSection();
+
+  return result;
+}
+
 function buildReportFilterChildren(
   resource: ReportResource,
   basePath: string,
@@ -112,7 +182,7 @@ export function buildNavigationTree(
   appConfig: AppConfig | null,
   isUiDisabled: (domain: 'leads' | 'stores' | 'contacts', key: string) => boolean,
 ): Array<NavItem | NavSection> {
-  return navigation.map((entry) => {
+  const withFilters = navigation.map((entry) => {
     if ('type' in entry && entry.type === 'section') {
       return entry;
     }
@@ -120,7 +190,9 @@ export function buildNavigationTree(
     const item = entry as NavItem;
 
     if (isReportResource(item.id)) {
-      const filterChildren = buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled);
+      const filterChildren = collapseLoneNestedFilterGroups(
+        buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled),
+      );
 
       if (filterChildren.length === 0) {
         return item;
@@ -134,4 +206,6 @@ export function buildNavigationTree(
 
     return item;
   });
+
+  return unwrapSingleParentSections(withFilters);
 }
