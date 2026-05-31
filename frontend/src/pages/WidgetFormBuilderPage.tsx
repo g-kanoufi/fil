@@ -10,6 +10,7 @@ import {
   createWidgetForm,
   fetchWidgetForm,
   fetchWidgetForms,
+  rotateWidgetFormSiteKey,
   syncWidgetFormFields,
   type WidgetFormDef,
 } from '@/lib/api/widgetForms';
@@ -46,8 +47,30 @@ export function WidgetFormBuilderPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newForm, setNewForm] = useState({ key: '', name: '', site_key: '' });
+  const [newForm, setNewForm] = useState({ key: '', name: '' });
   const [dragId, setDragId] = useState<number | null>(null);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+  const [rotating, setRotating] = useState(false);
+
+  const selectedForm = useMemo(
+    () => forms.find((form) => form.id === selectedId) ?? null,
+    [forms, selectedId],
+  );
+
+  const embedSnippet = useMemo(() => {
+    if (!selectedForm?.site_key) {
+      return '';
+    }
+
+    const apiBase = window.location.origin;
+
+    return `<div
+  data-fil-widget="lead-form"
+  data-site-key="${selectedForm.site_key}"
+  data-api-base="${apiBase}"
+></div>
+<script src="${apiBase}/widget/form.js" defer></script>`;
+  }, [selectedForm?.site_key]);
 
   const loadForm = useCallback(async (formId: number) => {
     const form = await fetchWidgetForm(formId);
@@ -116,9 +139,8 @@ export function WidgetFormBuilderPage() {
       const created = await createWidgetForm({
         key: newForm.key.trim(),
         name: newForm.name.trim(),
-        site_key: newForm.site_key.trim() || null,
       });
-      setNewForm({ key: '', name: '', site_key: '' });
+      setNewForm({ key: '', name: '' });
       setForms((current) => [...current, created]);
       setSelectedId(created.id);
       setCanvas([]);
@@ -162,6 +184,31 @@ export function WidgetFormBuilderPage() {
       return ordered;
     });
     setDragId(null);
+  }
+
+  async function handleRotateSiteKey() {
+    if (!selectedId) return;
+    setRotating(true);
+    setError(null);
+    try {
+      const updated = await rotateWidgetFormSiteKey(selectedId);
+      setForms((current) => current.map((f) => (f.id === updated.id ? updated : f)));
+      setCopyStatus('Site key rotated — update the client embed snippet.');
+    } catch (rotateError: unknown) {
+      setError(rotateError instanceof Error ? rotateError.message : 'Failed to rotate site key');
+    } finally {
+      setRotating(false);
+    }
+  }
+
+  async function copyEmbedSnippet() {
+    if (!embedSnippet) return;
+    try {
+      await navigator.clipboard.writeText(embedSnippet);
+      setCopyStatus('Embed snippet copied.');
+    } catch {
+      setCopyStatus('Could not copy — select the snippet manually.');
+    }
   }
 
   async function handleSave() {
@@ -236,8 +283,11 @@ export function WidgetFormBuilderPage() {
       ) : null}
 
       <Card className="mb-6">
-        <CardHeader title="New widget form" description="One active form is served per site key (or a default)." />
-        <div className="grid gap-3 md:grid-cols-3">
+        <CardHeader
+          title="New widget form"
+          description="A unique site key is generated automatically for each form."
+        />
+        <div className="grid gap-3 md:grid-cols-2">
           <input
             value={newForm.key}
             onChange={(event) => setNewForm({ ...newForm, key: event.target.value })}
@@ -250,12 +300,6 @@ export function WidgetFormBuilderPage() {
             placeholder="Display name"
             className="rounded-lg border border-border bg-surface text-foreground px-3 py-2 text-sm"
           />
-          <input
-            value={newForm.site_key}
-            onChange={(event) => setNewForm({ ...newForm, site_key: event.target.value })}
-            placeholder="site key (optional)"
-            className="rounded-lg border border-border bg-surface text-foreground px-3 py-2 text-sm"
-          />
         </div>
         <div className="mt-3">
           <Button size="sm" variant="secondary" onClick={() => void handleCreateForm()}>
@@ -265,6 +309,54 @@ export function WidgetFormBuilderPage() {
       </Card>
 
       {loading ? <LoadingState label="Loading…" /> : null}
+
+      {!loading && selectedForm ? (
+        <Card className="mb-6">
+          <CardHeader
+            title="Embed on client site"
+            description="The site key is publishable (safe in HTML). Intake is protected by key allowlisting, rate limits, and reCAPTCHA in production."
+            actions={
+              <a
+                href="/embed-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-link hover:underline"
+              >
+                Open staff preview →
+              </a>
+            }
+          />
+          <div className="space-y-3 text-sm text-muted">
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>Copy the embed snippet into the client marketing page (HTML block, Webflow, etc.).</li>
+              <li>
+                Set <code className="text-foreground">data-api-base</code> to this FIL instance URL if the page
+                is not on the same host.
+              </li>
+              <li>Submit a test lead and confirm it appears under Leads.</li>
+              <li>If the key is exposed, rotate it and update the client snippet.</li>
+            </ol>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-foreground">Site key</span>
+              <code className="rounded bg-surface-muted px-2 py-1 text-xs text-foreground">
+                {selectedForm.site_key ?? '(none)'}
+              </code>
+              <Button size="sm" variant="secondary" onClick={() => void handleRotateSiteKey()} disabled={rotating}>
+                {rotating ? 'Rotating…' : 'Rotate site key'}
+              </Button>
+              <Button size="sm" variant="secondary" onClick={() => void copyEmbedSnippet()} disabled={!embedSnippet}>
+                Copy embed snippet
+              </Button>
+            </div>
+            {copyStatus ? <p className="text-foreground">{copyStatus}</p> : null}
+            {embedSnippet ? (
+              <pre className="overflow-x-auto rounded-lg border border-border bg-surface-muted p-3 text-xs text-foreground">
+                {embedSnippet}
+              </pre>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
 
       {!loading && selectedId ? (
         <div className="grid gap-4 md:grid-cols-2">

@@ -45,14 +45,17 @@ test('admin can create widget form and sync fields', function () {
 
     $admin = widgetAdminUser();
 
-    $formId = $this->actingAs($admin)
+    $createResponse = $this->actingAs($admin)
         ->postJson('/api/v1/widget-forms', [
             'key' => 'lead_short',
             'name' => 'Short lead form',
-            'site_key' => 'pk_dev',
         ])
-        ->assertCreated()
-        ->json('data.id');
+        ->assertCreated();
+
+    $formId = $createResponse->json('data.id');
+    $siteKey = $createResponse->json('data.site_key');
+
+    expect($siteKey)->toBeString()->toStartWith('pk_live_');
 
     $this->actingAs($admin)
         ->putJson("/api/v1/widget-forms/{$formId}/fields", [
@@ -132,4 +135,29 @@ test('widget form management requires permission', function () {
     $this->actingAs($user)
         ->postJson('/api/v1/widget-forms', ['key' => 'x', 'name' => 'X'])
         ->assertForbidden();
+});
+test('admin can rotate widget form site key', function () {
+    $admin = widgetAdminUser();
+
+    $form = WidgetForm::query()->create([
+        'key' => 'lead_short',
+        'name' => 'Short',
+        'site_key' => 'pk_live_oldkey123456789012345678',
+        'status' => 'active',
+    ]);
+
+    $response = $this->actingAs($admin)
+        ->postJson("/api/v1/widget-forms/{$form->id}/rotate-site-key")
+        ->assertOk();
+
+    $newKey = $response->json('data.site_key');
+
+    expect($newKey)->toBeString()
+        ->toStartWith('pk_live_')
+        ->not->toBe('pk_live_oldkey123456789012345678');
+
+    $this->assertDatabaseHas('widget_forms', [
+        'id' => $form->id,
+        'site_key' => $newKey,
+    ]);
 });

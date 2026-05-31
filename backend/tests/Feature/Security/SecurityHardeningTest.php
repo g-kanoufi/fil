@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Models\AchCustomer;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\WidgetForm;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -102,6 +103,24 @@ test('embed intake accepts allowlisted key in production', function () {
 
     $this->postJson('/api/public/v1/leads', [
         'site_key' => 'pk_client_prod',
+        'first_name' => 'Test',
+        'last_name' => 'Lead',
+        'email' => 'test@example.com',
+    ])->assertCreated();
+});
+test('embed intake accepts active widget form site key without env entry', function () {
+    config(['fil.embed.site_keys' => []]);
+    app()->detectEnvironment(fn (): string => 'production');
+
+    WidgetForm::query()->create([
+        'key' => 'lead_short',
+        'name' => 'Short',
+        'site_key' => 'pk_live_fromdatabaseonly123456',
+        'status' => 'active',
+    ]);
+
+    $this->postJson('/api/public/v1/leads', [
+        'site_key' => 'pk_live_fromdatabaseonly123456',
         'first_name' => 'Test',
         'last_name' => 'Lead',
         'email' => 'test@example.com',

@@ -46,6 +46,7 @@ use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\StoreOwnerController;
 use App\Http\Controllers\Api\V1\WidgetFormController;
 use App\Http\Controllers\Api\V1\WidgetFormFieldSyncController;
+use App\Http\Controllers\Api\V1\WidgetFormRotateSiteKeyController;
 use App\Http\Controllers\Webhooks\DwollaWebhookController;
 use App\Http\Controllers\Webhooks\MailgunInboundWebhookController;
 use App\Http\Controllers\Webhooks\MailgunWebhookController;
@@ -93,6 +94,8 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.widget-forms.update');
         Route::put('/widget-forms/{widgetForm}/fields', WidgetFormFieldSyncController::class)
             ->name('api.v1.widget-forms.fields.sync');
+        Route::post('/widget-forms/{widgetForm}/rotate-site-key', WidgetFormRotateSiteKeyController::class)
+            ->name('api.v1.widget-forms.rotate-site-key');
         Route::get('/leads', [LeadController::class, 'index'])->name('api.v1.leads.index');
         Route::post('/leads', [LeadController::class, 'store'])->name('api.v1.leads.store');
         Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('api.v1.leads.show');

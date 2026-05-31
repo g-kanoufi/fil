@@ -44,7 +44,7 @@ Each SEC item below was re-checked against the current code. **Status legend:** 
 | 008 ACH idempotency | 🟡 | unique `(store_id, royalty_period_id)`; `TriggerAchTransfer` correlation_id+dedupe; `AchTransferBatchService` confirmed-status guard; UI keeps trigger disabled after success (`StoreDetailPage`) | `SecScopeEndpointsTest` (dup trigger) — *no failed-Dwolla batch test (server is idempotent + dedupes)* |
 | 009 Dwolla enroll trust | ✅ | `AchDwollaEnrollmentService::enroll`; `getCustomer` throws on non-2xx | `AchDwollaEnrollmentTest` |
 | 010 Client-token allowlist | ✅ | `DwollaClientTokenRequest::ALLOWED_ACTIONS` | `AchDwollaEnrollmentTest` (not-configured + disallowed-action) |
-| 011 Embed fail-closed | ✅ | `ValidateEmbedSiteKey` (prod/staging) | `SecurityHardeningTest`; `mvp:staging-check` |
+| 011 Embed fail-closed | ✅ | `ValidateEmbedSiteKey` (env + active widget-form DB keys; staff-only `/embed-demo`); auto `pk_live_*` per form + rotate API | `SecurityHardeningTest`, `WidgetDemoAccessTest`, `WidgetFormTest`; `mvp:staging-check` |
 | 012 Login throttle | ✅ | `ThrottleStaffLogin` (10/min); `SessionController` records `auth/login_failed` activity + per-email+IP `RateLimiter` lockout (5/attempt, prod/staging) | `SecurityHardeningTest`, `FailedLoginAuditTest` |
 | 013 Disable prod sandbox | ✅ | `AppServiceProvider` (no sandbox bind in prod/staging) | boot-time (no test) |
 | 014 Document scope | ✅ | `DocumentPolicy::view` → `canViewDocument` | `DocumentScopeTest` |

@@ -9,8 +9,8 @@
 <body>
     <div
         data-fil-widget="lead-form"
-        data-site-key="pk_dev"
-        data-api-base="{{ url('/') }}"
+        data-site-key="{{ $siteKey }}"
+        data-api-base="{{ $apiBase }}"
     ></div>
     <script src="{{ asset('widget/form.js') }}"></script>
 </body>

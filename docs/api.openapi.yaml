@@ -63,6 +63,9 @@ paths:
   /v1/widget-forms/{widgetForm}/fields:
     put:
       summary: Sync widget form fields (add/remove/reorder in one call)
+  /v1/widget-forms/{widgetForm}/rotate-site-key:
+    post:
+      summary: Rotate the publishable site key for an embed form (admin; fields.manage)
   /public/v1/form-config:
     get:
       summary: Embeddable lead form field schema (resolved from active widget form)
