@@ -15,12 +15,15 @@ export function buildCsv(headers: string[], rows: string[][]): string {
   return lines.join('\n');
 }
 
-export function downloadCsv(content: string, filename: string): void {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+export function downloadCsv(content: string, filename: string): void {
+  downloadBlob(new Blob([content], { type: 'text/csv;charset=utf-8;' }), filename);
 }

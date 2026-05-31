@@ -202,6 +202,9 @@ paths:
   /v1/activity:
     get:
       summary: "V1 Activity Index"
+  /v1/activity/export:
+    get:
+      summary: "V1 Activity Export"
   /v1/activity/subjects/{type}/{id}:
     get:
       summary: "V1 Activity Subjects"

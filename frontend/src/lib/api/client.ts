@@ -90,6 +90,29 @@ export function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   return request<T>(path, { ...init, method: 'GET' });
 }
 
+export async function apiGetBlob(path: string, init?: RequestInit): Promise<Blob> {
+  const response = await fetch(`${baseUrl}${path}`, {
+    credentials: 'include',
+    ...init,
+    method: 'GET',
+    headers: { ...init?.headers },
+  });
+
+  if (!response.ok) {
+    const error = new ApiError(
+      response.status,
+      `API GET ${path} failed: ${response.status}`,
+      await parseJson(response),
+    );
+
+    notifyApiAuthError(error);
+
+    throw error;
+  }
+
+  return response.blob();
+}
+
 export function apiPost<T>(path: string, payload?: unknown, init?: RequestInit): Promise<T> {
   return request<T>(path, {
     ...init,

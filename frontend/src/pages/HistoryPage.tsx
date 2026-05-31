@@ -6,7 +6,12 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { fetchActivityFeed, fetchAllActivityFeed, type ActivityItem } from '@/lib/api/activity';
+import {
+  downloadActivityExport,
+  fetchActivityFeed,
+  fetchAllActivityFeed,
+  type ActivityItem,
+} from '@/lib/api/activity';
 import { downloadActivityCsv } from '@/lib/export/activityCsv';
 import { activityFeedExportFilename } from '@/lib/export/filenames';
 
@@ -20,6 +25,7 @@ export function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingServer, setExportingServer] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadFeed = useCallback(async (append = false, nextCursor: string | null = null) => {
@@ -67,6 +73,19 @@ export function HistoryPage() {
     }
   }
 
+  async function exportFeedServer() {
+    setExportingServer(true);
+    setError(null);
+
+    try {
+      await downloadActivityExport(days, activityFeedExportFilename(days));
+    } catch (exportError: unknown) {
+      setError(exportError instanceof Error ? exportError.message : 'Failed to export activity');
+    } finally {
+      setExportingServer(false);
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -101,11 +120,20 @@ export function HistoryPage() {
           <CardHeader
             title="Recent activity"
             actions={
-              <ExportCsvButton
-                exporting={exporting}
-                disabled={items.length === 0}
-                onClick={exportFeed}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <ExportCsvButton
+                  exporting={exporting}
+                  disabled={items.length === 0}
+                  onClick={exportFeed}
+                />
+                <ExportCsvButton
+                  exporting={exportingServer}
+                  disabled={items.length === 0}
+                  onClick={exportFeedServer}
+                  label="Export (server)"
+                  busyLabel="Exporting…"
+                />
+              </div>
             }
           />
           <ActivityFeedList items={items} />
