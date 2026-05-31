@@ -135,10 +135,11 @@ SANCTUM_STATEFUL_DOMAINS=localhost,localhost:5173,127.0.0.1,127.0.0.1:8000
 
 ### 5. Public lead widget
 
-1. Open **http://127.0.0.1:8000/embed-demo**
-2. Fill first name, last name, email → Submit
-3. Expect “Thanks — we received your inquiry.”
-4. Confirm new lead: re-login → Leads grid shows 5 records, or check Mailhog for drip email attempt
+1. Log in to the staff app, then open **http://127.0.0.1:8000/embed-demo** (staff-only preview — not for client sites)
+2. Or use **Settings → Widget form → Open staff preview** for the embed snippet and site key
+3. Fill first name, last name, email → Submit
+4. Expect “Thanks — we received your inquiry.”
+5. Confirm new lead: Leads grid, or check Mailhog for drip email attempt
 
 ### 6. Mailhog (email)
 

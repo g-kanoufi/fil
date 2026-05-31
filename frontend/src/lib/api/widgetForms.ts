@@ -57,6 +57,12 @@ export function updateWidgetForm(
   return apiPatch<{ data: WidgetFormDef }>(`/v1/widget-forms/${id}`, payload).then((body) => body.data);
 }
 
+export function rotateWidgetFormSiteKey(id: number): Promise<WidgetFormDef> {
+  return apiPost<{ data: WidgetFormDef }>(`/v1/widget-forms/${id}/rotate-site-key`, {}).then(
+    (body) => body.data,
+  );
+}
+
 export function syncWidgetFormFields(id: number, fields: SyncFieldInput[]): Promise<WidgetFormDef> {
   return apiPut<{ data: WidgetFormDef }>(`/v1/widget-forms/${id}/fields`, { fields }).then(
     (body) => body.data,

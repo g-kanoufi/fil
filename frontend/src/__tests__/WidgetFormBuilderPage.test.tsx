@@ -55,6 +55,7 @@ vi.mock('@/lib/api/widgetForms', () => ({
   }),
   createWidgetForm: vi.fn(),
   updateWidgetForm: vi.fn(),
+  rotateWidgetFormSiteKey: vi.fn(),
   syncWidgetFormFields: vi.fn(),
 }));
 
