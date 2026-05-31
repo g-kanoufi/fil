@@ -46,6 +46,7 @@ export function StoreDetailPage({
   const [loading, setLoading] = useState(true);
   const [calculating, setCalculating] = useState(false);
   const [triggeringPeriodId, setTriggeringPeriodId] = useState<number | null>(null);
+  const [triggeredPeriodIds, setTriggeredPeriodIds] = useState<Set<number>>(new Set());
   const [status, setStatus] = useState<string | null>(null);
   const [revenue, setRevenue] = useState('10000');
   const canEditStore = can('stores.manage');
@@ -131,6 +132,7 @@ export function StoreDetailPage({
     try {
       const transfer = await triggerAchTransfer(store.id, period.id);
       setStatus(`ACH queued (transfer #${transfer.id}, $${transfer.amount}).`);
+      setTriggeredPeriodIds((prev) => new Set(prev).add(period.id));
     } catch (achError: unknown) {
       setStatus(achError instanceof Error ? achError.message : 'ACH trigger failed');
     } finally {
@@ -254,9 +256,13 @@ export function StoreDetailPage({
                   variant="secondary"
                   size="sm"
                   onClick={() => void onTriggerAch(period)}
-                  disabled={triggeringPeriodId === period.id}
+                  disabled={triggeringPeriodId === period.id || triggeredPeriodIds.has(period.id)}
                 >
-                  {triggeringPeriodId === period.id ? 'Triggering…' : 'Trigger ACH'}
+                  {triggeringPeriodId === period.id
+                    ? 'Triggering…'
+                    : triggeredPeriodIds.has(period.id)
+                      ? 'ACH queued'
+                      : 'Trigger ACH'}
                 </Button>
               ),
             },

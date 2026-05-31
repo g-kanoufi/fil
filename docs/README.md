@@ -7,10 +7,8 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | Doc | Purpose |
 | --- | --- |
 | [**PRODUCTION_READINESS.md**](./PRODUCTION_READINESS.md) | Master roadmap, progress %, phases 0–8, next actions |
-| [**MVP_STATUS.md**](./MVP_STATUS.md) | Short snapshot of what ships today vs deferred |
 | [**AGENTS.md**](../AGENTS.md) | Agent/coding conventions (repo root) |
 | [**CLAUDE.md**](../CLAUDE.md) | Claude Code entry point (imports AGENTS.md + `.claude/rules/`) |
-| [**NEXT_SESSION.md**](./NEXT_SESSION.md) | **Start here for the next chat** — ordered execution plan |
 | [**NEXT_LOCAL_WORK.md**](./NEXT_LOCAL_WORK.md) | Local-only task queue (no Forge / API keys) |
 
 ## Operations & deploy
@@ -45,17 +43,25 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | [METADATA.md](./METADATA.md) | Typed columns + `field_values` (no EAV) |
 | [SEARCH.md](./SEARCH.md) | Grid filters, AI search proxy |
 
+## Security & compliance
+
+| Doc | Purpose |
+| --- | --- |
+| [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) | SEC-001…025 findings + verified remediation status |
+| [SECRETS_ROTATION.md](./SECRETS_ROTATION.md) | Credential inventory + rotation runbook |
+| [PII_RETENTION.md](./PII_RETENTION.md) | PII inventory, retention schedule, SAR/erasure |
+
 ## API
 
 | Doc | Purpose |
 | --- | --- |
 | [api.openapi.yaml](./api.openapi.yaml) | OpenAPI 3 spec for `/api/v1` |
-| [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) | Route drift check (`php artisan openapi:audit`) |
-| [PEST_REVIEW.md](./PEST_REVIEW.md) | Pest vs PHPUnit — recommendation for backend tests |
+| [PEST_STANDARD.md](./PEST_STANDARD.md) | Pest 4 testing standard + conventions for backend tests |
+
+Route-drift check: `php artisan openapi:audit --fail-on-drift` (CI gate).
 
 ## Doc maintenance
 
 - **One source of truth for “what’s next”:** update `PRODUCTION_READINESS.md` when phases complete.
-- **MVP_STATUS.md** is a brief mirror — don’t duplicate long checklists there.
 - **Deploy runbooks** live in `MVP_DEPLOY.md`; architecture constraints in `DEPLOYMENT.md`.
 - Cross-link with relative paths (`./OTHER.md`) from this folder.

@@ -1,11 +1,10 @@
-const BLOCKED_TAGS = /<\/?(?:script|style|iframe|object|embed|link|meta)\b[^>]*>/gi;
-const EVENT_HANDLERS = /\son\w+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi;
-const JS_URLS = /\s(href|src)\s*=\s*(".*?"|'.*?')\s*javascript:[^"']*/gi;
+import DOMPurify from 'dompurify';
 
+/**
+ * Sanitize untrusted rich-text HTML before rendering via dangerouslySetInnerHTML.
+ * Uses DOMPurify (vetted allowlist) which removes scripts, event handlers, and
+ * dangerous URLs (e.g. `javascript:` in href/src) that the previous regex missed.
+ */
 export function sanitizeHtml(html: string): string {
-  return html
-    .replace(BLOCKED_TAGS, '')
-    .replace(EVENT_HANDLERS, '')
-    .replace(JS_URLS, '')
-    .trim();
+  return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } }).trim();
 }

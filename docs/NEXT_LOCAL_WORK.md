@@ -4,8 +4,6 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 **Last updated:** 2026-05-31
 
-**Next session handoff:** [NEXT_SESSION.md](./NEXT_SESSION.md) — paste the chat starter into a new chat to execute.
-
 ---
 
 ## Done on `dev`
@@ -13,7 +11,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | Item | Notes |
 |------|--------|
 | Legacy import dry-run docs | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) — Phase 4 checklist |
-| Test coverage (Pest) | Activity feed auth/scope + document scope/export edge cases — 294 Pest tests |
+| Test coverage (Pest) | Activity feed auth/scope + document scope/export edge cases — 306 Pest tests |
 | Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
 | Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
@@ -23,11 +21,12 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | AG Grid code-split | `FilGridLazy` on grid routes |
 | PostgreSQL local default | Docker Postgres + legacy import on pgsql (see LOCAL_DEV.md) |
 | Empty states audit | `EntityLoadState`, `AsyncSection`, compact `EmptyState` on detail pages |
-| OpenAPI sync audit | `php artisan openapi:audit`, 113/113 routes — [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
+| OpenAPI sync audit | `php artisan openapi:audit --fail-on-drift`, 114/114 routes |
 | Pint / ESLint pass | `pint.json`, `eslint.config.js`, CI `pint --test` + `npm run lint` |
-| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 52 Vitest |
-| Pest 4 migration | 300 Pest tests; see [PEST_REVIEW.md](./PEST_REVIEW.md) |
+| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 57 Vitest |
+| Pest 4 migration | 306 Pest tests; see [PEST_STANDARD.md](./PEST_STANDARD.md) |
 | Activity export API | `GET /api/v1/activity/export` CSV/JSON, scoped + filters; History "Export (server)" button (`1dc0e79`) |
+| Security truth-up | Verified SEC-001…025 → accurate status table; dep-audit CI now blocking; compliance docs ([SECURITY_AUDIT.md](./SECURITY_AUDIT.md), [SECRETS_ROTATION.md](./SECRETS_ROTATION.md), [PII_RETENTION.md](./PII_RETENTION.md)) |
 
 ---
 
@@ -45,7 +44,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 |---|------|--------|-------|
 | 2 | ~~**Empty states audit**~~ | — | Done |
 | 3 | ~~**Pint / ESLint pass**~~ | — | Pint on 70 files, ESLint flat config, CI gates |
-| 4 | ~~**OpenAPI sync audit**~~ | — | `openapi:audit` command + [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
+| 4 | ~~**OpenAPI sync audit**~~ | — | `openapi:audit` command (CI `--fail-on-drift`) |
 | 5 | ~~**Accessibility pass**~~ | — | Done — committed on `dev` (quality pass) |
 
 ### P3 — Security & compliance (still local)
@@ -53,9 +52,11 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
 | 10 | ~~**Audit log export API**~~ | — | Done — `GET /api/v1/activity/export` (CSV/JSON, scoped); merged `1dc0e79` |
-| 11 | **Secrets rotation runbook** | 0.5d | Doc only — `docs/SECRETS_ROTATION.md` |
-| 12 | **PII retention policy draft** | 0.5d | Doc only — align with client legal |
-| 13 | **Dependency audit automation** | 0.5d | CI fails on high/critical `composer audit` / `npm audit` |
+| 11 | ~~**Secrets rotation runbook**~~ | — | Done — [SECRETS_ROTATION.md](./SECRETS_ROTATION.md) |
+| 12 | ~~**PII retention policy draft**~~ | — | Done — [PII_RETENTION.md](./PII_RETENTION.md) (pending client legal) |
+| 13 | ~~**Dependency audit automation**~~ | — | Done — CI `composer audit` / `npm audit --audit-level=high` now blocking |
+| 14 | ~~**SEC local hardening**~~ | — | Done — SEC-012 (login audit + lockout), SEC-018 (.env template), SEC-020 (DOMPurify + security headers), SEC-022 (AI PII strip), SEC-025 (magic-byte upload), SEC-008 (UI guard) |
+| 15 | **SEC follow-ups (local)** | 1–2d | SEC-003 Plaid ITEM/AUTH webhook + `APP_KEY` rotation note; SEC-020 CSP allowlist (Plaid/Dwolla/reCAPTCHA/widget) + browser validation; SEC-019/023 intake & import — see [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) |
 
 ---
 
@@ -74,13 +75,11 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ## Suggested next feature branch
 
-See [NEXT_SESSION.md](./NEXT_SESSION.md) for the full ordered plan.
-
 ```bash
 git checkout dev
-# Block 1: land uncommitted work (quality pass)
-# Block 3A: git checkout -b feature/activity-export-api
-# Block 2:  git checkout -b feature/staging-phase-0   # needs Forge
+# Next P3 (local): git checkout -b feature/dependency-audit-ci
+# Or compliance docs: SECRETS_ROTATION.md, PII retention draft
+# Phase 0 staging (needs Forge): git checkout -b feature/staging-phase-0
 ```
 
 ---

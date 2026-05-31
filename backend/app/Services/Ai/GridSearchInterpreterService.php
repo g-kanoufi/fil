@@ -59,12 +59,13 @@ final class GridSearchInterpreterService
             return null;
         }
 
+        // Only the field schema + scope tier leave the app. The user's free-text
+        // query is PII-redacted, and we never forward raw grid config rows.
         $response = Http::timeout(45)->post(rtrim($serviceUrl, '/').'/interpret-grid', [
             'resource' => $resource,
-            'query' => $query,
+            'query' => $this->redactPii($query),
             'scope_tier' => app(ResourceScopeService::class)->tier($user),
             'schema' => $this->aiSearchSchema($resource),
-            'grid_config' => config("fil-grid.resources.{$resource}"),
         ]);
 
         if (! $response->successful()) {
@@ -89,6 +90,17 @@ final class GridSearchInterpreterService
             'query' => is_array($body['query'] ?? null) ? $body['query'] : [],
             'navigation' => is_array($body['navigation'] ?? null) ? $body['navigation'] : [],
         ];
+    }
+
+    /**
+     * Redact obvious PII (emails, phone numbers) before a query leaves the app
+     * for an external AI service. Names are preserved so search still works.
+     */
+    private function redactPii(string $value): string
+    {
+        $value = preg_replace('/[\w.+-]+@[\w-]+\.[\w.-]+/u', '[redacted-email]', $value) ?? $value;
+
+        return preg_replace('/\+?\d[\d\s().-]{6,}\d/u', '[redacted-phone]', $value) ?? $value;
     }
 
     /**

@@ -27,6 +27,7 @@ return [
         'delivered',
         'failed',
         'login',
+        'login_failed',
         'logout',
         'imported',
         'calculated',

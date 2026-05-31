@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Services\Ai\GridSearchInterpreterService;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     $this->interpreter = new GridSearchInterpreterService(
@@ -47,4 +48,27 @@ test('empty query returns guidance', function () {
 
     expect($result['source'])->toBe('none');
     expect($result['query'])->toBe([]);
+});
+test('remote interpret redacts pii and never sends raw grid config', function () {
+    config(['fil.ai_service_url' => 'https://ai.example.test']);
+
+    Http::fake([
+        '*/interpret-grid' => Http::response(['summary' => 'ok', 'query' => []], 200),
+    ]);
+
+    $user = new User(['id' => 1]);
+    $user->setRelation('roles', collect());
+
+    $this->interpreter->interpret($user, 'leads', 'leads for john@example.com call 415-555-1234');
+
+    Http::assertSent(function ($request) {
+        $body = $request->data();
+
+        expect($body)->not->toHaveKey('grid_config');
+        expect($body['query'])->not->toContain('john@example.com');
+        expect($body['query'])->toContain('[redacted-email]');
+        expect($body['query'])->toContain('[redacted-phone]');
+
+        return true;
+    });
 });
