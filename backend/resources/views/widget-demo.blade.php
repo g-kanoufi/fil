@@ -31,8 +31,8 @@
         <h2>Client site setup</h2>
         <p>
             Each widget form has a unique <strong>site key</strong> (publishable, like a Stripe publishable key).
-            FIL validates the key on every intake request; in production also set
-            <code>FIL_RECAPTCHA_*</code> and restrict origins with <code>FIL_EMBED_ALLOWED_ORIGINS</code> when configured.
+            FIL validates the key on every intake request; in production also configure
+            <code>FIL_RECAPTCHA_*</code> for bot protection.
         </p>
         <ol>
             <li>In FIL → <strong>Settings → Widget form</strong>, create or select a form and copy its site key.</li>
