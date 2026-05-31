@@ -62,7 +62,7 @@ Weighted by what blocks a real client cutover:
 - **Forge deploy script** + extended `mvp:staging-check` (demo users, embed keys, Sanctum, webhooks)
 - **Email suppression list** (bounce/complaint via Mailgun webhook; blocks staff send)
 - **Playwright E2E** smoke (`scripts/e2e-smoke.sh`, CI job)
-- Backend: **270** PHPUnit tests; frontend: **35** Vitest tests; E2E: **8** Playwright specs
+- Backend: **294** Pest tests; frontend: **50** Vitest tests; E2E: **8** Playwright specs
 - **Security hardening (SEC-001–025)** code complete — see [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
 - **Activity CSV export** on history + entity timelines (no external deps)
 
@@ -180,8 +180,8 @@ Weighted by what blocks a real client cutover:
 
 | # | Task | Status |
 | --- | --- | --- |
-| 5.1 | PHPUnit feature coverage (API smoke) | ☑ 251 tests |
-| 5.2 | Vitest component/unit tests | ☑ 33 tests |
+| 5.1 | Pest feature coverage (API smoke) | ☑ 294 tests |
+| 5.2 | Vitest component/unit tests | ☑ 50 tests |
 | 5.3 | `mvp:staging-check` artisan command | ☑ |
 | 5.4 | Playwright critical path E2E | ☑ smoke + auth flows |
 | 5.5 | Sentry (or equivalent) backend + frontend | ☐ |

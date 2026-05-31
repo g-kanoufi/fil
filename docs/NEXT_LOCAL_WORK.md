@@ -13,7 +13,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | Item | Notes |
 |------|--------|
 | Legacy import dry-run docs | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) — Phase 4 checklist |
-| PHPUnit coverage gaps | Activity feed auth/scope + document scope/export edge cases (290 tests) |
+| Test coverage (Pest) | Activity feed auth/scope + document scope/export edge cases — 294 Pest tests |
 | Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
 | Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
 | Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
@@ -45,7 +45,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 | 2 | ~~**Empty states audit**~~ | — | Done |
 | 3 | ~~**Pint / ESLint pass**~~ | — | Pint on 70 files, ESLint flat config, CI gates |
 | 4 | ~~**OpenAPI sync audit**~~ | — | `openapi:audit` command + [API_OPENAPI_AUDIT.md](./API_OPENAPI_AUDIT.md) |
-| 5 | ~~**Accessibility pass**~~ | — | Done — see [NEXT_SESSION.md](./NEXT_SESSION.md) Block 1 to commit |
+| 5 | ~~**Accessibility pass**~~ | — | Done — committed on `dev` (quality pass) |
 
 ### P3 — Security & compliance (still local)
 
