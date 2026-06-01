@@ -23,7 +23,21 @@ return [
     'widget' => [
         /** Field groups whose lead fields may be added to embed widget forms. */
         'allowed_field_group_keys' => ['applications', 'user'],
+        /** Legacy ACF {@code fl-react-app-column-default} → {@code fields.config.widget_eligible}. */
+        'eligibility_acf_flag' => 'fl-react-app-column-default',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contacts (User records, excluding prospects)
+    |--------------------------------------------------------------------------
+    | CRM contacts are users with franchise/staff roles. Prospects are users too
+    | (leads, FDD, comms) but never appear in the contacts grid or /contacts API.
+    */
+    'contact' => [
+        'prospect_roles' => ['prospect'],
+    ],
+
     'documents' => [
         'preview_url_hosts' => array_values(array_filter(array_map(
             trim(...),

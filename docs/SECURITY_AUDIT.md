@@ -36,12 +36,12 @@ Each SEC item below was re-checked against the current code. **Status legend:** 
 |-----|--------|-------------------|---------------|
 | 001 Dwolla webhook sig | ✅ | `DwollaSignatureVerifier`; `DwollaWebhookController` (idempotency via `WebhookEvent`) | `tests/Feature/Webhooks/DwollaWebhookTest.php` |
 | 002 Twilio webhook sig | ✅ | `TwilioSignatureVerifier`; `TwilioWebhookController` | `tests/Feature/Webhooks/TwilioWebhookTest.php` |
-| 003 Plaid token at rest | 🟡 | `AchCustomer` `encrypted:array` cast; `AchCustomerResource` omits token; `PlaidWebhookController` verifies JWT | `SecurityHardeningTest`, `PlaidWebhookTest` — *webhook is verify-and-log only; no ITEM/AUTH handling; no key-rotation doc* |
+| 003 Plaid token at rest | ✅ | `AchCustomer` `encrypted:array` cast; `AchCustomerResource` omits token; `PlaidWebhookController` + `PlaidWebhookHandler` (ITEM/AUTH); `SECRETS_ROTATION.md` APP_KEY steps | `SecurityHardeningTest`, `PlaidWebhookTest`, `PlaidWebhookHandlerTest` |
 | 004 List endpoint scope | ✅ | `ResourceScopeService` in Lead/Store/Fdd/Closing/AchTransfer `index` | `SecScopeEndpointsTest`, `ResourceScopeServiceTest` |
 | 005 Activity subject IDOR | ✅ | `ActivitySubjectAuthorizer`; `ActivityController::forSubject` | `SecScopeEndpointsTest`, `ActivityControllerTest` |
 | 006 Comms lead boundary | ✅ | `CommunicationController` `authorize('view',$lead)` + scoped list | `CommunicationControllerTest`, `SendCommunicationTest` |
 | 007 Financial store policy | ✅ | `authorize('view',$store)` on ACH/royalty/POS controllers | `SecScopeEndpointsTest`, `FinancialApiTest` |
-| 008 ACH idempotency | 🟡 | unique `(store_id, royalty_period_id)`; `TriggerAchTransfer` correlation_id+dedupe; `AchTransferBatchService` confirmed-status guard; UI keeps trigger disabled after success (`StoreDetailPage`) | `SecScopeEndpointsTest` (dup trigger) — *no failed-Dwolla batch test (server is idempotent + dedupes)* |
+| 008 ACH idempotency | ✅ | unique `(store_id, royalty_period_id)`; `TriggerAchTransfer` correlation_id+dedupe; `AchTransferBatchService` confirmed-status guard; UI keeps trigger disabled after success (`StoreDetailPage`) | `SecScopeEndpointsTest` (dup trigger), `FinancialSchedulerCommandsTest` (failed Dwolla batch) |
 | 009 Dwolla enroll trust | ✅ | `AchDwollaEnrollmentService::enroll`; `getCustomer` throws on non-2xx | `AchDwollaEnrollmentTest` |
 | 010 Client-token allowlist | ✅ | `DwollaClientTokenRequest::ALLOWED_ACTIONS` | `AchDwollaEnrollmentTest` (not-configured + disallowed-action) |
 | 011 Embed fail-closed | ✅ | `ValidateEmbedSiteKey` + `ValidateEmbedOrigin` (env + active widget-form DB keys; origin allowlist in staging/production); in-app staff preview at `/app/settings/widget/demo` | `SecurityHardeningTest`, `EmbedOriginGuardTest`, `WidgetDemoAccessTest`, `WidgetFormTest`; `mvp:staging-check` |
@@ -52,24 +52,19 @@ Each SEC item below was re-checked against the current code. **Status legend:** 
 | 016 FDD send authz | ✅ | `FddController::sendToLead` `authorize('view',$lead)` | `FddControllerTest` |
 | 017 AI thread authz | ✅ | `AiThreadController::store` `authorize('view',$lead)` | `AiThreadControllerTest` |
 | 018 Session cookie | ✅ | `config/session.php`; `mvp:staging-check` flags insecure cookies; `.env.example` documents the prod `SESSION_SECURE_COOKIE=true` / `SESSION_ENCRYPT=true` requirement | `MvpStagingCheckCommandTest` |
-| 019 Public intake abuse | 🟡 | `StoreLeadRequest` reCAPTCHA(prod)+honeypot; `PublicLeadResource` | `LeadIntakeControllerTest` — *global 60/min only; no per-site-key limit* |
-| 020 Notification XSS | 🟡 | `sanitizeHtml.ts` now uses **DOMPurify** (strips scripts/handlers/`javascript:` URLs); `HtmlSanitizer.php` on save; `SecurityHeaders` middleware (nosniff, frame DENY, referrer, COOP) | `sanitizeHtml.test.ts` (incl. `javascript:` case) — *strict CSP still deferred: needs an allowlist for Plaid/Dwolla/reCAPTCHA + the embed widget, plus browser validation* |
+| 019 Public intake abuse | ✅ | `StoreLeadRequest` reCAPTCHA(prod)+honeypot; `PublicLeadResource`; `ThrottleEmbedLeadIntake` per site_key (prod/staging) | `LeadIntakeControllerTest`, `SecurityHardeningTest` (site_key throttle) |
+| 020 Notification XSS | ✅ | `sanitizeHtml.ts` (DOMPurify); `HtmlSanitizer.php` on save; `SecurityHeaders` + `ContentSecurityPolicyBuilder` (Plaid/Dwolla/reCAPTCHA allowlist) | `sanitizeHtml.test.ts`, `SecurityHardeningTest` (CSP header) |
 | 021 POS credentials | 🔭 | `PosConnection` `encrypted:array` cast; sync stub | — *OAuth/PKCE/store-scope/SSRF guards before POS go-live* |
 | 022 Grid AI PII | ✅ | `GridSearchInterpreterService` PII-redacts the outgoing query (emails/phones) and no longer forwards raw `grid_config`; only field schema + scope tier leave the app | `GridSearchInterpreterServiceTest` (redaction + payload assertion) |
-| 023 Legacy import guard | 🟡 | `LegacyImportCommand` blocks `--execute` in prod/staging w/o `--force` | `LegacyImportCommandTest` — *no typed confirmation/audit log* |
+| 023 Legacy import guard | ✅ | `LegacyImportCommand` blocks `--execute` in prod/staging w/o `--force`; requires `--confirm=legacy-import`; records `import/imported` activity | `LegacyImportGuardTest` |
 | 024 Webhook throttle | ✅ | all webhook routes `throttle:120,1` | — *(edge/WAF out of scope)* |
 | 025 FDD PDF validation | 🟡 | `MinimalPdf::isValid` on write; `Content-Disposition: attachment`; `PdfFile` magic-byte rule on `StoreFddRequest`/`UpdateFddRequest` uploads | `MinimalPdfTest`, `FddControllerTest` (non-PDF rejection) — *no virus scan (future)* |
 
 ### Remaining local hardening (no Forge/creds needed)
 
-The 2026-05-31 hardening pass closed SEC-012, SEC-018, SEC-020 (XSS), SEC-022, and SEC-025 (magic-byte), and tightened SEC-008. What still remains locally:
+The 2026-05-31 hardening pass closed SEC-012, SEC-018, SEC-020 (XSS), SEC-022, and SEC-025 (magic-byte), and tightened SEC-008. A 2026-06-01 follow-up closed SEC-003 (Plaid ITEM/AUTH webhooks), SEC-008 batch test, SEC-019 (per-site-key intake limit), SEC-020 (CSP allowlist), and SEC-023 (typed import confirm + audit).
 
-1. **SEC-003** — implement Plaid ITEM/AUTH webhook handling (verify-and-log only today) and document `APP_KEY` rotation impact on stored tokens (started in `SECRETS_ROTATION.md`).
-2. **SEC-020 (CSP)** — add a Content-Security-Policy once an allowlist for the external scripts (Plaid Link, Dwolla drop-ins, reCAPTCHA) and the embed widget is vetted in a real browser. Safe headers (nosniff, frame DENY, referrer, COOP) ship now via `SecurityHeaders`.
-3. **SEC-008** — a failed-Dwolla batch test (server is already idempotent + dedupes; this is test coverage, not a fix).
-4. **SEC-019 / SEC-023** — per-site-key intake limiting and typed-confirmation/audit on legacy import.
-
-Items requiring external services (pentest, prod credential verification, Dwolla/Plaid/Twilio live keys) stay blocked — see [Out of scope](#out-of-scope-this-pass).
+Items requiring external services (pentest, prod credential verification, Dwolla/Plaid/Twilio live keys, CSP tuning on real Plaid/Dwolla flows) stay blocked — see [Out of scope](#out-of-scope-this-pass).
 
 ### Dependency audit (CI gate)
 
@@ -539,4 +534,4 @@ Use this as a **go/no-go gate** before enabling `FIL_ENABLE_ACH_COLLECTION=true`
 
 ---
 
-*Phase A (webhooks + Plaid encryption + prod fail-closed) and the Phase B IDOR/scope work are implemented and verified — see [Remediation status](#remediation-status-verified-2026-05-31). Next local steps are the ranked items under "Remaining local hardening"; live-money (Phase C) and pentest remain blocked on external credentials.*
+*Phase A (webhooks + Plaid encryption + prod fail-closed) and the Phase B IDOR/scope work are implemented and verified — see [Remediation status](#remediation-status-verified-2026-05-31). Local SEC follow-ups (003, 008 test, 019, 020 CSP, 023) closed 2026-06-01; live-money verification and pentest remain blocked on external credentials.*

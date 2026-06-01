@@ -17,6 +17,7 @@ import {
   DocumentDetailPage,
   DocumentsPage,
   DripCampaignsAdminPage,
+  InterestRegionsAdminPage,
   FddPage,
   FieldsAdminPage,
   GridPage,
@@ -189,6 +190,14 @@ export function AppRoutes() {
             element={
               <RequirePermission permission="settings.manage">
                 <MailSettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/settings/interest-regions"
+            element={
+              <RequirePermission permission="settings.manage">
+                <InterestRegionsAdminPage />
               </RequirePermission>
             }
           />

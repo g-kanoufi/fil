@@ -168,6 +168,7 @@ test('field groups context widget returns only application and user groups', fun
         'storage' => 'field_value',
         'sort_order' => 1,
         'status' => 'active',
+        'config' => ['widget_eligible' => true],
     ]);
     Field::query()->create([
         'field_group_id' => $userGroup->id,
@@ -178,6 +179,7 @@ test('field groups context widget returns only application and user groups', fun
         'storage' => 'field_value',
         'sort_order' => 1,
         'status' => 'active',
+        'config' => ['widget_eligible' => true],
     ]);
 
     $response = $this->actingAs(fieldAdminUser())

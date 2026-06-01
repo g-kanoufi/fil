@@ -38,6 +38,7 @@ function leadField(string $key, string $type = 'text', bool $required = false): 
         'required' => $required,
         'sort_order' => 1,
         'status' => 'active',
+        'config' => ['widget_eligible' => true],
     ]);
 }
 test('admin can create widget form and sync fields', function () {
@@ -202,5 +203,72 @@ test('admin can rotate widget form site key', function () {
     $this->assertDatabaseHas('widget_forms', [
         'id' => $form->id,
         'site_key' => $newKey,
+    ]);
+});
+
+function contactField(string $key, string $type = 'text'): Field
+{
+    $group = FieldGroup::query()->firstOrCreate(
+        ['key' => 'user'],
+        ['title' => 'User', 'sort_order' => 2, 'status' => 'active'],
+    );
+
+    return Field::query()->create([
+        'field_group_id' => $group->id,
+        'entity' => 'contact',
+        'key' => $key,
+        'name' => ucfirst(str_replace('_', ' ', $key)),
+        'type' => $type,
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+        'config' => ['widget_eligible' => true],
+    ]);
+}
+
+test('widget form sync accepts user-group contact fields', function () {
+    $field = contactField('linkedin_url');
+
+    $admin = widgetAdminUser();
+    $formId = $this->actingAs($admin)
+        ->postJson('/api/v1/widget-forms', ['key' => 'lead_full', 'name' => 'Full'])
+        ->assertCreated()
+        ->json('data.id');
+
+    $this->actingAs($admin)
+        ->putJson("/api/v1/widget-forms/{$formId}/fields", [
+            'fields' => [
+                ['field_id' => $field->id, 'sort_order' => 0],
+            ],
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.fields.0.field.key', 'linkedin_url');
+});
+
+test('public intake persists contact custom fields on prospect user', function () {
+    $field = contactField('linkedin_url');
+    $form = WidgetForm::query()->create([
+        'key' => 'lead_full', 'name' => 'Full', 'site_key' => 'pk_dev_contact', 'status' => 'active',
+    ]);
+    $form->formFields()->create(['field_id' => $field->id, 'sort_order' => 0, 'status' => 'active']);
+
+    $this->postJson('/api/public/v1/leads', [
+        'site_key' => 'pk_dev_contact',
+        'email' => 'prospect-contact@example.com',
+        'first_name' => 'Sam',
+        'last_name' => 'Ng',
+        'custom' => ['linkedin_url' => 'https://linkedin.com/in/samng'],
+    ])->assertCreated();
+
+    $lead = Lead::query()->firstOrFail();
+    $prospectId = $lead->prospect_user_id;
+
+    expect($prospectId)->not->toBeNull();
+
+    $this->assertDatabaseHas('field_values', [
+        'entity_type' => 'contact',
+        'entity_id' => $prospectId,
+        'field_id' => $field->id,
+        'value_text' => 'https://linkedin.com/in/samng',
     ]);
 });

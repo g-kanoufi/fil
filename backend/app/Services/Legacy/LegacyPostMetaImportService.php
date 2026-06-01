@@ -7,10 +7,12 @@ namespace App\Services\Legacy;
 use App\Models\Area;
 use App\Models\Field;
 use App\Models\FranchiseLocation;
+use App\Models\InterestRegion;
 use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
 use App\Models\User;
+use App\Services\Fields\FieldValueWriter;
 use App\Services\Leads\LeadPipelineCatalog;
 
 final class LegacyPostMetaImportService
@@ -46,14 +48,16 @@ final class LegacyPostMetaImportService
     public function __construct(
         private readonly LegacyNamedTableImporter $importer,
         private readonly LeadPipelineCatalog $pipelineCatalog,
+        private readonly LegacyExtrasDrainService $extrasDrain,
+        private readonly FieldValueWriter $fieldValues,
     ) {}
 
     /**
-     * @return array{applied: int, extras: int, skipped: int}
+     * @return array{applied: int, field_values: int, extras: int, skipped: int}
      */
     public function import(string $dumpPath, string $prefix, bool $execute): array
     {
-        $stats = ['applied' => 0, 'extras' => 0, 'skipped' => 0];
+        $stats = ['applied' => 0, 'field_values' => 0, 'extras' => 0, 'skipped' => 0];
         $fieldColumnMap = $this->fieldColumnMap();
 
         $result = $this->importer->import(
@@ -89,6 +93,26 @@ final class LegacyPostMetaImportService
                 $target = $this->resolveTarget($legacyPostId, $metaKey, (string) $metaValue, $fieldColumnMap);
 
                 if ($target === null) {
+                    $fieldValue = $this->extrasDrain->resolveFieldValueTarget(
+                        $legacyPostId,
+                        $metaKey,
+                        (string) $metaValue,
+                    );
+
+                    if ($fieldValue !== null) {
+                        $stats['field_values']++;
+
+                        if ($execute) {
+                            $this->fieldValues->write(
+                                $fieldValue['entity'],
+                                $fieldValue['entity_id'],
+                                [$fieldValue['key'] => $fieldValue['value']],
+                            );
+                        }
+
+                        return;
+                    }
+
                     $stats['extras']++;
 
                     if ($execute) {
@@ -144,13 +168,13 @@ final class LegacyPostMetaImportService
                 return null;
             }
 
-            $areaId = $this->resolveAreaReferenceId((string) $metaValue);
+            $interestRegionId = $this->resolveInterestRegionReferenceId((string) $metaValue);
 
-            return $areaId !== null ? [
+            return $interestRegionId !== null ? [
                 'model' => Lead::class,
                 'id' => (int) $leadId,
-                'column' => 'area_id',
-                'value' => $areaId,
+                'column' => 'interest_region_id',
+                'value' => $interestRegionId,
             ] : null;
         }
 
@@ -390,6 +414,25 @@ final class LegacyPostMetaImportService
         }
 
         return Area::query()->whereKey($reference)->exists()
+            ? $reference
+            : null;
+    }
+
+    private function resolveInterestRegionReferenceId(string $metaValue): ?int
+    {
+        $reference = (int) trim($metaValue);
+
+        if ($reference <= 0) {
+            return null;
+        }
+
+        $regionId = InterestRegion::query()->where('legacy_term_id', $reference)->value('id');
+
+        if ($regionId !== null) {
+            return (int) $regionId;
+        }
+
+        return InterestRegion::query()->whereKey($reference)->exists()
             ? $reference
             : null;
     }

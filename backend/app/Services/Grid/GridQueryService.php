@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
+use App\Support\Contacts\ContactUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -48,11 +49,11 @@ final class GridQueryService
         }
 
         if ($resource === 'leads') {
-            $query->with('owner:id,first_name,last_name,name');
+            $query->with(['owner:id,first_name,last_name,name', 'interestRegion.parent:id,name']);
         }
 
         if ($resource === 'contacts') {
-            $query->whereHas('roles', fn (Builder $roleQuery) => $roleQuery->where('name', '!=', 'prospect'));
+            ContactUser::applyContactScope($query);
             $query->with('roles:id,name');
         }
 
@@ -211,7 +212,7 @@ final class GridQueryService
                 continue;
             }
 
-            if ($field === 'area_id') {
+            if (in_array($field, ['area_id', 'interest_region_id'], true)) {
                 if (is_array($value)) {
                     $query->whereIn($field, array_map(intval(...), $value));
                 } else {
@@ -357,6 +358,12 @@ final class GridQueryService
                         'lead_source' => $row->lead_source,
                         'likelihood_to_close' => $row->likelihood_to_close,
                         'pipeline_phase' => $presentation['pipeline_phase_label'],
+                        'interest_region' => $row->interestRegion
+                            ? ($row->interestRegion->parent
+                                ? $row->interestRegion->parent->name.' — '.$row->interestRegion->name
+                                : $row->interestRegion->name)
+                            : 'Not defined',
+                        'interest_region_id' => $row->interest_region_id,
                     ],
                 ],
             ];
@@ -478,6 +485,24 @@ final class GridQueryService
                         'doc_count' => (int) $row->doc_count,
                     ])
                     ->all();
+            } elseif ($type === 'interest_region_name') {
+                $buckets = DB::table($table)
+                    ->leftJoin('interest_regions', 'interest_regions.id', '=', "{$table}.interest_region_id")
+                    ->leftJoin('interest_regions as parent_regions', 'parent_regions.id', '=', 'interest_regions.parent_id')
+                    ->whereIn("{$table}.id", (clone $aggQuery)->select("{$table}.id"))
+                    ->selectRaw("COALESCE(CAST({$table}.interest_region_id AS TEXT), 'Not defined') AS key")
+                    ->selectRaw("COALESCE(CASE WHEN parent_regions.name IS NOT NULL THEN parent_regions.name || ' — ' || interest_regions.name ELSE interest_regions.name END, 'Not defined') AS label")
+                    ->selectRaw('COUNT(*) AS doc_count')
+                    ->groupBy("{$table}.interest_region_id", 'interest_regions.name', 'parent_regions.name')
+                    ->orderBy('label')
+                    ->limit(100)
+                    ->get()
+                    ->map(fn ($row) => [
+                        'key' => $row->key,
+                        'label' => $row->label,
+                        'doc_count' => (int) $row->doc_count,
+                    ])
+                    ->all();
             } else {
                 $buckets = DB::table($table)
                     ->whereIn('id', (clone $aggQuery)->select('id'))
@@ -538,7 +563,7 @@ final class GridQueryService
                 continue;
             }
 
-            if ($field === 'area_id') {
+            if (in_array($field, ['area_id', 'interest_region_id'], true)) {
                 if (is_array($value)) {
                     $query->whereIn($field, array_map(intval(...), $value));
                 } else {

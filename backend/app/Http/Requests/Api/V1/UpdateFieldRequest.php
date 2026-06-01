@@ -35,6 +35,7 @@ final class UpdateFieldRequest extends FormRequest
             'config' => ['sometimes', 'nullable', 'array'],
             'config.choices' => ['sometimes', 'array'],
             'config.related_entity' => ['sometimes', 'string', Rule::in(RelatableEntities::keys())],
+            'config.widget_eligible' => ['sometimes', 'boolean'],
         ];
     }
 

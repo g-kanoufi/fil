@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\FieldSchemaController;
 use App\Http\Controllers\Api\V1\GridQueryController;
 use App\Http\Controllers\Api\V1\GridQueryInterpretController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\InterestRegionController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\MailSettingsController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
@@ -210,6 +211,14 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/drip-campaigns/{dripCampaign}', [DripCampaignController::class, 'destroy'])
             ->name('api.v1.drip-campaigns.destroy');
         Route::get('/areas', [AreaController::class, 'index'])->name('api.v1.areas.index');
+        Route::get('/interest-regions', [InterestRegionController::class, 'index'])
+            ->name('api.v1.interest-regions.index');
+        Route::post('/interest-regions', [InterestRegionController::class, 'store'])
+            ->name('api.v1.interest-regions.store');
+        Route::patch('/interest-regions/{interestRegion}', [InterestRegionController::class, 'update'])
+            ->name('api.v1.interest-regions.update');
+        Route::delete('/interest-regions/{interestRegion}', [InterestRegionController::class, 'destroy'])
+            ->name('api.v1.interest-regions.destroy');
         Route::get('/organizations', [OrganizationController::class, 'index'])->name('api.v1.organizations.index');
         Route::post('/query/{resource}', GridQueryController::class)->name('api.v1.query');
         Route::post('/query/{resource}/interpret', GridQueryInterpretController::class)
@@ -241,7 +250,7 @@ Route::prefix('public/v1')->middleware(['throttle:60,1'])->group(function (): vo
     Route::get('/branding', BrandingController::class)->name('api.public.v1.branding');
 });
 
-Route::prefix('public/v1')->middleware(['throttle:60,1', 'embed.site_key', 'embed.origin'])->group(function (): void {
+Route::prefix('public/v1')->middleware(['throttle:60,1', 'throttle.embed_lead_intake', 'embed.site_key', 'embed.origin'])->group(function (): void {
     Route::get('/form-config', FormConfigController::class)->name('api.public.v1.form-config');
     Route::post('/leads', [LeadIntakeController::class, 'store'])->name('api.public.v1.leads.store');
 });

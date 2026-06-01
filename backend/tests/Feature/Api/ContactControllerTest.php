@@ -51,6 +51,7 @@ test('franchisor can update contact custom fields', function () {
         'last_name' => 'Doe',
         'email' => 'jane@example.com',
     ]);
+    $contact->assignRole('lead_owner');
 
     $group = FieldGroup::query()->create([
         'key' => 'contact_profile',
@@ -97,10 +98,25 @@ test('staff without contacts manage cannot update contact custom fields', functi
     $user->givePermissionTo(['app.access', 'contacts.view']);
 
     $contact = User::factory()->create();
+    $contact->assignRole('lead_owner');
 
     $this->actingAs($user)
         ->patchJson("/api/v1/contacts/{$contact->id}", [
             'custom' => ['contact_notes' => 'Should not save'],
         ])
+        ->assertForbidden();
+});
+
+test('prospect-only user cannot be viewed as contact', function () {
+    $viewer = User::factory()->create();
+    $viewer->assignRole('franchisor');
+
+    $prospect = User::factory()->create([
+        'email' => 'prospect-only@example.com',
+    ]);
+    $prospect->assignRole('prospect');
+
+    $this->actingAs($viewer)
+        ->getJson("/api/v1/contacts/{$prospect->id}")
         ->assertForbidden();
 });

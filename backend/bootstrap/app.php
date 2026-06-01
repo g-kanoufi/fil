@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureStaffAccess;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\ThrottleEmbedLeadIntake;
 use App\Http\Middleware\ThrottleStaffLogin;
 use App\Http\Middleware\ValidateEmbedOrigin;
 use App\Http\Middleware\ValidateEmbedSiteKey;
@@ -37,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'embed.site_key' => ValidateEmbedSiteKey::class,
             'embed.origin' => ValidateEmbedOrigin::class,
             'throttle.staff_login' => ThrottleStaffLogin::class,
+            'throttle.embed_lead_intake' => ThrottleEmbedLeadIntake::class,
         ]);
         $middleware->redirectGuestsTo(fn () => route('login'));
     })

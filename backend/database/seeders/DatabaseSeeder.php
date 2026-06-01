@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(UiAccessSeeder::class);
+        $this->call(InterestRegionSeeder::class);
         $this->call(FieldSchemaSeeder::class);
         $this->call(WidgetFormSeeder::class);
 

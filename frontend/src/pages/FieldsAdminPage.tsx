@@ -11,6 +11,7 @@ import {
   fetchFieldGroups,
   fetchRelatableEntities,
   reorderFields,
+  updateField,
   type FieldDef,
   type FieldGroupDef,
   type FieldType,
@@ -20,6 +21,7 @@ import { parseChoiceLines } from '@/lib/fields/fieldChoices';
 import { useAuth } from '@/providers/AuthProvider';
 
 const ENTITIES = ['lead', 'store', 'contact', 'area'] as const;
+const WIDGET_PALETTE_GROUP_KEYS = new Set(['applications', 'user']);
 
 interface NewFieldDraft {
   field_group_id: number | null;
@@ -131,6 +133,21 @@ export function FieldsAdminPage() {
       setError(saveError instanceof Error ? saveError.message : 'Failed to create field');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleToggleWidgetEligible(field: FieldDef, eligible: boolean) {
+    setError(null);
+    try {
+      await updateField(field.id, {
+        config: {
+          ...(field.config ?? {}),
+          widget_eligible: eligible,
+        },
+      });
+      await load();
+    } catch (toggleError: unknown) {
+      setError(toggleError instanceof Error ? toggleError.message : 'Failed to update widget eligibility');
     }
   }
 
@@ -359,13 +376,28 @@ export function FieldsAdminPage() {
                         <div className="text-xs text-muted">
                           {field.key} · {field.type}
                           {field.config?.related_entity ? ` → ${field.config.related_entity}` : ''}
+                          {field.config?.widget_eligible ? ' · widget' : ''}
                           {field.status !== 'active' ? ` · ${field.status}` : ''}
                         </div>
                       </div>
                     </div>
-                    <Button size="sm" variant="danger" onClick={() => void handleDelete(field)}>
-                      Delete
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      {WIDGET_PALETTE_GROUP_KEYS.has(group.key) ? (
+                        <label className="flex items-center gap-2 text-xs text-muted">
+                          <input
+                            type="checkbox"
+                            checked={field.config?.widget_eligible === true}
+                            onChange={(event) =>
+                              void handleToggleWidgetEligible(field, event.target.checked)
+                            }
+                          />
+                          Widget form
+                        </label>
+                      ) : null}
+                      <Button size="sm" variant="danger" onClick={() => void handleDelete(field)}>
+                        Delete
+                      </Button>
+                    </div>
                   </li>
                 ))}
                 {group.fields.length === 0 ? (

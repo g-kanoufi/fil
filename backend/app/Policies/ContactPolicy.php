@@ -8,6 +8,7 @@ use App\Domain\Contact;
 use App\Models\User;
 use App\Policies\Concerns\ChecksFilPermissions;
 use App\Services\Auth\ResourceScopeService;
+use App\Support\Contacts\ContactUser;
 
 final class ContactPolicy
 {
@@ -29,6 +30,10 @@ final class ContactPolicy
         }
 
         if ($contact instanceof User) {
+            if (! ContactUser::isContactRecord($contact)) {
+                return false;
+            }
+
             return $this->scope->canViewContact($user, $contact);
         }
 

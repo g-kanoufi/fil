@@ -242,6 +242,16 @@ paths:
   /v1/areas:
     get:
       summary: "V1 Areas Index"
+  /v1/interest-regions:
+    get:
+      summary: "V1 Interest Regions Index"
+    post:
+      summary: "V1 Interest Regions Store"
+  /v1/interest-regions/{interestRegion}:
+    patch:
+      summary: "V1 Interest Regions Update"
+    delete:
+      summary: "V1 Interest Regions Destroy"
   /v1/areas/{area}/fdd-availability:
     get:
       summary: "V1 Areas Fdd Availability"

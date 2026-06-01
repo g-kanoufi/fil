@@ -53,7 +53,7 @@ final class LeadController extends Controller
             $fieldWriter->write('lead', $lead->id, $request->customFieldValues());
         }
 
-        $lead = $lead->fresh(['owner', 'prospect', 'phaseEvents']);
+        $lead = $lead->fresh(['owner', 'prospect', 'phaseEvents', 'interestRegion.parent']);
 
         $actor = $request->user();
         $activity->record(
@@ -71,7 +71,7 @@ final class LeadController extends Controller
     {
         $this->authorize('view', $lead);
 
-        $lead->load(['owner', 'prospect', 'phaseEvents']);
+        $lead->load(['owner', 'prospect', 'phaseEvents', 'interestRegion.parent']);
 
         return ApiResponse::resource(new LeadResource($lead));
     }
@@ -95,7 +95,7 @@ final class LeadController extends Controller
             $fieldWriter->write('lead', $lead->id, $request->customFieldValues());
         }
 
-        $lead = $lead->fresh(['owner', 'prospect', 'phaseEvents']);
+        $lead = $lead->fresh(['owner', 'prospect', 'phaseEvents', 'interestRegion.parent']);
 
         if ($changedKeys !== []) {
             $actor = $request->user();

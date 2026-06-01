@@ -79,10 +79,10 @@ final class LeadPipelineCatalog
 
     public function resolvePipelinePhase(Lead $lead): int
     {
-        $extras = $lead->extras ?? [];
+        $current = (int) $lead->pipeline_phase;
 
-        if (isset($extras['lead_progress']) && $extras['lead_progress'] !== '' && $extras['lead_progress'] !== null) {
-            return $this->normalizeLegacyProgress($extras['lead_progress']);
+        if ($current > 1 && $this->isValidPhase($current)) {
+            return $current;
         }
 
         $inferred = $this->inferPhaseFromSignals($lead);
@@ -90,8 +90,6 @@ final class LeadPipelineCatalog
         if ($inferred !== null) {
             return $inferred;
         }
-
-        $current = (int) $lead->pipeline_phase;
 
         return $this->isValidPhase($current) ? $current : 1;
     }

@@ -124,6 +124,12 @@ return [
             'pos_provider' => 'pos_provider',
             'pos_external_id' => 'pos_external_id',
         ],
+        'contact' => [
+            'first_name_user' => 'first_name',
+            'last_name_user' => 'last_name',
+            'email_address' => 'email',
+            'mobile_phone' => 'phone',
+        ],
         'area' => [
             'approval_status' => 'status',
         ],
@@ -153,5 +159,92 @@ return [
         'lead_temp',
         'lead_source',
         'store_status',
+    ],
+
+    /** Legacy postmeta keys → FIL field keys (hyphen/legacy naming). */
+    'extras_key_aliases' => [
+        'long-term_drip_start_date' => 'long_term_drip_start_date',
+    ],
+
+    /** Internal WP/Zorzees keys dropped from extras during drain (not promoted). */
+    'extras_discard_keys' => [
+        'zrz_check_updated_metas',
+        'react_lead_status',
+        'store_status_value',
+        'pos_location_id',
+        'long_form_completed',
+        'interested_in_similar_concepts',
+        'eligible_viewed_fdd_page',
+        'years_employed',
+        'local_charities',
+        'local_sponsors',
+        'local_groups',
+        'administrative_notes',
+    ],
+
+    /** Prefixes dropped from extras when no FIL field exists (legacy-only UI keys). */
+    'extras_discard_prefixes' => [
+        'pre_employees_repeater',
+        'administrative_notes_',
+        'custom_fees_table_royalty_fee_schedule',
+        'store_photos',
+        'finished_photos_group',
+        'franchise_fees',
+        'new_store_open_deadline',
+        'new_term_end_date',
+        'franchise_agreement',
+        'store_managers_repeater',
+        'employees_repeater',
+        '_checklist_',
+        'checklist_',
+        '1_checklist',
+    ],
+    'extras_discard_keys_by_entity' => [
+        'lead' => [
+            'org_shareholders',
+            'created_by',
+            'note',
+            'phone',
+        ],
+    ],
+
+    /** Field keys registered on multiple entities (legacy shared postmeta). */
+    'shared_field_keys' => [
+        'wp_user' => ['lead', 'organization'],
+    ],
+
+    /**
+     * Promote extras into a related model column (e.g. applicant email → users.email).
+     *
+     * @var array<string, array<string, array{relation: string, column: string}>>
+     */
+    'extras_relation_columns' => [
+        'lead' => [
+            'email' => ['relation' => 'prospect_user_id', 'column' => 'email'],
+        ],
+    ],
+
+    /**
+     * Documented out-of-scope legacy meta (reported by legacy:mapping-gaps).
+     * Keys still in extras_discard_prefixes are drained silently; notes explain why.
+     */
+    'out_of_scope' => [
+        'store_photos' => 'Store photo galleries — WP attachment IDs for public website; not FIL CRM MVP',
+        'finished_photos_group' => 'Marketing / website photo set — attachment IDs; not FIL CRM MVP',
+        'lead_photo_for_website' => 'Public website hero photo — attachment ID',
+        'website_card_photo' => 'Public website card photo — attachment ID',
+        'supporting_photos_for_website' => 'Public website gallery — attachment IDs',
+        '360_degree_interior_photo' => '360° tour embed — attachment / oembed',
+        'other_final_photos' => 'Internal marketing photos — attachment IDs',
+        'shell_building_photos' => 'Construction milestone photos — attachment IDs',
+        'under_construction_photos' => 'Construction milestone photos — attachment IDs',
+        'site_audit_photos' => 'Site audit photo gallery — attachment IDs',
+        'demo_photos' => 'Demo day photos — attachment IDs',
+        'reception_desk_area_photos' => 'Reception area photos — attachment IDs',
+        'checklist_' => 'Legacy checklist plugin flattened keys — use nso_checklist_embed field only',
+        '_checklist_' => 'Legacy checklist plugin internal keys',
+        '1_checklist' => 'Legacy checklist row keys',
+        'unit_panel_photo' => 'Unit admin panel photo — attachment ID',
+        'area_website' => 'Area website photos — attachment IDs; public site scope',
     ],
 ];

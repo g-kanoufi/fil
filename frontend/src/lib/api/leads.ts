@@ -19,6 +19,13 @@ export interface Lead {
   disclosed_at?: string | null;
   owner_user_id: number | null;
   area_id: number | null;
+  interest_region_id: number | null;
+  interest_region?: {
+    id: number;
+    name: string;
+    code: string | null;
+    label: string;
+  } | null;
   organization_id: number | null;
   status: string;
   prospect?: { id: number; name: string; email: string | null; phone: string | null } | null;
@@ -60,6 +67,7 @@ export function createLead(payload: {
   lead_source?: string;
   lead_status?: string;
   area_id?: number | null;
+  interest_region_id?: number | null;
   custom?: Record<string, unknown>;
 }): Promise<LeadResponse> {
   return apiPost<LeadResponse>('/v1/leads', payload);

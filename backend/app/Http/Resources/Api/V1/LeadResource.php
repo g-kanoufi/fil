@@ -45,6 +45,15 @@ final class LeadResource extends JsonResource
                 'phone' => $this->prospect?->phone,
             ]),
             'area_id' => $this->area_id,
+            'interest_region_id' => $this->interest_region_id,
+            'interest_region' => $this->whenLoaded('interestRegion', fn (): ?array => $this->interestRegion === null ? null : [
+                'id' => $this->interestRegion->id,
+                'name' => $this->interestRegion->name,
+                'code' => $this->interestRegion->code,
+                'label' => $this->interestRegion->parent
+                    ? sprintf('%s — %s', $this->interestRegion->parent->name, $this->interestRegion->name)
+                    : $this->interestRegion->name,
+            ]),
             'organization_id' => $this->organization_id,
             'status' => $this->status,
             'fdd_signed_at' => $this->fdd_signed_at?->toIso8601String(),

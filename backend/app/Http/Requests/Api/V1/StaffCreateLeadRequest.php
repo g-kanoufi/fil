@@ -23,6 +23,7 @@ final class StaffCreateLeadRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'owner_user_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
             'area_id' => ['sometimes', 'nullable', 'integer', 'exists:areas,id'],
+            'interest_region_id' => ['sometimes', 'nullable', 'integer', 'exists:interest_regions,id'],
             'lead_status' => ['sometimes', 'nullable', 'string', 'max:64'],
             'lead_source' => ['sometimes', 'nullable', 'string', 'max:64'],
             'lead_temp' => ['sometimes', 'nullable', 'string', 'max:32'],

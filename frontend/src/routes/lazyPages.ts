@@ -53,6 +53,9 @@ export const MailSettingsPage = lazy(() =>
 export const DripCampaignsAdminPage = lazy(() =>
   import('@/pages/DripCampaignsAdminPage').then((m) => ({ default: m.DripCampaignsAdminPage })),
 );
+export const InterestRegionsAdminPage = lazy(() =>
+  import('@/pages/InterestRegionsAdminPage').then((m) => ({ default: m.InterestRegionsAdminPage })),
+);
 export const FieldsAdminPage = lazy(() =>
   import('@/pages/FieldsAdminPage').then((m) => ({ default: m.FieldsAdminPage })),
 );

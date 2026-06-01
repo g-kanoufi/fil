@@ -17,6 +17,7 @@ use App\Models\Communication;
 use App\Models\Document as DocumentModel;
 use App\Models\Fdd;
 use App\Models\FieldGroup;
+use App\Models\InterestRegion;
 use App\Models\Lead;
 use App\Models\PosConnection;
 use App\Models\RoyaltyPeriod;
@@ -32,6 +33,7 @@ use App\Policies\ContactPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\FddPolicy;
 use App\Policies\FieldSchemaPolicy;
+use App\Policies\InterestRegionPolicy;
 use App\Policies\LeadPolicy;
 use App\Policies\PosPolicy;
 use App\Policies\RoyaltyPolicy;
@@ -54,6 +56,7 @@ final class AuthServiceProvider extends ServiceProvider
         Closing::class => ClosingPolicy::class,
         Communication::class => CommunicationPolicy::class,
         FieldGroup::class => FieldSchemaPolicy::class,
+        InterestRegion::class => InterestRegionPolicy::class,
         Contact::class => ContactPolicy::class,
         Document::class => DocumentPolicy::class,
         DocumentModel::class => DocumentPolicy::class,

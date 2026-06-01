@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Services\Activity\ActivityRecorder;
 use App\Services\Legacy\LegacyAchEnrollmentImportService;
 use App\Services\Legacy\LegacyAchImportService;
 use App\Services\Legacy\LegacyAiThreadImportService;
@@ -24,6 +25,7 @@ final class LegacyImportCommand extends Command
                             {--only= : Comma-separated entities (default: all)}
                             {--execute : Persist rows (default is dry-run)}
                             {--force : Allow destructive import in staging/production}
+                            {--confirm= : Required with --force --execute in staging/production (value: legacy-import)}
                             {--all-users : Import prospects too (default imports staff only)}';
 
     protected $description = 'Import legacy CRM dump data into FIL tables.';
@@ -49,6 +51,7 @@ final class LegacyImportCommand extends Command
         LegacyAchImportService $achImporter,
         LegacyAchEnrollmentImportService $achEnrollmentImporter,
         LegacyDocumentImportService $documentImporter,
+        ActivityRecorder $activity,
     ): int {
         $dump = $this->argument('dump') ?? (string) config('fil.legacy.dump_path');
         $prefix = (string) ($this->option('prefix') ?: config('fil.legacy.table_prefix'));
@@ -57,11 +60,39 @@ final class LegacyImportCommand extends Command
             ? self::ALL_ENTITIES
             : array_values(array_filter(array_map(trim(...), explode(',', (string) $onlyOption))));
         $execute = (bool) $this->option('execute');
+        $forced = (bool) $this->option('force');
 
-        if ($execute && app()->environment('production', 'staging') && ! (bool) $this->option('force')) {
-            $this->error('Refusing legacy import in staging/production without --force.');
+        if ($execute && app()->environment('production', 'staging')) {
+            if (! $forced) {
+                $this->error('Refusing legacy import in staging/production without --force.');
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
+
+            $expectedConfirm = (string) config('fil-security.legacy_import.confirm_token', 'legacy-import');
+            $confirm = (string) ($this->option('confirm') ?? '');
+
+            if ($confirm !== $expectedConfirm) {
+                $this->error("Pass --confirm={$expectedConfirm} with --force --execute in staging/production.");
+
+                return self::FAILURE;
+            }
+
+            $activity->record(
+                category: 'import',
+                action: 'imported',
+                summary: 'Legacy dump import started',
+                payload: [
+                    'dump' => $dump,
+                    'only' => $only,
+                    'environment' => app()->environment(),
+                ],
+                source: 'cli',
+            );
+        } elseif ($execute && $forced && ! app()->environment('production', 'staging')) {
+            $this->warn('Forced legacy import in local environment.');
+        } elseif ($forced && ! $execute) {
+            $this->warn('--force has no effect without --execute.');
         }
 
         if (! is_readable($dump)) {
@@ -113,6 +144,7 @@ final class LegacyImportCommand extends Command
         if (in_array('postmeta', $only, true)) {
             $metaStats = $postMetaImporter->import($dump, $prefix, $execute);
             $rows[] = ['postmeta applied to columns', $metaStats['applied']];
+            $rows[] = ['postmeta promoted to field_values', $metaStats['field_values']];
             $rows[] = ['postmeta staged in extras', $metaStats['extras']];
             $rows[] = ['skipped postmeta', $metaStats['skipped']];
         }

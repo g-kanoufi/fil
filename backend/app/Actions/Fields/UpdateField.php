@@ -24,10 +24,14 @@ final class UpdateField
             static fn ($value): bool => $value !== null,
         ));
 
-        if (array_key_exists('config', $attributes)) {
-            $field->config = FieldConfigNormalizer::normalize(
-                is_array($attributes['config']) ? $attributes['config'] : null,
-            );
+        if (array_key_exists('config', $attributes) && is_array($attributes['config'])) {
+            $config = $attributes['config'];
+
+            if (array_key_exists('widget_eligible', $config)) {
+                $config['widget_eligible_admin'] = true;
+            }
+
+            $field->config = FieldConfigNormalizer::normalize($config);
         }
 
         foreach (['required', 'is_filterable', 'is_sortable', 'is_facetable'] as $flag) {

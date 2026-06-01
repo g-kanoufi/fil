@@ -167,3 +167,41 @@ test('embed intake accepts active widget form site key without env entry', funct
         'email' => 'test@example.com',
     ], ['Origin' => 'https://client.example.com'])->assertCreated();
 });
+test('security headers include content security policy in staging', function () {
+    config(['fil-security.csp.enabled' => true]);
+    app()->detectEnvironment(fn (): string => 'staging');
+
+    $response = $this->get('/up');
+
+    $response->assertOk();
+    expect($response->headers->has('Content-Security-Policy'))->toBeTrue();
+    expect($response->headers->get('Content-Security-Policy'))->toContain("default-src 'self'");
+    expect($response->headers->get('Content-Security-Policy'))->toContain('cdn.plaid.com');
+});
+test('public lead intake is throttled per site key in staging', function () {
+    config([
+        'fil.embed.site_keys' => ['pk_rate_test'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'fil-security.public_lead_intake.site_key_max_attempts' => 3,
+        'app.url' => 'https://crm.example.com',
+    ]);
+    app()->detectEnvironment(fn (): string => 'staging');
+
+    $payload = [
+        'site_key' => 'pk_rate_test',
+        'first_name' => 'Rate',
+        'last_name' => 'Limit',
+    ];
+
+    for ($attempt = 0; $attempt < 3; $attempt++) {
+        $this->postJson('/api/public/v1/leads', [
+            ...$payload,
+            'email' => "rate-limit-{$attempt}@example.com",
+        ], ['Origin' => 'https://client.example.com'])->assertCreated();
+    }
+
+    $this->postJson('/api/public/v1/leads', [
+        ...$payload,
+        'email' => 'rate-limit-final@example.com',
+    ], ['Origin' => 'https://client.example.com'])->assertStatus(429);
+});

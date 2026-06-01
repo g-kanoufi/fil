@@ -24,6 +24,7 @@ final class CreateLead
             'owner_user_id' => $attributes['owner_user_id'] ?? $actor?->id,
             'organization_id' => $attributes['organization_id'] ?? null,
             'area_id' => $attributes['area_id'] ?? null,
+            'interest_region_id' => $attributes['interest_region_id'] ?? null,
             'pipeline_phase' => $attributes['pipeline_phase'] ?? 1,
             'lead_status' => $attributes['lead_status'] ?? 'active',
             'lead_stage' => $attributes['lead_stage'] ?? '1',

@@ -18,6 +18,7 @@ final class UpdateLead
             'owner_user_id',
             'organization_id',
             'area_id',
+            'interest_region_id',
             'lead_status',
             'lead_stage',
             'lead_fdd_status',

@@ -11,6 +11,8 @@ use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 final class LegacyImportFinalizeCommand extends Command
 {
@@ -54,7 +56,7 @@ final class LegacyImportFinalizeCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->warn("{$totalExtras} rows still have extras JSON. Re-run `legacy:import --only=postmeta` or promote keys to columns/field_values.");
+        $this->warn("{$totalExtras} rows still have extras JSON. Run `legacy:drain-extras --execute` or promote keys to columns/field_values.");
 
         if ($strict) {
             return self::FAILURE;
@@ -64,14 +66,25 @@ final class LegacyImportFinalizeCommand extends Command
     }
 
     /**
-     * @param  class-string  $model
+     * @param  class-string<Model>  $model
      */
     private function countExtras(string $model): int
     {
+        $instance = new $model;
+
+        if (! Schema::hasColumn($instance->getTable(), 'extras')) {
+            return 0;
+        }
+
         return (int) $model::query()
             ->whereNotNull('extras')
-            ->where('extras', '!=', '[]')
-            ->where('extras', '!=', '{}')
+            ->when(
+                Schema::getConnection()->getDriverName() === 'pgsql',
+                fn ($query) => $query->whereRaw("extras::text NOT IN ('[]', '{}')"),
+                fn ($query) => $query
+                    ->where('extras', '!=', '[]')
+                    ->where('extras', '!=', '{}'),
+            )
             ->count();
     }
 }

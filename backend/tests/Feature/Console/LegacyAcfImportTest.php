@@ -43,4 +43,17 @@ test('legacy acf import assigns locations group to store entity and skips locati
         ->and(collect($locationStatus->config['choices'])->firstWhere('value', '7')['label'])->toBe('Open');
 
     expect(Field::query()->where('entity', 'lead')->where('key', 'status')->exists())->toBeFalse();
+
+    $referralNotes = Field::query()
+        ->where('field_group_id', $applications->id)
+        ->where('key', 'referral_notes')
+        ->first();
+
+    expect($referralNotes)->not->toBeNull()
+        ->and($referralNotes->config['widget_eligible'] ?? false)->toBeTrue();
+
+    expect(Field::query()
+        ->where('field_group_id', $applications->id)
+        ->where('key', 'lead_status')
+        ->value('config'))->toMatchArray(['widget_eligible' => false]);
 });

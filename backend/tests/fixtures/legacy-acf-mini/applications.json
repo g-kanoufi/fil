@@ -7,10 +7,18 @@
             "label": "Lead Status",
             "name": "lead_status",
             "type": "select",
+            "fl-react-app-column-default": 0,
             "choices": {
                 "1": "New Lead",
                 "6": "Spoke with Prospect"
             }
+        },
+        {
+            "key": "field_widget_notes",
+            "label": "Referral notes",
+            "name": "referral_notes",
+            "type": "textarea",
+            "fl-react-app-column-default": 1
         }
     ]
 }

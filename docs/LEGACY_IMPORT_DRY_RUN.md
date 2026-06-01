@@ -67,6 +67,8 @@ Run dry-runs first, then execute in this order on a **fresh migrated DB** (no de
 | 5 | `legacy:import --only=…` (dry-run) | Per-entity counts if debugging gaps |
 | 6 | `legacy:import --execute` | Write all entities |
 | 7 | `legacy:parity-report` | FIL vs legacy count comparison |
+| 7b | `legacy:parity-report --samples` | Post-import field_values, interest_region, extras, documents spot checks |
+| 7c | `legacy:mapping-gaps --entity=store` | Unmapped postmeta audit — see [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
 | 8 | `legacy:finalize` | Extras JSON drain check |
 | 9 | `legacy:finalize --strict` | Fail CI if extras remain |
 | 10 | `mvp:staging-check` | App health after import |
@@ -186,7 +188,9 @@ php artisan legacy:import ../data/local.sql.gz
 
 # 4. Execute + verify
 php artisan legacy:import ../data/local.sql.gz --execute
-php artisan legacy:parity-report ../data/local.sql.gz
+php artisan legacy:parity-report ../data/local.sql.gz --samples
+php artisan legacy:mapping-gaps ../data/local.sql.gz --entity=store
+php artisan legacy:mapping-gaps ../data/local.sql.gz --entity=lead
 php artisan legacy:finalize
 php artisan legacy:finalize --strict
 php artisan mvp:staging-check

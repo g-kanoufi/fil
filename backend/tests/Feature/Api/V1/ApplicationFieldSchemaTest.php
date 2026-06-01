@@ -22,6 +22,12 @@ test('field schema seeds zorzees application status choices', function () {
         ->assertOk();
 
     $applications = collect($response->json('data'))->firstWhere('key', 'applications');
+    $widgetFieldCount = collect($response->json('data'))->sum(
+        fn (array $group): int => count($group['fields'] ?? []),
+    );
+
+    expect($widgetFieldCount)->toBeGreaterThan(0)
+        ->and($widgetFieldCount)->toBeLessThan(120);
     $leadStatus = collect($applications['fields'] ?? [])->firstWhere('key', 'lead_status');
 
     expect($leadStatus)->not->toBeNull()

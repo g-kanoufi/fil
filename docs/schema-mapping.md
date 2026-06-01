@@ -47,6 +47,9 @@ Generated during Phase 1. Legacy table prefix: `vnzokz0zw_9_`.
 | SPA / POS IDs | column | `spa_id`, `pos_provider`, `pos_external_id` |
 | royalty settings | structured JSON | `stores.royalty_config` (schema-validated, not arbitrary meta) |
 | owners | relation | `store_owners` pivot |
+| medical / compliance files | documents | `documents` via `doctors_license_*`, `medical_certification_*` postmeta |
+| website photo galleries | out of scope | See [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
+| checklist plugin rows | out of scope | Retain `nso_checklist_embed` field only |
 
 ## Custom tables inventory (site 9)
 

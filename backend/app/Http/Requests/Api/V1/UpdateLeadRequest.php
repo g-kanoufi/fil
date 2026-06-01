@@ -23,6 +23,7 @@ final class UpdateLeadRequest extends FormRequest
             'owner_user_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
             'organization_id' => ['sometimes', 'nullable', 'integer', 'exists:organizations,id'],
             'area_id' => ['sometimes', 'nullable', 'integer', 'exists:areas,id'],
+            'interest_region_id' => ['sometimes', 'nullable', 'integer', 'exists:interest_regions,id'],
             'lead_status' => ['sometimes', 'nullable', 'string', 'max:64'],
             'lead_stage' => ['sometimes', 'nullable', 'string', 'max:64'],
             'lead_fdd_status' => ['sometimes', 'nullable', 'string', 'max:64'],

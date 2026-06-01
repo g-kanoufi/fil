@@ -59,6 +59,18 @@ export function SettingsPage() {
           </Card>
         ) : null}
 
+        {canManage ? (
+          <Card>
+            <CardHeader
+              title="Interest regions"
+              description="US/Canada states and provinces for lead area-of-interest (separate from franchise territories)."
+            />
+            <Link to="/settings/interest-regions" className="text-sm font-medium text-link hover:underline">
+              Manage interest regions →
+            </Link>
+          </Card>
+        ) : null}
+
         {canManageFields ? (
           <Card>
             <CardHeader

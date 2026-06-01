@@ -2,74 +2,61 @@
 
 Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla, Plaid, or AI service credentials.
 
-**Last updated:** 2026-05-31
+**Last updated:** 2026-06-01 (legacy mapping gaps + parity samples)
 
 ---
 
-## Done on `dev`
+## Recently completed (local)
 
 | Item | Notes |
 |------|--------|
-| Legacy import dry-run docs | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) — Phase 4 checklist |
-| Test coverage (Pest) | Activity feed auth/scope + document scope/export edge cases — 306 Pest tests |
-| Grid export polish | Shared `ExportCsvButton`, `fil-*` filename helpers, full activity feed export |
-| Closing detail workflow | `PATCH /api/v1/closings/{closing}`, status transitions, fee lines, list + detail UI |
-| Contact custom fields (P-026) | `PATCH /api/v1/contacts/{contact}`, `field_values` entity `contact`, detail panel, seeder |
-| Activity CSV export | History page + lead/store/contact timelines (client-side) |
-| `mvp:staging-check` | No crash when roles not seeded |
-| Forbidden page | Consistent `TextLink` styling |
-| AG Grid code-split | `FilGridLazy` on grid routes |
-| PostgreSQL local default | Docker Postgres + legacy import on pgsql (see LOCAL_DEV.md) |
-| Empty states audit | `EntityLoadState`, `AsyncSection`, compact `EmptyState` on detail pages |
-| OpenAPI sync audit | `php artisan openapi:audit --fail-on-drift`, 114/114 routes |
-| Pint / ESLint pass | `pint.json`, `eslint.config.js`, CI `pint --test` + `npm run lint` |
-| Accessibility pass | `ModalDialog`, `useDialogA11y`, login/grid/modal ARIA — 57 Vitest |
-| Pest 4 migration | 306 Pest tests; see [PEST_STANDARD.md](./PEST_STANDARD.md) |
-| Activity export API | `GET /api/v1/activity/export` CSV/JSON, scoped + filters; History "Export (server)" button (`1dc0e79`) |
-| Security truth-up | Verified SEC-001…025 → accurate status table; dep-audit CI now blocking; compliance docs ([SECURITY_AUDIT.md](./SECURITY_AUDIT.md), [SECRETS_ROTATION.md](./SECRETS_ROTATION.md), [PII_RETENTION.md](./PII_RETENTION.md)) |
+| **Legacy mapping gaps (P1 #1)** | `legacy:mapping-gaps` command + `LegacyMappingGapsService`; `out_of_scope` notes in `fil-legacy-acf.php`; [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
+| **Parity spot-checks (P1 #2)** | `legacy:parity-report --samples` — field_values, interest_region_id, extras, documents |
+| **Interest regions** | `interest_regions` table + US/CA seeder, admin CRUD API + Settings UI, `leads.interest_region_id`, legacy `area_of_interest` → region |
+| Legacy extras drain | ACF-aware `legacy:drain-extras`; `legacy:finalize --strict` green (0 staged extras) |
+| SEC follow-ups | Plaid ITEM/AUTH webhooks, CSP allowlist, per-site-key intake throttle, import `--confirm=legacy-import` + audit, failed-Dwolla batch test — **360** Pest tests |
+| P1–P3 quality pass | AG Grid split, empty states, Pint/ESLint, OpenAPI audit, a11y, activity export API |
+| Security docs | [SECURITY_AUDIT.md](./SECURITY_AUDIT.md), [SECRETS_ROTATION.md](./SECRETS_ROTATION.md), [PII_RETENTION.md](./PII_RETENTION.md) |
 
 ---
 
 ## Priority queue (local-only)
 
-### P1 — High value, no external deps
+### P1 — Data & parity
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 1 | ~~**AG Grid code-split**~~ | — | Done |
+| 1 | **Real dump gap audit** | 0.5d | Run `legacy:mapping-gaps` on `data/local.sql.gz` for store + lead; tune `out_of_scope` if new patterns appear |
+| 2 | **Interest region legacy term IDs** | 0.5d | Set `legacy_term_id` on subdivisions when import term IDs differ from seeded US/CA rows |
 
-### P2 — Quality & design
-
-| # | Task | Effort | Notes |
-|---|------|--------|-------|
-| 2 | ~~**Empty states audit**~~ | — | Done |
-| 3 | ~~**Pint / ESLint pass**~~ | — | Pint on 70 files, ESLint flat config, CI gates |
-| 4 | ~~**OpenAPI sync audit**~~ | — | `openapi:audit` command (CI `--fail-on-drift`) |
-| 5 | ~~**Accessibility pass**~~ | — | Done — committed on `dev` (quality pass) |
-
-### P3 — Security & compliance (still local)
+### P2 — Product polish (no external deps)
 
 | # | Task | Effort | Notes |
 |---|------|--------|-------|
-| 10 | ~~**Audit log export API**~~ | — | Done — `GET /api/v1/activity/export` (CSV/JSON, scoped); merged `1dc0e79` |
-| 11 | ~~**Secrets rotation runbook**~~ | — | Done — [SECRETS_ROTATION.md](./SECRETS_ROTATION.md) |
-| 12 | ~~**PII retention policy draft**~~ | — | Done — [PII_RETENTION.md](./PII_RETENTION.md) (pending client legal) |
-| 13 | ~~**Dependency audit automation**~~ | — | Done — CI `composer audit` / `npm audit --audit-level=high` now blocking |
-| 14 | ~~**SEC local hardening**~~ | — | Done — SEC-012 (login audit + lockout), SEC-018 (.env template), SEC-020 (DOMPurify + security headers), SEC-022 (AI PII strip), SEC-025 (magic-byte upload), SEC-008 (UI guard) |
-| 15 | **SEC follow-ups (local)** | 1–2d | SEC-003 Plaid ITEM/AUTH webhook + `APP_KEY` rotation note; SEC-020 CSP allowlist (Plaid/Dwolla/reCAPTCHA/widget) + browser validation; SEC-019/023 intake & import — see [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) |
+| 4 | **Closing/fee CSV export** | 0.5d | Phase 3.4 — mirror activity export pattern |
+| 5 | **E2E smoke expansion** | 1d | Lead custom fields panel, widget demo page — extend `scripts/e2e-smoke.sh` |
+| 6 | **Vitest bump** | 0.5d | Cover `EntityCustomFieldsPanel`, CSP-safe notification preview |
+
+### P3 — Pre-staging prep (still local)
+
+| # | Task | Effort | Notes |
+|---|------|--------|-------|
+| 7 | **Staging env template** | 0.5d | Document required Forge env vars + `mvp:staging-check` gate in [MVP_DEPLOY.md](./MVP_DEPLOY.md) |
+| 8 | **CSP live validation** | 0.5d | When Plaid/Dwolla sandbox keys available — tune `FIL_CSP_*` allowlist; optional `FIL_CSP_REPORT_ONLY=true` first |
 
 ---
 
-## Blocked on external services (do not start locally)
+## Blocked on external services
 
 | Task | Blocker |
 |------|---------|
 | Phase 0 staging ship | Forge VPS + env |
+| Phase 4 import on staging | Client dump + Forge |
 | Mail/SMS prod hardening | Mailgun + Twilio credentials |
 | Dwolla/Plaid live ACH | Sandbox/prod API keys |
 | AI search in prod | `FIL_AI_SERVICE_URL` |
 | Sentry | DSN |
-| Client data import sign-off | Client DB dump on staging |
+| Pentest / SOC review | Vendor engagement |
 
 ---
 
@@ -77,9 +64,8 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 ```bash
 git checkout dev
-# Next P3 (local): git checkout -b feature/dependency-audit-ci
-# Or compliance docs: SECRETS_ROTATION.md, PII retention draft
-# Phase 0 staging (needs Forge): git checkout -b feature/staging-phase-0
+git pull
+git checkout -b feature/legacy-mapping-gaps
 ```
 
 ---
@@ -90,6 +76,7 @@ git checkout dev
 cd backend && php artisan test --compact
 cd frontend && npm run test:run && npm run build
 php artisan mvp:staging-check   # after migrate + seed
+php artisan legacy:finalize --strict   # after legacy import
 ```
 
 ---
@@ -98,5 +85,6 @@ php artisan mvp:staging-check   # after migrate + seed
 
 - [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md)
 - [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
-- [parity-checklist.md](./parity-checklist.md)
+- [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md)
+- [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md)
 - [LOCAL_DEV.md](./LOCAL_DEV.md)

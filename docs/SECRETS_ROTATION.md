@@ -39,9 +39,12 @@
 Do **not** rotate `APP_KEY` casually. If it must be rotated (confirmed compromise):
 
 1. Put the app in maintenance mode.
-2. Decrypt-and-re-encrypt encrypted columns with `php artisan key:generate` using a previous-keys migration (Laravel `APP_PREVIOUS_KEYS`), **or** accept that bank/POS links must be re-established.
-3. Plaid/Dwolla links may need re-linking if not re-encrypted.
-4. All staff sessions are invalidated — expect re-login.
+2. Set the current key as `APP_PREVIOUS_KEYS` in Forge **before** generating the new key (Laravel decrypts with previous keys during migration).
+3. Run `php artisan key:generate` and deploy the new `APP_KEY`.
+4. Re-encrypt encrypted columns: `ach_customers.profile` (Plaid tokens) and `pos_connections.credentials`. A one-off artisan command can iterate rows, read decrypted values, and rewrite — or accept that bank/POS links must be re-established manually.
+5. Plaid/Dwolla links may need re-linking if rows were not re-encrypted.
+6. All staff sessions are invalidated — expect re-login.
+7. Remove `APP_PREVIOUS_KEYS` after all rows are migrated and verified.
 
 ## On staff offboarding
 

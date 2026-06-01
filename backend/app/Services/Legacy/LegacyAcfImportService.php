@@ -7,6 +7,7 @@ namespace App\Services\Legacy;
 use App\Models\Field;
 use App\Models\FieldGroup;
 use App\Support\Legacy\LegacyAcfGroupRegistry;
+use App\Support\Widget\WidgetFieldEligibility;
 use Illuminate\Support\Str;
 
 final class LegacyAcfImportService
@@ -158,14 +159,19 @@ final class LegacyAcfImportService
                 'legacy_acf_type' => $type,
                 'related_entity' => $this->relationEntity($acfField, $filType),
             ]);
+            $config['widget_eligible'] = WidgetFieldEligibility::fromAcfFlag(
+                $acfField['fl-react-app-column-default'] ?? 0,
+            );
 
             $existing = Field::query()
                 ->where('field_group_id', $group->id)
                 ->where('key', $fieldKey)
                 ->first();
 
-            if ($existing !== null && $this->isSystemField($entity, $fieldKey)) {
-                $config = $this->mergeSystemFieldConfig($existing, $config);
+            if ($existing !== null) {
+                $config = $this->isSystemField($entity, $fieldKey)
+                    ? $this->mergeSystemFieldConfig($existing, $config)
+                    : $this->mergeImportedFieldConfig($existing, $config);
             }
 
             Field::query()->updateOrCreate(
@@ -331,10 +337,23 @@ final class LegacyAcfImportService
      */
     private function mergeSystemFieldConfig(Field $existing, array $incoming): array
     {
+        return $this->mergeImportedFieldConfig($existing, $incoming, preserveChoices: true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $incoming
+     * @return array<string, mixed>
+     */
+    private function mergeImportedFieldConfig(Field $existing, array $incoming, bool $preserveChoices = false): array
+    {
         $current = is_array($existing->config) ? $existing->config : [];
 
-        if (($current['choices'] ?? []) !== []) {
+        if ($preserveChoices && ($current['choices'] ?? []) !== []) {
             unset($incoming['choices']);
+        }
+
+        if (($current['widget_eligible_admin'] ?? false) === true) {
+            unset($incoming['widget_eligible']);
         }
 
         return array_replace($current, array_filter($incoming, static fn ($value): bool => $value !== null));

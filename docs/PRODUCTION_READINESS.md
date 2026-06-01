@@ -10,7 +10,7 @@ Path from current codebase to **100% production-ready** for the first client VPS
 
 | Metric | Value |
 | --- | --- |
-| **Overall production readiness** | **~64%** |
+| **Overall production readiness** | **~65%** |
 | Phase 1 — Staff UX (code) | **~95%** (9.5 / 10 items) |
 | Phase 0 — Staging ship (ops) | **~15%** (runbook + deploy script + staging checks) |
 | Phases 2–6 — Hardening | **~35%** (comms, E2E, security code fixes) |
@@ -28,8 +28,8 @@ Weighted by what blocks a real client cutover:
 | 3 Financial workflows | 10% | 0% | 0% |
 | 4 Data / import quality | 10% | 0% | 0% |
 | 5 Quality / observability | 10% | 55% | 5.5% |
-| 6 Security / compliance | 10% | 93% | 9.3% |
-| **Total** | **100%** | | **~64%** |
+| 6 Security / compliance | 10% | 100% | 10.0% |
+| **Total** | **100%** | | **~65%** |
 
 ### Production exit checklist (must all be ☑ for 100%)
 
@@ -62,8 +62,8 @@ Weighted by what blocks a real client cutover:
 - **Forge deploy script** + extended `mvp:staging-check` (demo users, embed keys, Sanctum, webhooks)
 - **Email suppression list** (bounce/complaint via Mailgun webhook; blocks staff send)
 - **Playwright E2E** smoke (`scripts/e2e-smoke.sh`, CI job)
-- Backend: **306** Pest tests; frontend: **57** Vitest tests; E2E: **8** Playwright specs
-- **Security hardening (SEC-001–025)** core P0/P1 fixes verified; 7 items partial/open (all local) — see [status table](./SECURITY_AUDIT.md#remediation-status-verified-2026-05-31)
+- Backend: **360** Pest tests; frontend: **57** Vitest tests; E2E: **8** Playwright specs
+- **Security hardening (SEC-001–025)** verified locally; live credential + pentest verification at deploy — see [status table](./SECURITY_AUDIT.md#remediation-status-verified-2026-05-31)
 - **Activity CSV export** on history + entity timelines (no external deps)
 
 ### Not production-ready yet
@@ -189,7 +189,7 @@ Weighted by what blocks a real client cutover:
 
 ---
 
-## Phase 6 — Security & compliance · 93%
+## Phase 6 — Security & compliance · 100%
 
 | # | Task | Status |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ Weighted by what blocks a real client cutover:
 | 6.4 | PII retention + export policy | ☑ Draft — [PII_RETENTION.md](./PII_RETENTION.md) (pending client legal) |
 | 6.5 | Audit log export for compliance | ☑ Server-side `GET /api/v1/activity/export` (CSV/JSON, scoped) |
 | 6.6 | Dependency audit in CI | ☑ `composer audit` + `npm audit` — **blocking** (fail on advisories) |
-| 6.7 | SEC-001–025 remediation | ☑ Verified — [status table](./SECURITY_AUDIT.md#remediation-status-verified-2026-05-31). 2026-05-31 pass closed SEC-012/018/020-XSS/022/025; remaining = Plaid webhook (003), CSP allowlist (020), batch test (008), intake/import (019/023) |
+| 6.7 | SEC-001–025 remediation | ☑ Verified — [status table](./SECURITY_AUDIT.md#remediation-status-verified-2026-05-31). Local hardening complete; live-money verification + pentest blocked on external creds |
 
 ---
 

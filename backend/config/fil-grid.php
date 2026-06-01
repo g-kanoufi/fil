@@ -25,6 +25,7 @@ return [
                 'owner_user_id',
                 'lead_owner',
                 'area_id',
+                'interest_region_id',
             ],
             'sortable' => ['updated_at', 'created_at', 'title', 'pipeline_phase'],
             'default_sort' => ['field' => 'updated_at', 'direction' => 'desc'],
@@ -34,6 +35,7 @@ return [
                 'meta.likelihood_to_close' => ['column' => 'likelihood_to_close', 'type' => 'terms'],
                 'meta.lead_temp' => ['column' => 'lead_temp', 'type' => 'terms'],
                 'meta.lead_source' => ['column' => 'lead_source', 'type' => 'terms'],
+                'meta.interest_region' => ['column' => 'interest_region_id', 'type' => 'interest_region_name'],
             ],
         ],
         'stores' => [

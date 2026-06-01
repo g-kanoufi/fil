@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Field;
+use App\Models\FieldGroup;
 use App\Models\Lead;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -38,6 +40,24 @@ test('postmeta promotes tier1 lead columns', function () {
         '--execute' => true,
     ])->assertSuccessful();
 
+    $group = FieldGroup::query()->create([
+        'key' => 'applications',
+        'title' => 'Applications',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $group->id,
+        'entity' => 'lead',
+        'key' => 'referral_notes',
+        'name' => 'Referral notes',
+        'type' => 'textarea',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
     $this->artisan('legacy:import', [
         'dump' => $meta,
         '--prefix' => 'wp_9_',
@@ -50,6 +70,17 @@ test('postmeta promotes tier1 lead columns', function () {
     expect($lead->lead_status)->toBe('active');
     expect($lead->lead_temp)->toBe('hot');
     expect($lead->lead_source)->toBe('widget');
+
+    $field = Field::query()->where('key', 'referral_notes')->firstOrFail();
+
+    $this->assertDatabaseHas('field_values', [
+        'entity_type' => 'lead',
+        'entity_id' => $lead->id,
+        'field_id' => $field->id,
+        'value_text' => 'Met at expo',
+    ]);
+
+    expect($lead->fresh()->extras ?? [])->not->toHaveKey('referral_notes');
 });
 
 test('finalize command runs', function () {

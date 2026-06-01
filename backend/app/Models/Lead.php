@@ -25,6 +25,7 @@ final class Lead extends Model
         'owner_user_id',
         'organization_id',
         'area_id',
+        'interest_region_id',
         'pipeline_phase',
         'lead_status',
         'lead_stage',
@@ -41,6 +42,7 @@ final class Lead extends Model
         'status',
         'legacy_post_id',
         'form_data',
+        'extras',
     ];
 
     /**
@@ -58,6 +60,7 @@ final class Lead extends Model
             'eligible_for_drip' => 'boolean',
             'legacy_post_id' => 'integer',
             'form_data' => 'array',
+            'extras' => 'array',
         ];
     }
 
@@ -74,6 +77,11 @@ final class Lead extends Model
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    public function interestRegion(): BelongsTo
+    {
+        return $this->belongsTo(InterestRegion::class);
     }
 
     public function communications(): HasMany

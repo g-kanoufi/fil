@@ -29,12 +29,14 @@ final class FieldGroupController extends Controller
                 $context === 'widget',
                 fn ($query) => $query->whereIn('key', WidgetFieldCatalog::allowedGroupKeys()),
             )
-            ->with(['fields' => function ($query) use ($entity): void {
-                if (is_string($entity) && $entity !== '') {
+            ->with(['fields' => function ($query) use ($entity, $context): void {
+                if ($context === 'widget') {
+                    WidgetFieldCatalog::applyWidgetFieldScope($query);
+                } elseif (is_string($entity) && $entity !== '') {
                     $query->where('entity', $entity);
                 }
 
-                $query->orderBy('sort_order');
+                $query->where('status', 'active')->orderBy('sort_order');
             }])
             ->orderBy('sort_order')
             ->get();

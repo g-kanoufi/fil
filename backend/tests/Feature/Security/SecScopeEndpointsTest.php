@@ -90,7 +90,9 @@ test('activity subject timeline requires contact access', function () {
     $hiddenStore = Store::factory()->create(['area_id' => null]);
 
     $visibleContact = User::factory()->create();
+    $visibleContact->assignRole('franchisee');
     $hiddenContact = User::factory()->create();
+    $hiddenContact->assignRole('franchisee');
 
     StoreOwner::query()->create([
         'store_id' => $visibleStore->id,
