@@ -16,7 +16,8 @@ Single index for product, engineering, and operations docs. **Roadmap to product
 | Doc | Purpose |
 | --- | --- |
 | [LOCAL_DEV.md](./LOCAL_DEV.md) | Local setup, demo logins, browser test checklist |
-| [MVP_DEPLOY.md](./MVP_DEPLOY.md) | Ship gate, Forge runbook, cutover, smoke tests |
+| [MVP_DEPLOY.md](./MVP_DEPLOY.md) | Ship gate, Forge runbook, staging env template, CSP validation |
+| [../backend/.env.staging.example](../backend/.env.staging.example) | Forge staging `.env` template (maps to `mvp:staging-check`) |
 | [../scripts/forge-deploy.sh](../scripts/forge-deploy.sh) | Forge deployment script (migrate, build, staging check) |
 | [../scripts/e2e-smoke.sh](../scripts/e2e-smoke.sh) | Playwright MVP smoke (login → leads grid) |
 | [../e2e/](../e2e/) | Playwright test specs |

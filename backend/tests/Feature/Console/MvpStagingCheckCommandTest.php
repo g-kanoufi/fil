@@ -33,3 +33,46 @@ test('staging check fails when demo users exist in production', function () {
     $this->artisan('mvp:staging-check')
         ->assertFailed();
 });
+test('staging check warns when csp is report-only in staging', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $this->app['env'] = 'staging';
+    config([
+        'app.env' => 'staging',
+        'session.secure' => true,
+        'session.same_site' => 'lax',
+        'fil-security.csp.enabled' => true,
+        'fil-security.csp.report_only' => true,
+        'fil.embed.site_keys' => ['pk_live_stagingtest1234567890'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'services.dwolla.webhook_secret' => 'test-secret',
+    ]);
+
+    $this->artisan('mvp:staging-check')
+        ->assertSuccessful()
+        ->expectsOutputToContain('FIL_CSP_REPORT_ONLY=true');
+});
+test('staging check fails when csp is disabled in staging', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $this->app['env'] = 'staging';
+    config([
+        'app.env' => 'staging',
+        'session.secure' => true,
+        'session.same_site' => 'lax',
+        'fil-security.csp.enabled' => false,
+        'fil.embed.site_keys' => ['pk_live_stagingtest1234567890'],
+        'fil.embed_allowed_origins' => ['https://client.example.com'],
+        'services.dwolla.webhook_secret' => 'test-secret',
+    ]);
+
+    $this->artisan('mvp:staging-check')
+        ->assertFailed()
+        ->expectsOutputToContain('FIL_CSP_ENABLED=true');
+});

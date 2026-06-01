@@ -68,6 +68,63 @@ Ship when **all** of these pass in staging:
 | `MAILGUN_WEBHOOK_SIGNING_KEY` | Mailgun event + inbound route signing |
 | `FIL_AI_SERVICE_URL` | Client AI service (optional for v1) |
 
+## Staging environment template
+
+Forge **Environment** should start from [`backend/.env.staging.example`](../backend/.env.staging.example). Copy it into Forge, replace `CHANGE_ME` / `clientdomain.com` placeholders, then:
+
+```bash
+cd backend
+php artisan config:cache
+php artisan mvp:staging-check
+```
+
+The deploy script ([`scripts/forge-deploy.sh`](../scripts/forge-deploy.sh)) runs `mvp:staging-check` automatically — a FAIL row blocks deploy.
+
+### `mvp:staging-check` gate
+
+| Check | Env / config | Staging | Production |
+| ----- | ------------ | ------- | ---------- |
+| Database | `DB_*` | OK required | OK required |
+| Migrations | — | Core tables present | Core tables present |
+| Roles & permissions | Seed `RolesAndPermissionsSeeder` + admin user | OK required | OK required |
+| Queue worker | `QUEUE_CONNECTION=database` | WARN if `sync` | WARN if `sync` |
+| Failed jobs | — | WARN if backlog | WARN if backlog |
+| Mail delivery | `MAIL_MAILER=mailgun` (not `log`) | OK | FAIL if `log` |
+| APP_URL | `APP_URL=https://…` | WARN if localhost | WARN if localhost |
+| APP_DEBUG | `APP_DEBUG=false` | OK | FAIL if `true` |
+| Session cookies | `SESSION_SECURE_COOKIE=true`, `SESSION_SAME_SITE=lax` | FAIL if insecure | FAIL if insecure |
+| Demo accounts | No `@fil.test` users | FAIL if present | FAIL if present |
+| Embed site keys | `FIL_EMBED_SITE_KEYS=pk_live_*` (not `pk_dev`) | FAIL if missing/dev | FAIL if missing/dev |
+| Embed allowed origins | `FIL_EMBED_ALLOWED_ORIGINS` | FAIL if empty | FAIL if empty |
+| Sanctum domains | `SANCTUM_STATEFUL_DOMAINS` includes APP_URL host | WARN if mismatch | WARN if mismatch |
+| Mailgun webhook | `MAILGUN_WEBHOOK_SIGNING_KEY` when `MAIL_MAILER=mailgun` | WARN if unset | WARN if unset |
+| Dwolla webhook | `DWOLLA_WEBHOOK_SECRET` | FAIL if unset | FAIL if unset |
+| Content Security Policy | `FIL_CSP_ENABLED=true` | WARN if report-only; FAIL if disabled | FAIL if disabled |
+| SPA assets | `npm run build` (staff + widget) | FAIL if manifest missing | FAIL if manifest missing |
+
+Exit code **0** = pass (WARN rows allowed). Exit code **1** = at least one FAIL — fix before go-live smoke tests.
+
+Preview the active CSP header without a browser:
+
+```bash
+php artisan security:csp
+```
+
+## CSP live validation (Plaid / Dwolla / reCAPTCHA)
+
+When sandbox keys are available, validate CSP **before** enforcing:
+
+1. On staging Forge env, set `FIL_CSP_REPORT_ONLY=true` (see `.env.staging.example`).
+2. Deploy and run `php artisan security:csp` — confirm Plaid/Dwolla/reCAPTCHA domains are listed.
+3. In browser (logged-in staff):
+   - Open **ACH** page — Plaid Link should load without CSP console errors.
+   - Open any Dwolla enrollment UI — same.
+   - Submit widget with reCAPTCHA enabled — challenge iframe loads.
+4. Fix violations by appending domains to `FIL_CSP_SCRIPT_SRC`, `FIL_CSP_CONNECT_SRC`, or `FIL_CSP_FRAME_SRC` (comma-separated). Defaults cover standard Plaid/Dwolla/reCAPTCHA hosts — override only when console shows blocked URLs.
+5. Set `FIL_CSP_REPORT_ONLY=false` and redeploy. `mvp:staging-check` should show CSP **OK** (not WARN).
+
+Local note: CSP is off when `APP_ENV=local` unless `FIL_CSP_ENABLED=true`. Use staging for integration CSP testing.
+
 ## Forge deployment runbook
 
 ### 1. Provision server

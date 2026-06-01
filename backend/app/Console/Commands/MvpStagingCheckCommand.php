@@ -50,6 +50,8 @@ final class MvpStagingCheckCommand extends Command
             $this->checkSanctumDomains(),
             $this->checkMailgunWebhook(),
             $this->checkDwollaWebhook(),
+            $this->checkContentSecurityPolicy(),
+            $this->checkSpaAssets(),
         ];
 
         $this->table(['Check', 'Status', 'Detail'], $checks);
@@ -385,5 +387,65 @@ final class MvpStagingCheckCommand extends Command
         }
 
         return ['Dwolla webhook', 'OK', 'Webhook secret configured'];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkContentSecurityPolicy(): array
+    {
+        if (! app()->environment('production', 'staging')) {
+            return ['Content Security Policy', 'OK', 'Skipped outside staging/production'];
+        }
+
+        if (! (bool) config('fil-security.csp.enabled', false)) {
+            return [
+                'Content Security Policy',
+                'FAIL',
+                'Set FIL_CSP_ENABLED=true — required for staff SPA XSS hardening',
+            ];
+        }
+
+        if ((bool) config('fil-security.csp.report_only', false)) {
+            return [
+                'Content Security Policy',
+                'WARN',
+                'FIL_CSP_REPORT_ONLY=true — enforce after browser validation (php artisan security:csp)',
+            ];
+        }
+
+        return ['Content Security Policy', 'OK', 'Enforcing CSP on staff routes'];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkSpaAssets(): array
+    {
+        if (! app()->environment('production', 'staging')) {
+            return ['SPA assets', 'OK', 'Skipped outside staging/production'];
+        }
+
+        $manifest = public_path('fil-assets/.vite/manifest.json');
+
+        if (! is_file($manifest)) {
+            return [
+                'SPA assets',
+                'FAIL',
+                'Missing public/fil-assets/.vite/manifest.json — run npm run build in frontend/',
+            ];
+        }
+
+        $widget = public_path('widget/form.js');
+
+        if (! is_file($widget)) {
+            return [
+                'SPA assets',
+                'WARN',
+                'Missing public/widget/form.js — run npm run build in frontend/widget/',
+            ];
+        }
+
+        return ['SPA assets', 'OK', 'Staff SPA + widget bundles present'];
     }
 }
