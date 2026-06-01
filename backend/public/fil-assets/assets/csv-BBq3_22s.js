@@ -1,0 +1,3 @@
+import{n as e}from"./rolldown-runtime-QTnfLwEv.js";var t=e({buildCsv:()=>r,downloadBlob:()=>i,downloadCsv:()=>a,escapeCsv:()=>n});function n(e){return e.includes(`,`)||e.includes(`"`)||e.includes(`
+`)?`"${e.replace(/"/g,`""`)}"`:e}function r(e,t){return[e.map(n).join(`,`),...t.map(e=>e.map(n).join(`,`))].join(`
+`)}function i(e,t){let n=URL.createObjectURL(e),r=document.createElement(`a`);r.href=n,r.download=t,r.click(),URL.revokeObjectURL(n)}function a(e,t){i(new Blob([e],{type:`text/csv;charset=utf-8;`}),t)}export{a as i,t as n,i as r,r as t};

@@ -216,17 +216,19 @@ final class LegacyDocumentImportService
         $patterns = [];
 
         foreach ($configured as $postType => $path) {
-            $resolved = is_string($path) ? $path : null;
+            $paths = is_array($path) ? $path : (is_string($path) ? [$path] : []);
 
-            if ($resolved === null) {
-                continue;
+            foreach ($paths as $relative) {
+                if (! is_string($relative)) {
+                    continue;
+                }
+
+                $resolved = str_starts_with($relative, '/') ? $relative : base_path($relative);
+                $patterns[$postType] = array_merge(
+                    $patterns[$postType] ?? [],
+                    $this->acfPatterns->fromJsonFile($resolved),
+                );
             }
-
-            if (! str_starts_with($resolved, '/')) {
-                $resolved = base_path($resolved);
-            }
-
-            $patterns[$postType] = $this->acfPatterns->fromJsonFile($resolved);
         }
 
         return $patterns;

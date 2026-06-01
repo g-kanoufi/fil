@@ -138,6 +138,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('api.v1.documents.show');
         Route::get('/documents/{document}/download', DocumentDownloadController::class)
             ->name('api.v1.documents.download');
+        Route::get('/closings/export', [ClosingController::class, 'export'])->name('api.v1.closings.export');
         Route::get('/closings', [ClosingController::class, 'index'])->name('api.v1.closings.index');
         Route::get('/closings/{closing}', [ClosingController::class, 'show'])->name('api.v1.closings.show');
         Route::patch('/closings/{closing}', [ClosingController::class, 'update'])->name('api.v1.closings.update');

@@ -62,9 +62,10 @@ Weighted by what blocks a real client cutover:
 - **Forge deploy script** + extended `mvp:staging-check` (demo users, embed keys, Sanctum, webhooks)
 - **Email suppression list** (bounce/complaint via Mailgun webhook; blocks staff send)
 - **Playwright E2E** smoke (`scripts/e2e-smoke.sh`, CI job)
-- Backend: **360** Pest tests; frontend: **57** Vitest tests; E2E: **8** Playwright specs
+- Backend: **379** Pest tests; frontend: **68** Vitest tests; E2E: **10** Playwright specs
 - **Security hardening (SEC-001–025)** verified locally; live credential + pentest verification at deploy — see [status table](./SECURITY_AUDIT.md#remediation-status-verified-2026-05-31)
 - **Activity CSV export** on history + entity timelines (no external deps)
+- **Closing/fee CSV export** on Closings list (`GET /v1/closings/export`)
 
 ### Not production-ready yet
 
@@ -155,7 +156,7 @@ Weighted by what blocks a real client cutover:
 | 3.1 | Closing detail workflow (status transitions) | ☑ |
 | 3.2 | Fee line items + totals | ☑ |
 | 3.3 | Dwolla enrollment happy path | ☐ Stub UI |
-| 3.4 | Reporting export (CSV) | ☐ |
+| 3.4 | Reporting export (CSV) | ☑ Closings + activity |
 | 3.5 | Admin reconciliation view | ☐ |
 
 **Priority:** After Phase 2 if client needs fees at launch; otherwise post-v1.

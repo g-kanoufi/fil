@@ -10,6 +10,7 @@ use App\Services\Legacy\LegacyAchImportService;
 use App\Services\Legacy\LegacyAiThreadImportService;
 use App\Services\Legacy\LegacyCommunicationImportService;
 use App\Services\Legacy\LegacyDocumentImportService;
+use App\Services\Legacy\LegacyInterestRegionTermSyncService;
 use App\Services\Legacy\LegacyNotificationImportService;
 use App\Services\Legacy\LegacyPostImportService;
 use App\Services\Legacy\LegacyPostMetaImportService;
@@ -51,6 +52,7 @@ final class LegacyImportCommand extends Command
         LegacyAchImportService $achImporter,
         LegacyAchEnrollmentImportService $achEnrollmentImporter,
         LegacyDocumentImportService $documentImporter,
+        LegacyInterestRegionTermSyncService $interestRegionTermSync,
         ActivityRecorder $activity,
     ): int {
         $dump = $this->argument('dump') ?? (string) config('fil.legacy.dump_path');
@@ -142,6 +144,12 @@ final class LegacyImportCommand extends Command
         }
 
         if (in_array('postmeta', $only, true)) {
+            $termStats = $interestRegionTermSync->sync($dump, $prefix, $execute);
+            $rows[] = ['interest_region legacy terms linked', $termStats['linked']];
+            $rows[] = ['interest_region market regions created', $termStats['created']];
+            $rows[] = ['interest_region term sync skipped', $termStats['skipped']];
+            $rows[] = ['interest_region term sync unresolved', $termStats['unresolved']];
+
             $metaStats = $postMetaImporter->import($dump, $prefix, $execute);
             $rows[] = ['postmeta applied to columns', $metaStats['applied']];
             $rows[] = ['postmeta promoted to field_values', $metaStats['field_values']];

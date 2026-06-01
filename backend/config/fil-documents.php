@@ -29,7 +29,10 @@ return [
 
     /** ACF field group JSON used to discover file meta patterns during legacy import. */
     'acf_field_groups' => [
-        'store' => 'resources/legacy-acf/store-client-fields.json',
+        'store' => [
+            'resources/legacy-acf/units.json',
+            'resources/legacy-acf/store-client-fields.json',
+        ],
         'franchise_location' => 'resources/legacy-acf/locations.json',
     ],
 

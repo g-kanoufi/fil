@@ -43,4 +43,8 @@ INSERT INTO `fil_postmeta` VALUES
 (3,9001,'doctors_license_0_file','5001'),
 (4,9001,'finished_photos_group_0_lead_photo_for_website','6001'),
 (5,9001,'checklist_0_item','legacy-checklist-value'),
-(6,9001,'nso_checklist_embed','https://example.test/checklist');
+(6,9001,'nso_checklist_embed','https://example.test/checklist'),
+(7,9001,'business_license_file_upload','7001'),
+(8,9001,'square_access_token','secret-token'),
+(9,9001,'history_table','legacy-grid'),
+(10,9001,'private_notes','legacy-notes');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Legacy;
 
 use App\Models\Field;
+use App\Support\Legacy\LegacyBundledAcfFieldCatalog;
 use Illuminate\Support\Collection;
 
 final class LegacyMappingGapsService
@@ -21,6 +22,7 @@ final class LegacyMappingGapsService
     public function __construct(
         private readonly LegacyExtrasKeyResolver $resolver,
         private readonly LegacyAcfFilePatternBuilder $filePatterns,
+        private readonly LegacyBundledAcfFieldCatalog $bundledFields,
     ) {}
 
     /**
@@ -93,6 +95,12 @@ final class LegacyMappingGapsService
 
             if (isset($tier1[$metaKey])) {
                 $buckets['tier1'][] = ['key' => $metaKey, 'count' => $count, 'note' => $tier1[$metaKey]];
+
+                continue;
+            }
+
+            if ($this->isSkippedFieldKey($metaKey)) {
+                $buckets['discard'][] = ['key' => $metaKey, 'count' => $count, 'note' => 'ACF skip_field_keys'];
 
                 continue;
             }
@@ -178,16 +186,21 @@ final class LegacyMappingGapsService
         return $ids;
     }
 
-    /**
-     * @return Collection<string, Field>
-     */
     private function fieldIndex(string $entity): Collection
     {
-        return Field::query()
+        $index = Field::query()
             ->where('entity', $entity)
             ->where('status', 'active')
             ->get()
             ->keyBy('key');
+
+        foreach ($this->bundledFields->fieldIndexForEntity($entity) as $key => $field) {
+            if (! $index->has($key)) {
+                $index->put($key, $field);
+            }
+        }
+
+        return $index;
     }
 
     /**
@@ -195,19 +208,53 @@ final class LegacyMappingGapsService
      */
     private function documentPatternsForEntity(string $entity): array
     {
-        /** @var array<string, string> $acfGroups */
+        /** @var array<string, string|list<string>> $acfGroups */
         $acfGroups = config('fil-documents.acf_field_groups', []);
         $patterns = [];
 
-        if ($entity === 'store' && isset($acfGroups['store'])) {
-            $patterns = array_merge($patterns, $this->filePatterns->fromJsonFile(base_path($acfGroups['store'])));
-        }
-
-        if (in_array($entity, ['store', 'location'], true) && isset($acfGroups['franchise_location'])) {
-            $patterns = array_merge($patterns, $this->filePatterns->fromJsonFile(base_path($acfGroups['franchise_location'])));
+        foreach ($this->acfJsonPathsForEntity($entity, $acfGroups) as $path) {
+            $patterns = array_merge($patterns, $this->filePatterns->fromJsonFile($path));
         }
 
         return $patterns;
+    }
+
+    /**
+     * @param  array<string, string|list<string>>  $acfGroups
+     * @return list<string>
+     */
+    private function acfJsonPathsForEntity(string $entity, array $acfGroups): array
+    {
+        $paths = [];
+
+        if ($entity === 'store' && isset($acfGroups['store'])) {
+            $paths = array_merge($paths, $this->normalizeJsonPaths($acfGroups['store']));
+        }
+
+        if (in_array($entity, ['store', 'location'], true) && isset($acfGroups['franchise_location'])) {
+            $paths = array_merge($paths, $this->normalizeJsonPaths($acfGroups['franchise_location']));
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (string $relative): string => base_path($relative),
+            $paths,
+        ), static fn (string $path): bool => is_readable($path)));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeJsonPaths(string|array $configured): array
+    {
+        return is_array($configured) ? $configured : [$configured];
+    }
+
+    private function isSkippedFieldKey(string $metaKey): bool
+    {
+        /** @var list<string> $skipped */
+        $skipped = config('fil-legacy-acf.skip_field_keys', []);
+
+        return in_array($metaKey, $skipped, true);
     }
 
     /**

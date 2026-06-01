@@ -147,6 +147,20 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+  /v1/closings/export:
+    get:
+      summary: Export closings and fee lines as CSV (leads.view; scoped)
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json]
+      responses:
+        '200':
+          description: CSV or JSON export
+        '403':
+          description: Forbidden
   /v1/closings:
     get:
       summary: List closings (leads.view; scoped)

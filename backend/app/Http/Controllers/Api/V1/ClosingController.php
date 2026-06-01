@@ -10,8 +10,11 @@ use App\Http\Resources\Api\V1\ClosingResource;
 use App\Models\Closing;
 use App\Services\Activity\ActivityRecorder;
 use App\Services\Auth\ResourceScopeService;
+use App\Services\Closings\ClosingExportService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class ClosingController extends Controller
 {
@@ -26,6 +29,64 @@ final class ClosingController extends Controller
         $scope->applyClosingScope($query, $user);
 
         return ApiResponse::collection(ClosingResource::collection($query->get()));
+    }
+
+    public function export(Request $request, ClosingExportService $export): JsonResponse|StreamedResponse
+    {
+        $this->authorize('viewAny', Closing::class);
+
+        $user = $request->user();
+        abort_unless($user !== null, 403);
+
+        $rows = $export->rowsForUser($user);
+
+        if ($request->string('format')->toString() === 'json') {
+            return response()->json(['data' => $rows]);
+        }
+
+        $filename = 'fil-closings-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($rows): void {
+            $handle = fopen('php://output', 'wb');
+
+            if ($handle === false) {
+                return;
+            }
+
+            fputcsv($handle, [
+                'closing_id',
+                'title',
+                'status',
+                'status_label',
+                'closing_date',
+                'lead',
+                'store',
+                'area',
+                'fee_label',
+                'fee_amount_cents',
+                'fee_total_cents',
+            ]);
+
+            foreach ($rows as $row) {
+                fputcsv($handle, [
+                    (string) ($row['closing_id'] ?? ''),
+                    (string) ($row['title'] ?? ''),
+                    (string) ($row['status'] ?? ''),
+                    (string) ($row['status_label'] ?? ''),
+                    (string) ($row['closing_date'] ?? ''),
+                    (string) ($row['lead'] ?? ''),
+                    (string) ($row['store'] ?? ''),
+                    (string) ($row['area'] ?? ''),
+                    (string) ($row['fee_label'] ?? ''),
+                    $row['fee_amount_cents'] !== null ? (string) $row['fee_amount_cents'] : '',
+                    (string) ($row['fee_total_cents'] ?? ''),
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 
     public function show(Closing $closing): JsonResponse

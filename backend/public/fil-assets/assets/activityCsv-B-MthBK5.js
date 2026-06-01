@@ -1,0 +1,1 @@
+import{i as e,t}from"./csv-BBq3_22s.js";function n(e){return[e.occurred_at??``,e.category,e.action,e.summary,e.actor.name,e.subject?.type??``,e.subject?.label??``,e.source]}var r=[`occurred_at`,`category`,`action`,`summary`,`actor`,`subject_type`,`subject_label`,`source`];function i(e){return t(r,e.map(e=>n(e)))}function a(t,n){t.length!==0&&e(i(t),n)}export{a as t};

@@ -27,6 +27,8 @@ test('legacy mapping gaps classifies store postmeta buckets', function () {
         ->and(collect($report['buckets']['document'])->pluck('key'))->toContain('doctors_license_0_file')
         ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('finished_photos_group_0_lead_photo_for_website')
         ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('checklist_0_item')
+        ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('square_access_token')
+        ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('history_table')
         ->and($report['buckets']['gap'])->toBe([]);
 });
 

@@ -62,6 +62,7 @@ Run dry-runs first, then execute in this order on a **fresh migrated DB** (no de
 | --- | --- | --- |
 | 1 | `legacy:inventory` | Legacy post types, custom tables, row counts |
 | 2 | `legacy:import-acf` | Field groups + fields schema (needed before postmeta → field_values) |
+| 2b | `legacy:sync-interest-region-terms` | Link grabba_tax_area term IDs before postmeta (auto-runs with `--only=postmeta`) |
 | 3 | `legacy:import-access --execute` | Roles, permissions, UI grants (after fresh migrate) |
 | 4 | `legacy:import` (dry-run) | Full counts — **record output** |
 | 5 | `legacy:import --only=…` (dry-run) | Per-entity counts if debugging gaps |
@@ -115,6 +116,7 @@ php artisan legacy:import --only=ai_threads
 ### C. Schema prep
 
 - [ ] `legacy:import-acf` run; field group count reasonable
+- [ ] `legacy:sync-interest-region-terms --execute` — grabba_tax_area term IDs linked
 - [ ] `legacy:import-access --execute` run on fresh DB
 - [ ] Roles from [AUTH.md](./AUTH.md) login smoke test passes after access import
 
@@ -181,6 +183,7 @@ php artisan legacy:inventory ../data/local.sql.gz
 # 2. Schema + access (on fresh DB)
 php artisan migrate:fresh --force
 php artisan legacy:import-acf
+php artisan legacy:sync-interest-region-terms ../data/local.sql.gz --execute
 php artisan legacy:import-access --execute
 
 # 3. Dry-run full import

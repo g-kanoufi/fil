@@ -24,10 +24,28 @@ Exit code **1** from `legacy:mapping-gaps` means unmapped keys remain above `--m
 
 | Source JSON | FIL field group | Entity | Notes |
 |-------------|-----------------|--------|-------|
-| `units.json` | `units` | `store` | Core unit fields, status, owners, royalties UI |
+| `units.json` | `units` | `store` | Core unit fields, status, owners, royalties UI, compliance file fields |
 | `locations.json` | `locations` | `store` | Franchise location / build-out fields |
 | `store-client-fields.json` | `units` (merge) | `store` | Medical docs repeaters — same legacy group key `group_5f6adcab783f1` |
 | `areas.json` | `areas` | `area` | Franchise territories (not interest regions) |
+
+`legacy:mapping-gaps` resolves fields from bundled ACF JSON even before `legacy:import-acf`. Store compliance files (`business_license`, `general_liability_policy`, etc.) classify as **document** patterns from `units.json`.
+
+### Store keys — triaged (PrimeIV dump)
+
+| Bucket | Examples | Action |
+|--------|----------|--------|
+| Document | `business_license`, `signature_packet`, insurance policies | `legacy:import-documents` via `units.json` patterns |
+| Discard | `square_access_token`, `history_table`, `royalties_group`, `private_notes` | Secrets / legacy UI tables — not FIL CRM |
+| Field | Remaining `units.json` scalars | `legacy:import-acf` + postmeta drain |
+
+## Lead entity — triaged (PrimeIV dump)
+
+| Bucket | Examples | Action |
+|--------|----------|--------|
+| Field / drain | `assets_group_0_*`, `liabilities_group_0_*`, flattened subfields | Bundled `applications.json` schema + ACF-aware drain |
+| Discard | `assets_group`, `liabilities_group`, `source_of_income` (parent keys), `history_table`, `contact_group_*` | Repeater container rows / legacy flat contact fields |
+| Discard | `referring_franchise_consultant`, `just_signed_fdd` | Legacy-only flags superseded by pipeline columns |
 
 `store-client-fields.json` is **not** a separate UI group — it merges into `units` during `legacy:import-acf`. File meta (`doctors_license_*_file`) is imported via `legacy:import-documents` using patterns from `config/fil-documents.php`.
 
@@ -60,7 +78,7 @@ Configuration: `config/fil-legacy-acf.php` → `extras_discard_prefixes` + `out_
 
 ## Interest regions (leads)
 
-Legacy `area_of_interest` (taxonomy `grabba_tax_area`) maps to `leads.interest_region_id`, **not** franchise `areas.area_id`. Set `legacy_term_id` on interest region subdivisions when legacy term IDs differ from seeded US/CA rows.
+Legacy `area_of_interest` (taxonomy `grabba_tax_area`) maps to `leads.interest_region_id`, **not** franchise `areas.area_id`. Run `legacy:sync-interest-region-terms --execute` before postmeta import to set `legacy_term_id` on seeded US/CA rows and create client-specific market regions (e.g. California - Southern).
 
 ---
 

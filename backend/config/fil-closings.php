@@ -31,4 +31,6 @@ return [
             'next' => ['pending'],
         ],
     ],
+
+    'max_export_rows' => (int) env('FIL_CLOSINGS_MAX_EXPORT_ROWS', 5000),
 ];

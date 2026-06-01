@@ -48,6 +48,13 @@ export function formatFeeCents(cents: number): string {
   return (cents / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' });
 }
 
+export async function downloadClosingsExport(filename: string): Promise<void> {
+  const { apiGetBlob } = await import('./client');
+  const { downloadBlob } = await import('@/lib/export/csv');
+  const blob = await apiGetBlob('/v1/closings/export', { headers: { Accept: 'text/csv' } });
+  downloadBlob(blob, filename);
+}
+
 export function parseDollarsToCents(value: string): number {
   const normalized = value.replace(/[^0-9.-]/g, '');
   const amount = Number(normalized);

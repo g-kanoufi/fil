@@ -1,0 +1,1 @@
+import{r as e}from"./client-CcTU_xQm.js";function t(){return e(`/v1/areas`).then(e=>e.data)}export{t};

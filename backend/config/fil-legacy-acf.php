@@ -59,6 +59,7 @@ return [
         'lead_progress_sub_nav',
         'history_table',
         'lead_owner_column_order',
+        'royalties_group',
     ],
 
     /** UI-only ACF types (container fields are walked recursively). */
@@ -180,6 +181,7 @@ return [
         'local_sponsors',
         'local_groups',
         'administrative_notes',
+        'square_access_token',
     ],
 
     /** Prefixes dropped from extras when no FIL field exists (legacy-only UI keys). */
@@ -195,6 +197,7 @@ return [
         'franchise_agreement',
         'store_managers_repeater',
         'employees_repeater',
+        'contact_group',
         '_checklist_',
         'checklist_',
         '1_checklist',
@@ -205,6 +208,11 @@ return [
             'created_by',
             'note',
             'phone',
+            'referring_franchise_consultant',
+            'just_signed_fdd',
+            'assets_group',
+            'liabilities_group',
+            'source_of_income',
         ],
     ],
 
@@ -246,5 +254,10 @@ return [
         '1_checklist' => 'Legacy checklist row keys',
         'unit_panel_photo' => 'Unit admin panel photo — attachment ID',
         'area_website' => 'Area website photos — attachment IDs; public site scope',
+        'square_access_token' => 'Legacy POS OAuth secret — rotate in Square; not stored in FIL',
+        'royalties_group' => 'Legacy royalties UI table rows — use royalty_periods import',
+        'history_table' => 'Legacy inline history grid — use activity timeline instead',
+        'private_notes' => 'Legacy private-notes repeater on store — import via lead notes / activity',
+        'contact_group' => 'Legacy flat contact fields — superseded by prospect user + lead columns',
     ],
 ];

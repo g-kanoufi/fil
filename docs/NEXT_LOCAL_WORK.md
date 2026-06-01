@@ -2,7 +2,7 @@
 
 Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla, Plaid, or AI service credentials.
 
-**Last updated:** 2026-06-01 (legacy mapping gaps + parity samples)
+**Last updated:** 2026-06-01 (P1 + P2 complete)
 
 ---
 
@@ -10,32 +10,25 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 
 | Item | Notes |
 |------|--------|
-| **Legacy mapping gaps (P1 #1)** | `legacy:mapping-gaps` command + `LegacyMappingGapsService`; `out_of_scope` notes in `fil-legacy-acf.php`; [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
-| **Parity spot-checks (P1 #2)** | `legacy:parity-report --samples` — field_values, interest_region_id, extras, documents |
+| **Store postmeta gap triage (P1 #1)** | Bundled ACF catalog + document patterns; real dump → **0 unmapped** store keys — [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
+| **Lead postmeta gap audit (P1 #2)** | Same triage pass; real dump → **0 unmapped** lead keys |
+| **Interest region legacy term sync (P1 #2)** | `legacy:sync-interest-region-terms` — 43 seeded links + 30 market regions from PrimeIV dump; auto-runs before postmeta import |
+| **Closing/fee CSV export (P2 #4)** | `GET /v1/closings/export` + Export CSV on Closings page; one row per fee line |
+| **E2E smoke expansion (P2 #5)** | Lead custom fields panel + widget demo page — `e2e/tests/product-polish.spec.ts` |
+| **Vitest bump (P2 #6)** | `EntityCustomFieldsPanel`, `closingsExport`, CSP-safe `notificationPreview` |
+| **Legacy mapping gaps** | `legacy:mapping-gaps` command + `LegacyMappingGapsService`; `out_of_scope` notes in `fil-legacy-acf.php` |
+| **Parity spot-checks** | `legacy:parity-report --samples` — field_values, interest_region_id, extras, documents |
 | **Interest regions** | `interest_regions` table + US/CA seeder, admin CRUD API + Settings UI, `leads.interest_region_id`, legacy `area_of_interest` → region |
 | Legacy extras drain | ACF-aware `legacy:drain-extras`; `legacy:finalize --strict` green (0 staged extras) |
-| SEC follow-ups | Plaid ITEM/AUTH webhooks, CSP allowlist, per-site-key intake throttle, import `--confirm=legacy-import` + audit, failed-Dwolla batch test — **360** Pest tests |
+| SEC follow-ups | Plaid ITEM/AUTH webhooks, CSP allowlist, per-site-key intake throttle, import `--confirm=legacy-import` + audit |
 | P1–P3 quality pass | AG Grid split, empty states, Pint/ESLint, OpenAPI audit, a11y, activity export API |
 | Security docs | [SECURITY_AUDIT.md](./SECURITY_AUDIT.md), [SECRETS_ROTATION.md](./SECRETS_ROTATION.md), [PII_RETENTION.md](./PII_RETENTION.md) |
+
+**Test counts:** **379** Pest · **68** Vitest · **10** Playwright specs
 
 ---
 
 ## Priority queue (local-only)
-
-### P1 — Data & parity
-
-| # | Task | Effort | Notes |
-|---|------|--------|-------|
-| 1 | **Real dump gap audit** | 0.5d | Run `legacy:mapping-gaps` on `data/local.sql.gz` for store + lead; tune `out_of_scope` if new patterns appear |
-| 2 | **Interest region legacy term IDs** | 0.5d | Set `legacy_term_id` on subdivisions when import term IDs differ from seeded US/CA rows |
-
-### P2 — Product polish (no external deps)
-
-| # | Task | Effort | Notes |
-|---|------|--------|-------|
-| 4 | **Closing/fee CSV export** | 0.5d | Phase 3.4 — mirror activity export pattern |
-| 5 | **E2E smoke expansion** | 1d | Lead custom fields panel, widget demo page — extend `scripts/e2e-smoke.sh` |
-| 6 | **Vitest bump** | 0.5d | Cover `EntityCustomFieldsPanel`, CSP-safe notification preview |
 
 ### P3 — Pre-staging prep (still local)
 
@@ -65,7 +58,7 @@ Work that can proceed **locally** without Laravel Forge, Mailgun, Twilio, Dwolla
 ```bash
 git checkout dev
 git pull
-git checkout -b feature/legacy-mapping-gaps
+git checkout -b feature/staging-env-template
 ```
 
 ---
@@ -73,7 +66,8 @@ git checkout -b feature/legacy-mapping-gaps
 ## Verification (every chunk)
 
 ```bash
-cd backend && php artisan test --compact
+cd backend && composer pint:test && php artisan test --compact
+php artisan openapi:audit --fail-on-drift
 cd frontend && npm run test:run && npm run build
 php artisan mvp:staging-check   # after migrate + seed
 php artisan legacy:finalize --strict   # after legacy import

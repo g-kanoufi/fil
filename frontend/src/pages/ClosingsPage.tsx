@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ExportCsvButton } from '@/components/export/ExportCsvButton';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { fetchClosings, formatFeeCents, type Closing } from '@/lib/api/closings';
+import { fetchClosings, formatFeeCents, downloadClosingsExport, type Closing } from '@/lib/api/closings';
+import { buildExportFilename } from '@/lib/export/filenames';
 
 function statusVariant(status: string): 'success' | 'info' | 'warning' | 'default' {
   if (status === 'completed') {
@@ -28,6 +30,7 @@ export function ClosingsPage() {
   const [closings, setClosings] = useState<Closing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +63,29 @@ export function ClosingsPage() {
 
   return (
     <>
-      <PageHeader title="Closings" description="Deal closings and fee tracking." />
+      <PageHeader
+        title="Closings"
+        description="Deal closings and fee tracking."
+        actions={
+          <ExportCsvButton
+            exporting={exporting}
+            disabled={closings.length === 0}
+            onClick={async () => {
+              setExporting(true);
+              setError(null);
+              try {
+                await downloadClosingsExport(buildExportFilename(['closings']));
+              } catch (exportError: unknown) {
+                setError(
+                  exportError instanceof Error ? exportError.message : 'Failed to export closings',
+                );
+              } finally {
+                setExporting(false);
+              }
+            }}
+          />
+        }
+      />
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
 
