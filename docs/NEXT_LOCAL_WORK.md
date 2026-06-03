@@ -1,10 +1,22 @@
 # Next work — local status
 
-Local P1–P3 engineering is **complete**. Optional stretch (not blocking staging): SEC-015 redirect test, SEC-013 boot test, Playwright comms-denial E2E, `legacy:import-stream`, admin ACH reconciliation UI, per-subject PII export bundle.
+Local P1–P3 engineering is **complete**.
 
-**What's next:** [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md) Phase 0 → [FORGE_STAGING_CHECKLIST.md](./FORGE_STAGING_CHECKLIST.md)
+**Staging live:** https://fil.on-forge.com — see [STAGING.local.md](./STAGING.local.md) (gitignored) and [FORGE_STAGING_CHECKLIST.md](./FORGE_STAGING_CHECKLIST.md).
 
 **Last updated:** 2026-06-01 · **Tests:** 385 Pest · 68 Vitest · 10 Playwright
+
+---
+
+## Staging — what's left (ops)
+
+| Priority | Task | Doc |
+| --- | --- | --- |
+| 1 | Finish manual smoke (grid, lead detail, widget, queue logs) | FORGE_STAGING_CHECKLIST §0.8 |
+| 2 | Embed + webhook env if not set | FORGE_STAGING_CHECKLIST §0.3 |
+| 3 | **Phase 4** — upload client dump + legacy import pipeline | LEGACY_IMPORT_DRY_RUN |
+| 4 | Mailgun sandbox + composer test | FORGE_STAGING_CHECKLIST § Phase 2 |
+| 5 | Plaid/Dwolla + CSP enforce | Phase 2b |
 
 ---
 
@@ -12,16 +24,11 @@ Local P1–P3 engineering is **complete**. Optional stretch (not blocking stagin
 
 | Task | Blocker |
 |------|---------|
-| Phase 0 staging ship | Forge VPS + env (template: [`backend/.env.staging.example`](../backend/.env.staging.example)) |
 | CSP enforce on staging | Browser validation with Plaid/Dwolla sandbox keys |
-| Phase 4 import on staging | Client dump + Forge |
-| Mail/SMS prod hardening | Mailgun + Twilio credentials |
 | Dwolla/Plaid live ACH | Sandbox/prod API keys |
 | AI search in prod | `FIL_AI_SERVICE_URL` |
 | Sentry | DSN |
 | Pentest / SOC review | Vendor engagement |
-
-When Plaid/Dwolla sandbox keys arrive: run [CSP live validation](./MVP_DEPLOY.md#csp-live-validation-plaid--dwolla--recaptcha) on staging.
 
 ---
 
@@ -31,9 +38,8 @@ When Plaid/Dwolla sandbox keys arrive: run [CSP live validation](./MVP_DEPLOY.md
 cd backend && composer pint:test && php artisan test --compact
 php artisan openapi:audit --fail-on-drift
 cd frontend && npm run test:run && npm run build
-php artisan mvp:staging-check   # staging env after migrate
-php artisan security:csp        # preview CSP header on staging
-php artisan legacy:finalize --strict   # after legacy import
+# On staging server:
+cd /home/forge/fil.on-forge.com/backend && php artisan mvp:staging-check
 ```
 
 ---
@@ -42,7 +48,6 @@ php artisan legacy:finalize --strict   # after legacy import
 
 - [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md)
 - [FORGE_STAGING_CHECKLIST.md](./FORGE_STAGING_CHECKLIST.md)
+- [STAGING.example.md](./STAGING.example.md)
 - [MVP_DEPLOY.md](./MVP_DEPLOY.md)
-- [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
 - [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md)
-- [LOCAL_DEV.md](./LOCAL_DEV.md)

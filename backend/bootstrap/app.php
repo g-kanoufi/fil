@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('ach:process-due-transfers')->dailyAt('00:50')->withoutOverlapping();
         $schedule->command('areas:calculate-royalties')->dailyAt('01:00')->withoutOverlapping();
         $schedule->command('notifications:process-scheduled')->hourly()->withoutOverlapping();
+        $schedule->command('activity:archive')->dailyAt('02:00')->withoutOverlapping();
+        $schedule->command('activity:purge-navigation')->dailyAt('02:15')->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();

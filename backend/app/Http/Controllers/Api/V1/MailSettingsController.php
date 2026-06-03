@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Domain\Settings;
 use App\Http\Controllers\Controller;
+use App\Services\Communications\CommunicationProviderReadiness;
 use App\Services\Mail\MailgunVerificationService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -13,11 +14,16 @@ use Illuminate\Http\Request;
 
 final class MailSettingsController extends Controller
 {
-    public function show(MailgunVerificationService $mailgun): JsonResponse
-    {
+    public function show(
+        MailgunVerificationService $mailgun,
+        CommunicationProviderReadiness $providerReadiness,
+    ): JsonResponse {
         $this->authorize('manage', Settings::class);
 
-        return ApiResponse::payload($mailgun->status());
+        return ApiResponse::payload([
+            ...$mailgun->status(),
+            'communication_webhooks' => $providerReadiness->status(),
+        ]);
     }
 
     public function verify(MailgunVerificationService $mailgun): JsonResponse

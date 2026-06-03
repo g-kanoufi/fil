@@ -15,6 +15,9 @@ composer install --no-dev --optimize-autoloader --no-interaction
 echo "==> Migrations"
 php artisan migrate --force
 
+echo "==> Roles, permissions, UI access"
+php artisan legacy:import-access --execute
+
 echo "==> Frontend build"
 cd ../frontend
 if command -v npm >/dev/null 2>&1; then

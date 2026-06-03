@@ -1,5 +1,5 @@
 import { downloadBlob } from '@/lib/export/csv';
-import { apiGet, apiGetBlob } from './client';
+import { apiGet, apiGetBlob, apiPost } from './client';
 
 export interface ActivitySubject {
   type: string;
@@ -90,6 +90,10 @@ export async function downloadActivityExport(
   });
 
   downloadBlob(blob, filename);
+}
+
+export function postActivityPageViews(paths: string[]): Promise<{ accepted: boolean }> {
+  return apiPost<{ accepted: boolean }>('/v1/activity/page-views', { paths });
 }
 
 export function fetchSubjectActivity(

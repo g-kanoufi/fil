@@ -80,3 +80,53 @@ test('inbound sms accepts valid signature when token configured', function () {
         'message' => 'Signed reply',
     ]);
 });
+
+test('status callback updates communication and records activity', function () {
+    $communication = Communication::query()->create([
+        'type' => 'sms',
+        'direction' => 'outbound',
+        'message' => 'Follow up',
+        'provider' => 'twilio',
+        'external_message_id' => 'SM-DELIVERED',
+        'status' => 'sent',
+        'recipient_name' => 'Pat Prospect',
+    ]);
+
+    $this->postJson('/api/webhooks/twilio/status', [
+        'MessageSid' => 'SM-DELIVERED',
+        'MessageStatus' => 'delivered',
+    ])->assertNoContent();
+
+    expect($communication->fresh()?->status)->toBe('delivered');
+
+    $this->assertDatabaseHas('activity_events', [
+        'category' => 'comm',
+        'action' => 'delivered',
+        'source' => 'twilio_webhook',
+    ]);
+});
+
+test('status read records comm activity', function () {
+    $communication = Communication::query()->create([
+        'type' => 'sms',
+        'direction' => 'outbound',
+        'message' => 'Follow up',
+        'provider' => 'twilio',
+        'external_message_id' => 'SM-READ',
+        'status' => 'delivered',
+        'recipient_name' => 'Pat Prospect',
+    ]);
+
+    $this->postJson('/api/webhooks/twilio/status', [
+        'MessageSid' => 'SM-READ',
+        'MessageStatus' => 'read',
+    ])->assertNoContent();
+
+    expect($communication->fresh()?->status)->toBe('read');
+
+    $this->assertDatabaseHas('activity_events', [
+        'category' => 'comm',
+        'action' => 'read',
+        'source' => 'twilio_webhook',
+    ]);
+});

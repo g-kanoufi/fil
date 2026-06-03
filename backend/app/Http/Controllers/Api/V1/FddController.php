@@ -15,6 +15,7 @@ use App\Models\Fdd;
 use App\Models\FddDelivery;
 use App\Models\Lead;
 use App\Models\User;
+use App\Services\Activity\ActivityRecorder;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Fdd\FddDocumentService;
 use App\Support\Api\ApiResponse;
@@ -127,6 +128,7 @@ final class FddController extends Controller
         Fdd $fdd,
         Lead $lead,
         SendFddDelivery $sendFdd,
+        ActivityRecorder $activity,
     ): JsonResponse {
         $this->authorize('view', $lead);
 
@@ -137,6 +139,22 @@ final class FddController extends Controller
         }
 
         $delivery = $sendFdd->handle($fdd, $lead, $request->user(), $recipient);
+        $actor = $request->user();
+
+        $activity->record(
+            category: 'fdd',
+            action: 'sent',
+            summary: sprintf(
+                '%s sent FDD "%s" to lead "%s"',
+                $actor?->name ?? 'Staff',
+                $fdd->title,
+                $lead->title,
+            ),
+            actor: $actor,
+            subject: $lead,
+            object: $fdd,
+            payload: ['fdd_delivery_id' => $delivery->id],
+        );
 
         return ApiResponse::resource(new FddDeliveryResource($delivery), 201);
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { PageActivityTracker } from '@/components/activity/PageActivityTracker';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 
@@ -8,6 +9,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[var(--body-bg-color)]">
+      <PageActivityTracker />
       <a
         href="#app-main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-fg"

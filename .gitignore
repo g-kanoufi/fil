@@ -19,4 +19,5 @@ backend/public/widget/
 .idea/
 .vscode/
 CLAUDE.local.md
+docs/STAGING.local.md
 .claude/settings.local.json

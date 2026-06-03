@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Activity;
 
 use App\Models\ActivityEvent;
+use App\Models\ActivityNavigation;
 use App\Models\Communication;
 use App\Models\FddDelivery;
 use App\Models\Lead;
@@ -33,6 +34,10 @@ final class ActivityFeedService
         ?int $actorUserId = null,
         ?string $category = null,
     ): array {
+        if ($category === 'navigation') {
+            return $this->navigationGlobalFeed($user, $limit, $cursor, $days, $actorUserId);
+        }
+
         $limit = min(max($limit, 1), (int) config('fil-activity.max_page_size', 50));
         $since = now()->subDays(max($days, 1));
 
@@ -94,6 +99,10 @@ final class ActivityFeedService
         ?int $actorUserId = null,
         ?string $category = null,
     ): array {
+        if ($category === 'navigation') {
+            return $this->exportNavigationEvents($user, $days, $actorUserId);
+        }
+
         $maxRows = (int) config('fil-activity.max_export_rows', 10000);
         $since = now()->subDays(max($days, 1));
 
@@ -127,6 +136,7 @@ final class ActivityFeedService
 
         $groups = [
             $this->nativeSubjectEvents($subjectType, $subjectId, $limit),
+            $this->navigationSubjectEvents($subjectType, $subjectId, $limit),
         ];
 
         if ($subjectType === 'lead') {
@@ -415,5 +425,132 @@ final class ActivityFeedService
         }
 
         return [CarbonImmutable::parse($payload['occurred_at']), (int) $payload['id']];
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>, next_cursor: string|null, has_more: bool}
+     */
+    private function navigationGlobalFeed(
+        User $user,
+        int $limit,
+        ?string $cursor,
+        int $days,
+        ?int $actorUserId,
+    ): array {
+        $limit = min(max($limit, 1), (int) config('fil-activity.max_page_size', 50));
+        $hotDays = (int) config('fil-activity.retention.navigation_hot_days', 30);
+        $since = now()->subDays(min(max($days, 1), $hotDays));
+
+        $query = ActivityNavigation::query()
+            ->where('last_seen_at', '>=', $since)
+            ->orderByDesc('last_seen_at')
+            ->orderByDesc('id');
+
+        if ($actorUserId !== null) {
+            $query->where('actor_user_id', $actorUserId);
+        }
+
+        $this->scope->applyActivityNavigationScope($query, $user);
+
+        if ($cursor !== null) {
+            [$cursorAt, $cursorId] = $this->decodeCursor($cursor);
+            $query->where(function ($builder) use ($cursorAt, $cursorId): void {
+                $builder->where('last_seen_at', '<', $cursorAt)
+                    ->orWhere(function ($nested) use ($cursorAt, $cursorId): void {
+                        $nested->where('last_seen_at', '=', $cursorAt)
+                            ->where('id', '<', $cursorId);
+                    });
+            });
+        }
+
+        $rows = $query->limit($limit + 1)->get();
+        $hasMore = $rows->count() > $limit;
+
+        if ($hasMore) {
+            $rows = $rows->take($limit);
+        }
+
+        $items = $rows->map(fn (ActivityNavigation $row): array => $this->formatNavigation($row))->all();
+
+        $last = $rows->last();
+
+        return [
+            'items' => $items,
+            'next_cursor' => $hasMore && $last instanceof ActivityNavigation
+                ? $this->encodeCursor($last->last_seen_at, (int) $last->id)
+                : null,
+            'has_more' => $hasMore,
+        ];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function exportNavigationEvents(User $user, int $days, ?int $actorUserId): array
+    {
+        $maxRows = (int) config('fil-activity.max_export_rows', 10000);
+        $hotDays = (int) config('fil-activity.retention.navigation_hot_days', 30);
+        $since = now()->subDays(min(max($days, 1), $hotDays));
+
+        $query = ActivityNavigation::query()
+            ->where('last_seen_at', '>=', $since)
+            ->orderByDesc('last_seen_at')
+            ->orderByDesc('id');
+
+        if ($actorUserId !== null) {
+            $query->where('actor_user_id', $actorUserId);
+        }
+
+        $this->scope->applyActivityNavigationScope($query, $user);
+
+        return $query->limit($maxRows)
+            ->get()
+            ->map(fn (ActivityNavigation $row): array => $this->formatNavigation($row))
+            ->all();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function navigationSubjectEvents(string $subjectType, int $subjectId, int $limit): array
+    {
+        return ActivityNavigation::query()
+            ->where('subject_type', $subjectType)
+            ->where('subject_id', $subjectId)
+            ->orderByDesc('last_seen_at')
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (ActivityNavigation $row): array => $this->formatNavigation($row))
+            ->all();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formatNavigation(ActivityNavigation $row): array
+    {
+        $subject = null;
+
+        if ($row->subject_type !== null && $row->subject_id !== null) {
+            $subject = $this->subjectPayload($row->subject_type, $row->subject_id);
+        }
+
+        $times = $row->view_count > 1 ? " ({$row->view_count}× today)" : '';
+        $target = $subject['label'] ?? $row->path_key;
+
+        return [
+            'id' => "nav_{$row->id}",
+            'occurred_at' => $row->last_seen_at?->toIso8601String(),
+            'actor' => [
+                'id' => $row->actor_user_id,
+                'name' => $row->actor_name,
+            ],
+            'category' => 'navigation',
+            'action' => 'viewed',
+            'summary' => "{$row->actor_name} viewed {$target}{$times}",
+            'subject' => $subject,
+            'source' => $row->source,
+        ];
     }
 }

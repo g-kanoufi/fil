@@ -10,7 +10,8 @@ Single index for product, engineering, and operations docs.
 | --- | --- |
 | [**PRODUCTION_READINESS.md**](./PRODUCTION_READINESS.md) | Master roadmap, progress %, phases 0–8, next actions |
 | [**FORGE_STAGING_CHECKLIST.md**](./FORGE_STAGING_CHECKLIST.md) | Step-by-step Forge staging + services setup |
-| [**NEXT_LOCAL_WORK.md**](./NEXT_LOCAL_WORK.md) | Blocked items + optional local stretch |
+| [**STAGING.example.md**](./STAGING.example.md) | Staging URL/path template → copy to `STAGING.local.md` (gitignored) |
+| [**NEXT_LOCAL_WORK.md**](./NEXT_LOCAL_WORK.md) | Staging leftovers + blocked items |
 | [**AGENTS.md**](../AGENTS.md) | Agent/coding conventions (repo root) |
 | [**CLAUDE.md**](../CLAUDE.md) | Claude Code entry point |
 
@@ -66,5 +67,6 @@ Route-drift check: `php artisan openapi:audit --fail-on-drift` (CI gate).
 ## Doc maintenance
 
 - Update **`PRODUCTION_READINESS.md`** when a phase completes — not scattered checklists elsewhere.
+- Staging URLs for agents: **`docs/STAGING.local.md`** (gitignored; copy from `STAGING.example.md`).
 - Deploy runbooks: **`MVP_DEPLOY.md`** + **`FORGE_STAGING_CHECKLIST.md`**.
 - Architecture constraints: **`DEPLOYMENT.md`**.

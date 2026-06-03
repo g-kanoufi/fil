@@ -74,6 +74,78 @@ test('webhook updates communication status by message id', function () {
 
     expect($communication->fresh()?->status)->toBe('failed');
     expect($communication->fresh()?->errors)->toBe('Bounced');
+
+    $this->assertDatabaseHas('activity_events', [
+        'category' => 'comm',
+        'action' => 'failed',
+        'source' => 'mailgun_webhook',
+    ]);
+});
+
+test('delivered event records comm activity', function () {
+    $communication = Communication::query()->create([
+        'type' => 'email',
+        'direction' => 'outbound',
+        'message' => 'Hello',
+        'provider' => 'mailgun',
+        'external_message_id' => 'delivered-123',
+        'status' => 'sent',
+        'recipient_name' => 'Pat Prospect',
+    ]);
+
+    $this->postJson('/api/webhooks/mailgun', [
+        'event-data' => [
+            'id' => 'evt-delivered-1',
+            'event' => 'delivered',
+            'message' => [
+                'headers' => [
+                    'message-id' => 'delivered-123',
+                ],
+            ],
+        ],
+    ])->assertOk();
+
+    expect($communication->fresh()?->status)->toBe('delivered');
+
+    $this->assertDatabaseHas('activity_events', [
+        'category' => 'comm',
+        'action' => 'delivered',
+        'source' => 'mailgun_webhook',
+        'summary' => 'EMAIL delivered to Pat Prospect',
+    ]);
+});
+
+test('opened event records comm activity without changing status', function () {
+    $communication = Communication::query()->create([
+        'type' => 'email',
+        'direction' => 'outbound',
+        'message' => 'Hello',
+        'provider' => 'mailgun',
+        'external_message_id' => 'open-123',
+        'status' => 'delivered',
+        'recipient_name' => 'Pat Prospect',
+    ]);
+
+    $this->postJson('/api/webhooks/mailgun', [
+        'event-data' => [
+            'id' => 'evt-open-1',
+            'event' => 'opened',
+            'message' => [
+                'headers' => [
+                    'message-id' => 'open-123',
+                ],
+            ],
+        ],
+    ])->assertOk();
+
+    expect($communication->fresh()?->status)->toBe('delivered');
+    expect($communication->fresh()?->meta['opened_at'] ?? null)->not->toBeNull();
+
+    $this->assertDatabaseHas('activity_events', [
+        'category' => 'comm',
+        'action' => 'opened',
+        'source' => 'mailgun_webhook',
+    ]);
 });
 test('failed event suppresses recipient email', function () {
     config(['services.mailgun.webhook_signing_key' => 'signing-key']);

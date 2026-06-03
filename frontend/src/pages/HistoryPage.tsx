@@ -19,6 +19,7 @@ const DAY_OPTIONS = [7, 30, 90];
 
 export function HistoryPage() {
   const [days, setDays] = useState(30);
+  const [showPageVisits, setShowPageVisits] = useState(false);
   const [items, setItems] = useState<ActivityItem[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
@@ -42,6 +43,7 @@ export function HistoryPage() {
         days,
         limit: 25,
         cursor: append ? nextCursor ?? undefined : undefined,
+        category: showPageVisits ? 'navigation' : undefined,
       });
 
       setItems((current) => (append ? [...current, ...response.data] : response.data));
@@ -53,7 +55,7 @@ export function HistoryPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [days]);
+  }, [days, showPageVisits]);
 
   useEffect(() => {
     void loadFeed(false);
@@ -109,6 +111,14 @@ export function HistoryPage() {
             </option>
           ))}
         </select>
+        <Button
+          variant={showPageVisits ? 'primary' : 'secondary'}
+          size="sm"
+          type="button"
+          onClick={() => setShowPageVisits((current) => !current)}
+        >
+          {showPageVisits ? 'Page visits on' : 'Page visits'}
+        </Button>
       </div>
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}

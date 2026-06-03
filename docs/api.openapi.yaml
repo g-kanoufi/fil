@@ -230,6 +230,9 @@ paths:
   /v1/activity:
     get:
       summary: "V1 Activity Index"
+  /v1/activity/page-views:
+    post:
+      summary: "V1 Activity Page Views Store"
   /v1/activity/export:
     get:
       summary: "V1 Activity Export"

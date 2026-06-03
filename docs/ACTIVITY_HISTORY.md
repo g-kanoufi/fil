@@ -1,6 +1,6 @@
 # Activity history — design plan
 
-Last updated: 2026-06-01. Status: **Phase A–C implemented** (global feed, entity timelines with domain projections, writers for auth/lead/store). CSV export shipped (`GET /api/v1/activity/export`).
+Last updated: 2026-06-03. Status: **Phase A–C + navigation collection** (global feed, entity timelines, business writers expanded). Page visits use **`activity_navigation`** (daily upsert, async ingest) — see [`ACTIVITY_WRITERS.md`](./ACTIVITY_WRITERS.md). Commands: `activity:archive`, `activity:purge-navigation`.
 
 Companion: [`METADATA.md`](./METADATA.md) (Tier 2 events), [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md).
 

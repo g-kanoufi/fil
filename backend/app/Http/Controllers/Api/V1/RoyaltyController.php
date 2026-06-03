@@ -13,6 +13,7 @@ use App\Http\Resources\Api\V1\RoyaltyPeriodResource;
 use App\Models\AchTransfer;
 use App\Models\RoyaltyPeriod;
 use App\Models\Store;
+use App\Services\Activity\ActivityRecorder;
 use App\Services\Royalties\RoyaltyCalculationService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -47,11 +48,26 @@ final class RoyaltyController extends Controller
         CalculateRoyaltyRequest $request,
         Store $store,
         RoyaltyCalculationService $calculator,
+        ActivityRecorder $activity,
     ): JsonResponse {
         $this->authorize('view', $store);
         $this->authorize('calculate', RoyaltyPeriod::class);
 
         $period = $calculator->calculate($store, $request->validated());
+        $actor = $request->user();
+
+        $activity->record(
+            category: 'finance',
+            action: 'calculated',
+            summary: sprintf(
+                '%s calculated royalties for store "%s"',
+                $actor?->name ?? 'Staff',
+                $store->name,
+            ),
+            actor: $actor,
+            subject: $store,
+            payload: ['royalty_period_id' => $period->id],
+        );
 
         return ApiResponse::resource(new RoyaltyPeriodResource($period), 201);
     }
@@ -61,6 +77,7 @@ final class RoyaltyController extends Controller
         Store $store,
         RoyaltyPeriod $royaltyPeriod,
         TriggerAchTransfer $triggerAch,
+        ActivityRecorder $activity,
     ): JsonResponse {
         $this->authorize('view', $store);
         $this->authorize('manage', AchTransfer::class);
@@ -70,6 +87,20 @@ final class RoyaltyController extends Controller
         $amount = $request->amount() ?? (float) $royaltyPeriod->total_royalties;
 
         $transfer = $triggerAch->handle($store, $royaltyPeriod, $amount);
+        $actor = $request->user();
+
+        $activity->record(
+            category: 'finance',
+            action: 'triggered',
+            summary: sprintf(
+                '%s triggered ACH for store "%s"',
+                $actor?->name ?? 'Staff',
+                $store->name,
+            ),
+            actor: $actor,
+            subject: $store,
+            payload: ['ach_transfer_id' => $transfer->id, 'royalty_period_id' => $royaltyPeriod->id],
+        );
 
         return ApiResponse::resource(new AchTransferResource($transfer), 201);
     }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\UpdateNotificationRuleRequest;
 use App\Http\Resources\Api\V1\NotificationRuleResource;
 use App\Models\NotificationRule;
+use App\Services\Activity\ActivityRecorder;
 use App\Services\Notifications\NotificationRulePayloadNormalizer;
 use App\Support\Api\ApiResponse;
 use App\Support\HtmlSanitizer;
@@ -111,6 +112,7 @@ final class NotificationRuleController extends Controller
         NotificationRule $notificationRule,
         NotificationRulePayloadNormalizer $payloadNormalizer,
         HtmlSanitizer $htmlSanitizer,
+        ActivityRecorder $activity,
     ): JsonResponse {
         $validated = $request->validated();
 
@@ -130,6 +132,20 @@ final class NotificationRuleController extends Controller
 
         $notificationRule->update($validated);
         $notificationRule->loadCount('deliveries');
+
+        $actor = $request->user();
+        $activity->record(
+            category: 'settings',
+            action: 'updated',
+            summary: sprintf(
+                '%s updated notification rule "%s"',
+                $actor?->name ?? 'Staff',
+                $notificationRule->name ?? $notificationRule->hash,
+            ),
+            actor: $actor,
+            subject: $notificationRule,
+            payload: ['changed_keys' => array_keys($validated)],
+        );
 
         return ApiResponse::resource(new NotificationRuleResource($notificationRule));
     }

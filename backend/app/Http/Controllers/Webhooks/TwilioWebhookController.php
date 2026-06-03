@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Actions\Communications\RecordInboundCommunication;
 use App\Http\Controllers\Controller;
-use App\Models\Communication;
+use App\Models\Lead;
+use App\Services\Activity\ActivityRecorder;
+use App\Services\Communications\CommunicationWebhookService;
 use App\Services\Communications\InboundCommunicationResolver;
 use App\Services\Communications\TwilioSignatureVerifier;
 use Illuminate\Http\Request;
@@ -19,6 +21,7 @@ final class TwilioWebhookController extends Controller
         TwilioSignatureVerifier $verifier,
         InboundCommunicationResolver $resolver,
         RecordInboundCommunication $record,
+        ActivityRecorder $activity,
     ): Response {
         if (! $verifier->verify($request)) {
             return response('Invalid signature', 403);
@@ -28,7 +31,7 @@ final class TwilioWebhookController extends Controller
         $body = (string) $request->input('Body', '');
 
         if ($body !== '') {
-            $record->handle(
+            $communication = $record->handle(
                 type: 'sms',
                 message: $body,
                 match: $resolver->resolveByPhone($from),
@@ -37,13 +40,31 @@ final class TwilioWebhookController extends Controller
                 senderLabel: $from,
                 meta: $request->only(['From', 'To', 'MessageSid']),
             );
+
+            $subject = $communication->lead_id !== null
+                ? Lead::query()->find($communication->lead_id)
+                : null;
+
+            $activity->record(
+                category: 'comm',
+                action: 'delivered',
+                summary: sprintf('Inbound SMS from %s', $from),
+                actor: null,
+                subject: $subject,
+                object: $communication,
+                payload: ['communication_id' => $communication->id, 'direction' => 'inbound'],
+                source: 'twilio_webhook',
+            );
         }
 
         return response('', 204);
     }
 
-    public function status(Request $request, TwilioSignatureVerifier $verifier): Response
-    {
+    public function status(
+        Request $request,
+        TwilioSignatureVerifier $verifier,
+        CommunicationWebhookService $webhooks,
+    ): Response {
         if (! $verifier->verify($request)) {
             return response('Invalid signature', 403);
         }
@@ -52,12 +73,11 @@ final class TwilioWebhookController extends Controller
         $status = (string) $request->input('MessageStatus', '');
 
         if ($messageSid !== '') {
-            Communication::query()
-                ->where('external_message_id', $messageSid)
-                ->update([
-                    'status' => $status !== '' ? $status : 'updated',
-                    'meta->delivery_status' => $status,
-                ]);
+            $webhooks->handleTwilioStatus(
+                $messageSid,
+                $status,
+                $request->only(['MessageSid', 'MessageStatus', 'ErrorCode', 'ErrorMessage', 'To', 'From']),
+            );
         }
 
         return response('', 204);

@@ -6,6 +6,7 @@ namespace App\Services\Auth;
 
 use App\Models\AchTransfer;
 use App\Models\ActivityEvent;
+use App\Models\ActivityNavigation;
 use App\Models\Area;
 use App\Models\Closing;
 use App\Models\Document;
@@ -340,6 +341,58 @@ final class ResourceScopeService
 
             if (! $matched) {
                 $scoped->whereRaw('1 = 0');
+            }
+        });
+    }
+
+    /**
+     * @param  Builder<ActivityNavigation>  $query
+     */
+    public function applyActivityNavigationScope(Builder $query, User $user): void
+    {
+        if ($this->isUnrestricted($user)) {
+            return;
+        }
+
+        $leadIds = $this->scopedLeadIds($user);
+        $storeIds = $this->scopedStoreIds($user);
+        $contactIds = $this->visibleContactUserIds($user);
+
+        $query->where(function (Builder $scoped) use ($leadIds, $storeIds, $contactIds): void {
+            $matched = false;
+
+            if ($leadIds !== []) {
+                $scoped->where(function (Builder $inner) use ($leadIds): void {
+                    $inner->where('subject_type', 'lead')->whereIn('subject_id', $leadIds);
+                });
+                $matched = true;
+            }
+
+            if ($storeIds !== []) {
+                $method = $matched ? 'orWhere' : 'where';
+                $scoped->{$method}(function (Builder $inner) use ($storeIds): void {
+                    $inner->where('subject_type', 'store')->whereIn('subject_id', $storeIds);
+                });
+                $matched = true;
+            }
+
+            if ($contactIds !== []) {
+                $method = $matched ? 'orWhere' : 'where';
+                $scoped->{$method}(function (Builder $inner) use ($contactIds): void {
+                    $inner->whereIn('subject_type', ['contact', 'user'])
+                        ->whereIn('subject_id', $contactIds);
+                });
+                $matched = true;
+            }
+
+            $method = $matched ? 'orWhere' : 'where';
+            $scoped->{$method}(function (Builder $inner) use ($user): void {
+                $inner->where('actor_user_id', $user->id)
+                    ->whereNull('subject_type');
+            });
+
+            if (! $matched) {
+                $scoped->orWhere('actor_user_id', $user->id);
             }
         });
     }

@@ -11,6 +11,7 @@ use App\Http\Requests\Api\V1\SendCommunicationRequest;
 use App\Http\Resources\Api\V1\CommunicationResource;
 use App\Models\Communication;
 use App\Models\Lead;
+use App\Services\Activity\ActivityRecorder;
 use App\Services\Auth\ResourceScopeService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -50,6 +51,7 @@ final class CommunicationController extends Controller
     public function store(
         SendCommunicationRequest $request,
         SendStaffCommunication $send,
+        ActivityRecorder $activity,
     ): JsonResponse {
         $lead = Lead::query()->findOrFail($request->leadId());
         $this->authorize('view', $lead);
@@ -60,6 +62,22 @@ final class CommunicationController extends Controller
             $request->channel(),
             $request->messageBody(),
             $request->subjectLine(),
+        );
+
+        $actor = $request->user();
+        $channel = strtoupper($request->channel());
+        $activity->record(
+            category: 'comm',
+            action: 'sent',
+            summary: sprintf(
+                '%s sent %s to lead "%s"',
+                $actor?->name ?? 'Staff',
+                $channel,
+                $lead->title,
+            ),
+            actor: $actor,
+            subject: $lead,
+            payload: ['communication_id' => $communication->id, 'channel' => $request->channel()],
         );
 
         return ApiResponse::resource(new CommunicationResource($communication), 201);

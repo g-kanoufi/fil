@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Public\V1\LeadIntakeController;
 use App\Http\Controllers\Api\V1\AchCustomerController;
 use App\Http\Controllers\Api\V1\AchTransferController;
 use App\Http\Controllers\Api\V1\ActivityController;
+use App\Http\Controllers\Api\V1\ActivityPageViewController;
 use App\Http\Controllers\Api\V1\AiStreamController;
 use App\Http\Controllers\Api\V1\AiThreadController;
 use App\Http\Controllers\Api\V1\AppConfigController;
@@ -69,6 +70,9 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('api.v1.profile.update');
         Route::get('/dashboard', DashboardController::class)->name('api.v1.dashboard');
         Route::get('/activity', [ActivityController::class, 'index'])->name('api.v1.activity.index');
+        Route::post('/activity/page-views', [ActivityPageViewController::class, 'store'])
+            ->middleware('throttle:30,1')
+            ->name('api.v1.activity.page-views.store');
         Route::get('/activity/export', [ActivityController::class, 'export'])->name('api.v1.activity.export');
         Route::get('/activity/subjects/{type}/{id}', [ActivityController::class, 'forSubject'])
             ->name('api.v1.activity.subjects');
