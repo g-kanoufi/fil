@@ -11,6 +11,7 @@ e2e/node_modules/
 e2e/test-results/
 e2e/playwright-report/
 backend/database/e2e.sqlite
+data/
 frontend/dist/
 frontend/widget/dist/
 backend/public/app/
