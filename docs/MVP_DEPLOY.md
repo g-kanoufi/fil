@@ -266,5 +266,6 @@ See `docs/DEPLOYMENT.md` for Redis, managed Postgres, object storage, and search
 
 - `docs/LOCAL_DEV.md` — browser testing locally
 - `docs/DEPLOYMENT.md` — minimal stack philosophy
+- `docs/FORGE_STAGING_CHECKLIST.md` — operator step-by-step (Phase 0–5)
 - `docs/parity-checklist.md` — behavior mapping
 - `docs/AUTH.md` — roles and policies

@@ -40,10 +40,10 @@ Map legacy CRM behavior to FIL tests. Legacy plugin names are reference-only for
 | P-024 | SMS/email composer (staff) | `POST /api/v1/communications` | ☑ |
 | P-025 | Activity timeline (lead + contact) | `GET /api/v1/activity` + domain merge | ☑ |
 | P-026 | Contact custom fields | `PATCH /api/v1/contacts/{contact}` + detail panel | ☑ |
-| P-027 | Store royalties calculate | `POST /api/v1/royalties/calculate` | Stub |
-| P-028 | ACH funding sources | `GET /api/v1/ach/customer/fundingsources/{storeId}` | Stub |
-| P-029 | SMS outbound (provider webhooks) | Twilio webhook + communications log | ☐ Phase 2 |
-| P-030 | Email drip step | Queue job `SendDripStepJob` | Partial |
+| P-027 | Store royalties calculate | `POST /api/v1/royalties/calculate` | ☑ |
+| P-028 | ACH funding sources | `GET /api/v1/ach/customer/fundingsources/{storeId}` | ☑ |
+| P-029 | SMS outbound (provider webhooks) | Twilio webhook + communications log | ☐ Phase 2 (Twilio prod creds) |
+| P-030 | Email drip step | Queue job `SendDripStepJob` | Partial — email path tested; SMS needs Twilio prod |
 | P-032 | API 401/staff → login; policy 403 → forbidden page | ☑ |
 | P-033 | Franchise scope tiers (`ResourceScopeService`) | ☑ |
 

@@ -1,6 +1,6 @@
 # Activity history — design plan
 
-Last updated: 2026-05-30. Status: **Phase A–C implemented** (global feed, entity timelines with domain projections, writers for auth/lead/store).
+Last updated: 2026-06-01. Status: **Phase A–C implemented** (global feed, entity timelines with domain projections, writers for auth/lead/store). CSV export shipped (`GET /api/v1/activity/export`).
 
 Companion: [`METADATA.md`](./METADATA.md) (Tier 2 events), [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md).
 
@@ -384,38 +384,32 @@ IP address: omit in v1 (Stream logged IP; rarely used in UI). Add `actor_ip` col
 
 ---
 
-## Implementation phases
+## Implementation status
 
-### Phase A — Foundation (3–4 days)
+### Phases A–C — complete
 
-- [ ] Migration: `activity_events`, `activity_events_archive`
-- [ ] `ActivityRecorder`, config vocabulary, unit tests
-- [ ] `ActivityFeedService` (global feed, cursor pagination)
-- [ ] `GET /api/v1/activity`
-- [ ] Writers: auth, lead update, store update, settings changes
-- [ ] Command: `activity:archive` + scheduler entry
+- Migrations: `activity_events`, `activity_events_archive`
+- `ActivityRecorder`, `ActivityFeedService`, cursor pagination
+- `GET /api/v1/activity` + subject timelines + domain projectors
+- `/history` page, dashboard widget, entity Activity tabs
+- `activity:archive` + scheduler; permission `activity.view`
+- CSV export: `GET /api/v1/activity/export`
 
-### Phase B — UI (2–3 days)
+### Phase D — Legacy import (optional, not implemented)
 
-- [ ] `/history` page + nav item
-- [ ] Dashboard widget (10 items)
-- [ ] Permission `activity.view` in seeder + policies
+Command: `legacy:import-stream --days=365 --execute`
 
-### Phase C — Entity timelines (2 days)
+1. Read `wp_stream` for client `blog_id`.
+2. Apply Z noise filters (skip empty ACF, hidden fields, noisy connectors).
+3. Map connector/context/action → FIL `category`/`action`; strip HTML summaries.
+4. Insert into `activity_events_archive` with `source=legacy_stream`.
+5. Default **90 days** for go-live parity.
 
-- [x] Projectors for `lead_phase_events`, `communications`, `fdd_deliveries`
-- [x] `GET /api/v1/activity/subjects/{type}/{id}`
-- [x] Activity tab on LeadDetailPage, StoreDetailPage, ContactDetailPage
-
-### Phase D — Legacy import (1–2 days, optional)
-
-- [ ] `legacy:import-stream` with Z noise filters
-- [ ] Parity spot-check vs Z dashboard for same user/date range
+See [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md).
 
 ### Phase E — Polish (ongoing)
 
-- [ ] FTS search on summary (if staff request it)
-- [ ] Export CSV for date range (admin)
+- [ ] FTS search on summary (if staff request)
 - [ ] Metrics: events/day, archive size, slow query log
 
 ---
@@ -429,16 +423,6 @@ IP address: omit in v1 (Stream logged IP; rarely used in UI). Add `actor_ip` col
 | Hot table row count @ 90d | &lt; 200k for typical client |
 | Events per lead save | 1 (not N fields) |
 | Staff satisfaction | “I can see who changed what” without opening WP |
-
----
-
-## Open decisions (confirm before Phase A)
-
-1. **Global feed content** — activity_events only in v1, or include projected emails/FDD in global feed too?
-2. **Permission model** — new `activity.view` vs extend `reports.view`?
-3. **Retention defaults** — 90d hot / 2y archive acceptable for client contract?
-4. **Legacy import scope** — 90d vs 365d vs none for go-live?
-5. **Nav placement** — top-level “History” vs dashboard-only?
 
 ---
 

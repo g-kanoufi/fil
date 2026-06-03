@@ -2,7 +2,7 @@
 
 Visual direction for the staff SPA. **Implementation:** `frontend/src/index.css` + `frontend/src/lib/ui/tokens.ts`.
 
-**Last updated:** 2026-05-30
+**Last updated:** 2026-06-01
 
 ---
 
@@ -21,37 +21,17 @@ Status tones (success / warning / error / info) stay as separate paired bg+fg to
 
 Sidebar stays **fixed dark chrome** (`#252f3f`) in both themes — avoids fighting the main light canvas.
 
----
-
-## Light-mode readability (done)
-
-- Deeper primary blue for links/buttons on white
-- Stronger `--color-muted` (38% lightness vs 42%)
-- Softer page gray with clearer card shadow
-- Filter tiles: inactive counts use `text-foreground`, active use accent fg
-- Stat card brand labels use `accent-soft-muted` instead of generic muted
+Light-mode readability and UI polish (login gradient, grid hover, empty states, focus rings) are implemented in `index.css` + shared components.
 
 ---
 
-## Phase 2 — Polish (done)
+## Brand (client-specific)
 
-| Task | Status |
+| Feature | Source |
 | --- | --- |
-| Login card gradient border + soft page gradient | ☑ |
-| Header bottom accent line | ☑ |
-| Grid row hover via CSS vars → AG Grid | ☑ |
-| Empty states (`EmptyState` on zero grid rows) | ☑ |
-| Focus rings on chips, toolbar, segments | ☑ |
-
----
-
-## Phase 3 — Brand (client-specific)
-
-| Task | Status |
-| --- | --- |
-| Client primary from `client_settings` | ☑ CSS vars from `highlightColor` / `linkColor` via public + app-config |
-| Logo in sidebar | ☑ `logoUrl` → `BrandMark` in sidebar + login |
-| Favicon per tenant | ☑ `faviconUrl` in `client_settings` or `FIL_FAVICON_URL` env |
+| Client primary / link colors | `client_settings` → CSS vars via public branding + `app-config` |
+| Logo | `logoUrl` → `BrandMark` in sidebar + login |
+| Favicon | `faviconUrl` in `client_settings` or `FIL_FAVICON_URL` env |
 
 Public: `GET /api/public/v1/branding` (pre-auth login shell). Authenticated `app-config` re-syncs the same keys.
 
