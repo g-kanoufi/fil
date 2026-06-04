@@ -7,6 +7,7 @@ namespace App\Services\Dashboard;
 use App\Models\FddDelivery;
 use App\Models\Lead;
 use App\Models\Store;
+use App\Models\StoreOpeningChecklistItem;
 use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
@@ -92,7 +93,7 @@ final class DashboardStatsService
             ->where('sent_at', '>=', now()->subDays(30))
             ->count();
 
-        return [
+        $payload = [
             'leads' => [
                 'total' => $activeLeads->count(),
                 'by_status' => $leadsByStatus,
@@ -124,6 +125,59 @@ final class DashboardStatsService
                 ->values()
                 ->all(),
             'chart_months' => $months,
+        ];
+
+        if ($this->scope->tier($user) === 'store') {
+            $payload['store_ops'] = $this->storeOpsSummary($user, $storeQuery);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<Store>  $storeQuery
+     * @return array<string, mixed>
+     */
+    private function storeOpsSummary(User $user, $storeQuery): array
+    {
+        $lookaheadDays = (int) config('fil-platform.operate_inspect.inspection_lookahead_days', 14);
+        $dueBefore = now()->addDays($lookaheadDays)->endOfDay();
+
+        /** @var \Illuminate\Support\Collection<int, Store> $stores */
+        $stores = (clone $storeQuery)
+            ->orderBy('name')
+            ->get(['id', 'name', 'store_status', 'next_inspection_at', 'opened_at']);
+
+        $storeIds = $stores->pluck('id')->all();
+
+        $openChecklistCounts = StoreOpeningChecklistItem::query()
+            ->selectRaw('store_id, count(*) as open_count')
+            ->whereIn('store_id', $storeIds)
+            ->whereNull('completed_at')
+            ->groupBy('store_id')
+            ->pluck('open_count', 'store_id');
+
+        $inspectionDueCount = $stores
+            ->filter(fn (Store $store): bool => $store->next_inspection_at !== null
+                && $store->next_inspection_at->lte($dueBefore))
+            ->count();
+
+        $checklistIncompleteCount = (int) $openChecklistCounts->sum();
+
+        return [
+            'inspection_due_count' => $inspectionDueCount,
+            'checklist_incomplete_count' => $checklistIncompleteCount,
+            'stores' => $stores
+                ->map(fn (Store $store): array => [
+                    'id' => $store->id,
+                    'name' => $store->name,
+                    'store_status' => $store->store_status,
+                    'next_inspection_at' => $store->next_inspection_at?->toDateString(),
+                    'opened_at' => $store->opened_at?->toDateString(),
+                    'checklist_open_items' => (int) ($openChecklistCounts[$store->id] ?? 0),
+                ])
+                ->values()
+                ->all(),
         ];
     }
 

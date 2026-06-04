@@ -7,6 +7,7 @@ import { RequirePermission } from '@/components/auth/RequirePermission';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { RouteFallback } from '@/components/layout/RouteFallback';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
+import { PortalAuthProvider } from '@/providers/PortalAuthProvider';
 import { ClientBrandingProvider } from '@/providers/ClientBrandingProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { LoginPage } from '@/pages/LoginPage';
@@ -37,6 +38,12 @@ import {
   WidgetFormBuilderPage,
   WidgetDemoPage,
 } from '@/routes/lazyPages';
+import { PortalLayout } from '@/components/portal/PortalLayout';
+import { RequirePortalAuth } from '@/components/portal/RequirePortalAuth';
+import { PortalApplicationPage } from '@/pages/portal/PortalApplicationPage';
+import { PortalFddPage } from '@/pages/portal/PortalFddPage';
+import { PortalLoginPage } from '@/pages/portal/PortalLoginPage';
+import { PortalSetupPage } from '@/pages/portal/PortalSetupPage';
 
 function AuthApiNavigationBridge() {
   const { expireSession } = useAuth();
@@ -241,7 +248,34 @@ export function AppRoutes() {
   );
 }
 
+function PortalRoutes() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route element={<PortalLayout />}>
+          <Route path="/login" element={<PortalLoginPage />} />
+          <Route path="/setup" element={<PortalSetupPage />} />
+          <Route element={<RequirePortalAuth />}>
+            <Route path="/application" element={<PortalApplicationPage />} />
+            <Route path="/fdd/:deliveryId" element={<PortalFddPage />} />
+            <Route path="/" element={<Navigate to="/application" replace />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/application" replace />} />
+        </Route>
+      </Routes>
+    </Suspense>
+  );
+}
+
 export function AppRouter() {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/portal')) {
+    return <PortalAppRouter />;
+  }
+
+  return <StaffAppRouter />;
+}
+
+function StaffAppRouter() {
   return (
     <ThemeProvider>
       <ClientBrandingProvider>
@@ -251,6 +285,20 @@ export function AppRouter() {
             <AppConfigBrandSync />
             <AppRoutes />
           </AuthProvider>
+        </BrowserRouter>
+      </ClientBrandingProvider>
+    </ThemeProvider>
+  );
+}
+
+function PortalAppRouter() {
+  return (
+    <ThemeProvider>
+      <ClientBrandingProvider>
+        <BrowserRouter basename="/portal">
+          <PortalAuthProvider>
+            <PortalRoutes />
+          </PortalAuthProvider>
         </BrowserRouter>
       </ClientBrandingProvider>
     </ThemeProvider>

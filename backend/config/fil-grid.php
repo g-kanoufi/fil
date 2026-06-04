@@ -30,7 +30,7 @@ return [
             'sortable' => ['updated_at', 'created_at', 'title', 'pipeline_phase'],
             'default_sort' => ['field' => 'updated_at', 'direction' => 'desc'],
             'aggregations' => [
-                'meta.lead_status' => ['column' => 'lead_fdd_status', 'type' => 'terms'],
+                'meta.lead_status' => ['column' => 'lead_status', 'type' => 'lead_application_status'],
                 'meta.lead_owner' => ['column' => 'owner_user_id', 'type' => 'owner_name'],
                 'meta.likelihood_to_close' => ['column' => 'likelihood_to_close', 'type' => 'terms'],
                 'meta.lead_temp' => ['column' => 'lead_temp', 'type' => 'terms'],

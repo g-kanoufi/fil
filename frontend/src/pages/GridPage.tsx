@@ -61,8 +61,8 @@ export function GridPage({ title, resource, embedded = false }: GridPageProps) {
   );
 
   const filters = useMemo(
-    () => mergeInterpretationFilters(buildGridFilters(resource, params, menus), aiInterpretation),
-    [aiInterpretation, menus, params, resource],
+    () => mergeInterpretationFilters(buildGridFilters(resource, params, menus, appConfig), aiInterpretation),
+    [aiInterpretation, appConfig, menus, params, resource],
   );
 
   const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);

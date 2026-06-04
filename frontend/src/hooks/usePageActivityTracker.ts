@@ -2,8 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { postActivityPageViews } from '@/lib/api/activity';
 
-const DEBOUNCE_MS = 10_000;
-const CLIENT_THROTTLE_MS = 30_000;
+const DEBOUNCE_MS = 3_000;
 const SESSION_KEY = 'fil:last-recorded-path';
 
 const SKIP_PREFIXES = ['/login', '/forbidden'];
@@ -17,12 +16,25 @@ const GRID_PATHS = new Set([
   '/reports/ach',
 ]);
 
-function shouldTrack(pathname: string): boolean {
-  if (SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
-    return false;
+/** Strip Vite/nginx /app prefix when pathname includes it. */
+export function normalizeAppPath(pathname: string): string {
+  if (pathname === '/app' || pathname === '/app/') {
+    return '/';
   }
 
-  const path = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
+  if (pathname.startsWith('/app/')) {
+    return pathname.slice(4) || '/';
+  }
+
+  return pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
+}
+
+function shouldTrack(pathname: string): boolean {
+  const path = normalizeAppPath(pathname);
+
+  if (SKIP_PREFIXES.some((prefix) => path.startsWith(prefix))) {
+    return false;
+  }
 
   if (GRID_PATHS.has(path)) {
     return false;
@@ -35,10 +47,11 @@ export function usePageActivityTracker(): void {
   const location = useLocation();
   const pendingRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastFlushRef = useRef(0);
 
-  const flush = (path: string, force = false) => {
-    if (!shouldTrack(path)) {
+  const flush = (rawPath: string, force = false) => {
+    const path = normalizeAppPath(rawPath);
+
+    if (!shouldTrack(rawPath)) {
       return;
     }
 
@@ -48,13 +61,6 @@ export function usePageActivityTracker(): void {
       return;
     }
 
-    const now = Date.now();
-
-    if (!force && now - lastFlushRef.current < CLIENT_THROTTLE_MS) {
-      return;
-    }
-
-    lastFlushRef.current = now;
     sessionStorage.setItem(SESSION_KEY, path);
 
     void postActivityPageViews([path]).catch(() => {
@@ -66,24 +72,31 @@ export function usePageActivityTracker(): void {
     const path = location.pathname;
 
     if (!shouldTrack(path)) {
+      pendingRef.current = null;
+
       return;
     }
 
     pendingRef.current = path;
 
-    if (debounceRef.current !== null) {
-      clearTimeout(debounceRef.current);
-    }
-
     debounceRef.current = setTimeout(() => {
-      if (pendingRef.current !== null) {
-        flush(pendingRef.current);
+      if (pendingRef.current === path) {
+        flush(path);
       }
     }, DEBOUNCE_MS);
 
     return () => {
-      if (debounceRef.current !== null) {
-        clearTimeout(debounceRef.current);
+      if (debounceRef.current === null) {
+        return;
+      }
+
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+
+      const abandoned = pendingRef.current;
+
+      if (abandoned !== null && shouldTrack(abandoned)) {
+        flush(abandoned);
       }
     };
   }, [location.pathname]);

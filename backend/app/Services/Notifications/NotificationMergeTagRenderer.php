@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Notifications;
 
 use App\Models\Lead;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Leads\LeadPipelineCatalog;
 
@@ -74,6 +75,32 @@ final class NotificationMergeTagRenderer
             '{user/last_name}' => $recipient?->last_name ?? $subjectUser->last_name ?? '',
             '{user/display_name}' => $recipient?->name ?? $subjectUser->name ?? '',
             '{fil/app_url}' => rtrim((string) config('app.url'), '/').'/app',
+        ];
+
+        return str_replace(array_keys($replacements), array_values($replacements), $template);
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    public function renderForStore(
+        string $template,
+        Store $store,
+        ?User $recipient = null,
+        array $context = [],
+    ): string {
+        $inspectionDue = $context['inspection_due_at'] ?? $store->next_inspection_at?->toDateString();
+
+        $replacements = [
+            '{user/user_email}' => $recipient?->email ?? '',
+            '{user/first_name}' => $recipient?->first_name ?? '',
+            '{user/last_name}' => $recipient?->last_name ?? '',
+            '{user/display_name}' => $recipient?->name ?? '',
+            '{fil/app_url}' => rtrim((string) config('app.url'), '/').'/app',
+            '{fil/store_name}' => $store->name,
+            '{fil/store_url}' => rtrim((string) config('app.url'), '/').'/app/reports/stores/'.$store->id,
+            '{fil/next_inspection_at}' => (string) $inspectionDue,
+            '{fil/store_status}' => (string) ($store->store_status ?? ''),
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $template);

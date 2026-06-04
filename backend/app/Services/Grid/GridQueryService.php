@@ -208,6 +208,20 @@ final class GridQueryService
                 continue;
             }
 
+            if ($field === 'lead_status') {
+                $values = is_array($value) ? array_values($value) : [$value];
+                $query->where(function (Builder $inner) use ($values): void {
+                    foreach ($values as $match) {
+                        $inner->orWhere(function (Builder $pair) use ($match): void {
+                            $pair->where('lead_status', $match)
+                                ->orWhere('lead_fdd_status', $match);
+                        });
+                    }
+                });
+
+                continue;
+            }
+
             if (! in_array($field, $allowed, true)) {
                 continue;
             }
@@ -485,6 +499,19 @@ final class GridQueryService
                         'doc_count' => (int) $row->doc_count,
                     ])
                     ->all();
+            } elseif ($type === 'lead_application_status' && $resource === 'leads') {
+                $statusExpr = "COALESCE(NULLIF(TRIM(leads.lead_status), ''), NULLIF(TRIM(leads.lead_fdd_status), ''), 'Not defined')";
+
+                $buckets = DB::table('leads')
+                    ->whereIn('leads.id', (clone $aggQuery)->select('leads.id'))
+                    ->selectRaw("{$statusExpr} AS key")
+                    ->selectRaw('COUNT(*) AS doc_count')
+                    ->groupBy('key')
+                    ->orderByDesc('doc_count')
+                    ->limit(100)
+                    ->get()
+                    ->map(fn ($row) => ['key' => $row->key, 'doc_count' => (int) $row->doc_count])
+                    ->all();
             } elseif ($type === 'interest_region_name') {
                 $buckets = DB::table($table)
                     ->leftJoin('interest_regions', 'interest_regions.id', '=', "{$table}.interest_region_id")
@@ -559,7 +586,25 @@ final class GridQueryService
         $allowed = $config['filterable'] ?? [];
 
         foreach ($filters as $field => $value) {
-            if ($field === $exceptColumn || ! in_array($field, $allowed, true) || $value === null || $value === '') {
+            if ($field === $exceptColumn
+                || ($exceptColumn === 'lead_status' && $field === 'lead_fdd_status')
+                || ! in_array($field, $allowed, true)
+                || $value === null
+                || $value === '') {
+                continue;
+            }
+
+            if ($field === 'lead_status') {
+                $values = is_array($value) ? array_values($value) : [$value];
+                $query->where(function (Builder $inner) use ($values): void {
+                    foreach ($values as $match) {
+                        $inner->orWhere(function (Builder $pair) use ($match): void {
+                            $pair->where('lead_status', $match)
+                                ->orWhere('lead_fdd_status', $match);
+                        });
+                    }
+                });
+
                 continue;
             }
 

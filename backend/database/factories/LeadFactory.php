@@ -23,7 +23,8 @@ class LeadFactory extends Factory
             'slug' => fake()->unique()->slug(),
             'owner_user_id' => User::factory(),
             'pipeline_phase' => 1,
-            'lead_status' => 'active',
+            'lead_status' => 'new_lead',
+            'lead_fdd_status' => 'new_lead',
             'lead_stage' => '1',
             'status' => 'active',
         ];

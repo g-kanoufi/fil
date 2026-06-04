@@ -76,6 +76,21 @@ Maps to:
 - `field_values` — typed values for `storage=field_value`
 - Tier-1 promotion for grid/aggregation fields (see `docs/METADATA.md`)
 
+## Lead lifecycle (prospect → store owner)
+
+Staff CRM status is **catalog-driven** from `fields` (`lead_status` choices with `meta.category`, `pipeline_phase`, `closed`). `GET /api/v1/app-config` exposes `lead_application_status` so sidebar chips, grid filters, and facet counts stay aligned.
+
+| Stage | Category | Typical `pipeline_phase` | Next step |
+| ----- | -------- | ------------------------ | --------- |
+| Widget intake | active | 1 (`new_lead`) | Outreach, drip |
+| Outreach / engaged | active | 2–3 | Qualify, assign owner |
+| FDD / waiting | active | 5–9 | FDD send, `pipeline:midnight` |
+| Awarded | won | 10 | **Convert to store** (`POST /api/v1/leads/{id}/convert`) |
+| Store operations | — | — | `PUT /api/v1/stores/{id}/owners` (franchisee on unit) |
+| Closed | closed | 99 | No conversion |
+
+During migration, `lead_fdd_status` is mirrored from `lead_status` on save; grid filters match **either** column. Run `php artisan leads:normalize-status` (optional `--dry-run`) after legacy import to collapse historical FDD-only values into canonical slugs.
+
 ## Configurable field tables
 
 | Table | Purpose |

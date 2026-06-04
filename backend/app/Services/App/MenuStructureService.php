@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace App\Services\App;
 
 use App\Models\Area;
-use App\Models\Lead;
 use App\Models\Store;
 use App\Models\UiMenuItem;
 use App\Models\User;
-use App\Services\Leads\LeadPipelineCatalog;
+use App\Services\Leads\LeadStatusMenuService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 final class MenuStructureService
 {
     public function __construct(
-        private readonly LeadPipelineCatalog $pipelineCatalog,
+        private readonly LeadStatusMenuService $leadStatusMenus,
     ) {}
 
     /**
@@ -102,28 +101,7 @@ final class MenuStructureService
      */
     private function enrichLeadMenus(array $menu): array
     {
-        if (! isset($menu['menuItems']['lead_status'])) {
-            return $menu;
-        }
-
-        $statuses = Lead::query()
-            ->where('status', 'active')
-            ->whereNotNull('lead_fdd_status')
-            ->where('lead_fdd_status', '!=', '')
-            ->distinct()
-            ->orderBy('lead_fdd_status')
-            ->pluck('lead_fdd_status');
-
-        foreach ($statuses as $status) {
-            $value = (string) $status;
-            $slug = $this->slugForLeadStatus($value);
-            $menu['subMenuItems']['lead_status'][$slug] = [
-                'label' => $this->pipelineCatalog->normalizeStatusValue($value) ?? $value,
-                'slug' => $slug,
-            ];
-        }
-
-        return $menu;
+        return $this->leadStatusMenus->enrichLeadMenus($menu);
     }
 
     /**
@@ -206,13 +184,6 @@ final class MenuStructureService
         }
 
         return $menu;
-    }
-
-    private function slugForLeadStatus(string $status): string
-    {
-        $normalized = preg_replace('/[-\s]+/', '_', trim($status)) ?? $status;
-
-        return strtolower($normalized);
     }
 
     private function slugForStoreStatus(string $status): string

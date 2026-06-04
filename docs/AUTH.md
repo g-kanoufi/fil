@@ -1,14 +1,22 @@
 # FIL authentication & authorization
 
-Staff SPA is **logged-in only**. Prospects never see the app — they use the public embed widget.
+Staff SPA is **logged-in only**. Prospects use the **prospect portal** at `/portal` (not `/app`).
+
+## Surfaces
+
+| Surface | URL | Auth |
+| ------- | --- | ---- |
+| Staff SPA | `/app/*` | `app.access` permission; prospects rejected at login |
+| Prospect portal | `/portal/*` | Prospect role + active lead; staff accounts rejected |
+| Public widget | embed on client sites | Site key + origin allowlist |
 
 ## Layers (defense in depth)
 
 | Layer | Mechanism |
 | ----- | --------- |
-| **Web** | Laravel `auth` + `staff` middleware on `/app/*` (except `/app/login`) |
-| **API** | `auth:sanctum` + `staff` on `/api/v1/*` staff routes |
-| **Login** | `LoginUser` + `accessStaffApp` gate (prospects rejected) |
+| **Web** | Laravel `auth` + `staff` middleware on `/app/*`; `/portal/*` uses separate prospect session |
+| **API** | `auth:sanctum` + `staff` on `/api/v1/*`; `auth:sanctum` + `prospect.portal` on `/api/portal/v1/*` |
+| **Login** | Staff: `LoginUser` + `accessStaffApp`. Prospect: `LoginProspect` + `accessProspectPortal` |
 | **Routes / controllers** | `$this->authorize(...)` via **Policies** and named **Gates** |
 | **Form requests** | `authorize()` delegates to gates/policies |
 | **Frontend** | `AuthProvider` + `RequireAuth` + `RequirePermission` on routes |

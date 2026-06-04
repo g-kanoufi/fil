@@ -44,6 +44,8 @@ final class CreatePublicLead
             'title' => $title,
             'prospect_user_id' => $prospect->id,
             'lead_source' => 'widget',
+            'lead_status' => 'new_lead',
+            'lead_fdd_status' => 'new_lead',
             'pipeline_phase' => 1,
             'eligible_for_drip' => true,
         ]);

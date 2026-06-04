@@ -7,7 +7,27 @@ export interface Store {
   store_status: string | null;
   status: string;
   area_id: number | null;
+  buildout_started_at?: string | null;
+  expected_opening_at?: string | null;
+  opened_at?: string | null;
   custom?: Record<string, unknown>;
+}
+
+export interface StoreOpeningChecklistItem {
+  key: string;
+  label: string;
+  completed_at: string | null;
+  notes: string | null;
+  sort_order: number;
+}
+
+export interface StoreOpeningChecklist {
+  items: StoreOpeningChecklistItem[];
+  timeline: {
+    buildout_started_at: string | null;
+    expected_opening_at: string | null;
+    opened_at: string | null;
+  };
 }
 
 export interface StoreOwner {
@@ -46,6 +66,26 @@ export function updateStore(
   payload: Partial<Store> & { custom?: Record<string, unknown> },
 ): Promise<Store> {
   return apiPatch<{ data: Store }>(`/v1/stores/${id}`, payload).then((body) => body.data);
+}
+
+export function fetchStoreOpeningChecklist(storeId: number): Promise<StoreOpeningChecklist> {
+  return apiGet<{ data: StoreOpeningChecklist }>(`/v1/stores/${storeId}/opening-checklist`).then(
+    (body) => body.data,
+  );
+}
+
+export function updateStoreOpeningChecklist(
+  storeId: number,
+  payload: {
+    items?: Array<{ key: string; completed?: boolean; notes?: string | null }>;
+    buildout_started_at?: string | null;
+    expected_opening_at?: string | null;
+    opened_at?: string | null;
+  },
+): Promise<StoreOpeningChecklist> {
+  return apiPatch<{ data: StoreOpeningChecklist }>(`/v1/stores/${storeId}/opening-checklist`, payload).then(
+    (body) => body.data,
+  );
 }
 
 export function fetchStoreOwners(storeId: number): Promise<StoreOwner[]> {

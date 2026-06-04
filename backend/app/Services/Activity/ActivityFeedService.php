@@ -6,7 +6,9 @@ namespace App\Services\Activity;
 
 use App\Models\ActivityEvent;
 use App\Models\ActivityNavigation;
+use App\Models\Closing;
 use App\Models\Communication;
+use App\Models\Document;
 use App\Models\FddDelivery;
 use App\Models\Lead;
 use App\Models\LeadPhaseEvent;
@@ -15,6 +17,7 @@ use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Schema;
 
 final class ActivityFeedService
 {
@@ -382,6 +385,8 @@ final class ActivityFeedService
             'lead' => Lead::query()->find($id)?->title ?? "Lead #{$id}",
             'store' => Store::query()->find($id)?->name ?? "Store #{$id}",
             'contact', 'user' => User::query()->find($id)?->name ?? "Contact #{$id}",
+            'closing' => Closing::query()->find($id)?->title ?? "Closing #{$id}",
+            'document' => Document::query()->find($id)?->title ?? "Document #{$id}",
             default => ucfirst($type)." #{$id}",
         };
     }
@@ -392,6 +397,8 @@ final class ActivityFeedService
             'lead' => "/reports/leads/{$id}",
             'store' => "/reports/stores/{$id}",
             'contact', 'user' => "/reports/contacts/{$id}",
+            'closing' => "/reports/closings/{$id}",
+            'document' => "/documents/{$id}",
             default => null,
         };
     }
@@ -430,6 +437,11 @@ final class ActivityFeedService
     /**
      * @return array{items: list<array<string, mixed>>, next_cursor: string|null, has_more: bool}
      */
+    private function navigationTableReady(): bool
+    {
+        return Schema::hasTable('activity_navigation');
+    }
+
     private function navigationGlobalFeed(
         User $user,
         int $limit,
@@ -437,6 +449,15 @@ final class ActivityFeedService
         int $days,
         ?int $actorUserId,
     ): array {
+        if (! $this->navigationTableReady()) {
+            return [
+                'items' => [],
+                'next_cursor' => null,
+                'has_more' => false,
+                'navigation_table_ready' => false,
+            ];
+        }
+
         $limit = min(max($limit, 1), (int) config('fil-activity.max_page_size', 50));
         $hotDays = (int) config('fil-activity.retention.navigation_hot_days', 30);
         $since = now()->subDays(min(max($days, 1), $hotDays));
@@ -480,6 +501,7 @@ final class ActivityFeedService
                 ? $this->encodeCursor($last->last_seen_at, (int) $last->id)
                 : null,
             'has_more' => $hasMore,
+            'navigation_table_ready' => true,
         ];
     }
 
@@ -488,6 +510,10 @@ final class ActivityFeedService
      */
     private function exportNavigationEvents(User $user, int $days, ?int $actorUserId): array
     {
+        if (! $this->navigationTableReady()) {
+            return [];
+        }
+
         $maxRows = (int) config('fil-activity.max_export_rows', 10000);
         $hotDays = (int) config('fil-activity.retention.navigation_hot_days', 30);
         $since = now()->subDays(min(max($days, 1), $hotDays));
@@ -514,6 +540,10 @@ final class ActivityFeedService
      */
     private function navigationSubjectEvents(string $subjectType, int $subjectId, int $limit): array
     {
+        if (! $this->navigationTableReady()) {
+            return [];
+        }
+
         return ActivityNavigation::query()
             ->where('subject_type', $subjectType)
             ->where('subject_id', $subjectId)

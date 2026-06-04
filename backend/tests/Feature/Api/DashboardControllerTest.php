@@ -53,5 +53,14 @@ test('franchisee can load scoped dashboard stats', function () {
         ->getJson('/api/v1/dashboard')
         ->assertOk()
         ->assertJsonPath('data.leads.total', 0)
-        ->assertJsonPath('data.stores.total', 1);
+        ->assertJsonPath('data.stores.total', 1)
+        ->assertJsonStructure([
+            'data' => [
+                'store_ops' => [
+                    'inspection_due_count',
+                    'checklist_incomplete_count',
+                    'stores',
+                ],
+            ],
+        ]);
 });

@@ -10,6 +10,12 @@ export interface ClosingStatusTransition {
   label: string;
 }
 
+export interface ClosingDocument {
+  id: number;
+  title: string;
+  role: string | null;
+}
+
 export interface Closing {
   id: number;
   title: string;
@@ -25,6 +31,7 @@ export interface Closing {
   fee_lines: ClosingFeeLine[];
   fee_total_cents: number;
   allowed_status_transitions: ClosingStatusTransition[];
+  documents: ClosingDocument[];
   created_at: string | null;
   updated_at: string | null;
 }
@@ -39,7 +46,7 @@ export function fetchClosing(id: number): Promise<Closing> {
 
 export function updateClosing(
   id: number,
-  payload: { status?: string; fee_lines?: ClosingFeeLine[] },
+  payload: { status?: string; fee_lines?: ClosingFeeLine[]; document_ids?: number[] },
 ): Promise<Closing> {
   return apiPatch<{ data: Closing }>(`/v1/closings/${id}`, payload).then((body) => body.data);
 }

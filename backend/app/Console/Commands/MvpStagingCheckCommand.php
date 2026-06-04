@@ -52,6 +52,7 @@ final class MvpStagingCheckCommand extends Command
             $this->checkDwollaWebhook(),
             $this->checkContentSecurityPolicy(),
             $this->checkSpaAssets(),
+            $this->checkFinancialScheduler(),
         ];
 
         $this->table(['Check', 'Status', 'Detail'], $checks);
@@ -447,5 +448,40 @@ final class MvpStagingCheckCommand extends Command
         }
 
         return ['SPA assets', 'OK', 'Staff SPA + widget bundles present'];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkFinancialScheduler(): array
+    {
+        if (! app()->environment('production', 'staging')) {
+            return ['Financial scheduler', 'OK', 'Skipped outside staging/production'];
+        }
+
+        $royaltyEnabled = (bool) config('fil-royalties.enable_royalty_calculation_job');
+        $achEnabled = (bool) config('fil-royalties.enable_ach_royalty_collection');
+
+        if (! $royaltyEnabled) {
+            return [
+                'Financial scheduler',
+                'WARN',
+                'FIL_ENABLE_ROYALTY_CALC_JOB=false — set true on staging after sandbox verify',
+            ];
+        }
+
+        if ($achEnabled) {
+            return [
+                'Financial scheduler',
+                'OK',
+                'Royalty calc + ACH collection enabled',
+            ];
+        }
+
+        return [
+            'Financial scheduler',
+            'OK',
+            'Royalty calc enabled; ACH collection still disabled',
+        ];
     }
 }

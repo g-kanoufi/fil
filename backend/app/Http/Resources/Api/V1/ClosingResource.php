@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Api\V1;
 
 use App\Models\Closing;
+use App\Services\Closings\ClosingDocumentLinker;
 use App\Services\Closings\ClosingWorkflowCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,6 +20,7 @@ final class ClosingResource extends JsonResource
     {
         $workflow = app(ClosingWorkflowCatalog::class);
         $feeLines = $workflow->feeLinesFromExtras($this->extras);
+        $documents = app(ClosingDocumentLinker::class)->linkedDocuments($this->resource);
 
         return [
             'id' => $this->id,
@@ -35,6 +37,7 @@ final class ClosingResource extends JsonResource
             'fee_lines' => $feeLines,
             'fee_total_cents' => array_sum(array_column($feeLines, 'amount_cents')),
             'allowed_status_transitions' => $workflow->transitionOptions((string) $this->status),
+            'documents' => $documents,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

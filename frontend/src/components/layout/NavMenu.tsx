@@ -136,12 +136,12 @@ function NavMenuItem({
       <NavLink
         to={item.path}
         onClick={onClose}
-        end={!item.path.includes('?')}
+        isActive={() => navItemMatches(locationPath, locationSearch, item.path)}
         style={{ paddingLeft }}
-        className={({ isActive: linkActive }) =>
+        className={() =>
           navRowClass({
             depth,
-            directlyActive: linkActive || navItemMatches(locationPath, locationSearch, item.path),
+            directlyActive: navItemMatches(locationPath, locationSearch, item.path),
             hasActiveChild: false,
           })
         }

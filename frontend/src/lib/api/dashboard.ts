@@ -26,6 +26,18 @@ export interface DashboardStats {
   pipeline: Array<{ phase: string; label?: string; count: number }>;
   pipeline_phases?: Array<{ id: number; label: string; description: string }>;
   chart_months?: number;
+  store_ops?: {
+    inspection_due_count: number;
+    checklist_incomplete_count: number;
+    stores: Array<{
+      id: number;
+      name: string;
+      store_status: string | null;
+      next_inspection_at: string | null;
+      opened_at: string | null;
+      checklist_open_items: number;
+    }>;
+  };
 }
 
 export function fetchDashboardStats(months = 6): Promise<DashboardStats> {

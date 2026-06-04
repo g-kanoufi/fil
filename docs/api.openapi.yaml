@@ -83,6 +83,68 @@ paths:
   /public/v1/leads:
     post:
       summary: Public lead intake (widget)
+  /portal/v1/session:
+    post:
+      summary: Prospect portal login
+    get:
+      summary: Current prospect session
+    delete:
+      summary: Prospect portal logout
+  /portal/v1/setup-password:
+    post:
+      summary: Set prospect password from widget setup token
+  /portal/v1/application:
+    get:
+      summary: Prospect long-form application schema + values
+    patch:
+      summary: Save prospect long-form field values
+  /portal/v1/fdd-deliveries:
+    get:
+      summary: FDD deliveries for prospect (Item 23 signing)
+  /portal/v1/fdd-deliveries/{fddDelivery}/sign-session:
+    post:
+      summary: Begin e-sign session for FDD delivery
+  /portal/v1/fdd-deliveries/{fddDelivery}/sign:
+    post:
+      summary: Complete FDD Item 23 signature (local or vendor)
+  /webhooks/esign:
+    post:
+      summary: E-sign vendor webhook (Dropbox Sign)
+  /v1/stores/{store}/opening-checklist:
+    get:
+      summary: Store opening checklist + build-out timeline
+    patch:
+      summary: Update opening checklist items and timeline dates
+  /v1/leads/{lead}/notes:
+    get:
+      summary: Corp notes on a lead
+    post:
+      summary: Add corp note to a lead
+  /v1/stores/{store}/notes:
+    get:
+      summary: Corp notes on a store
+    post:
+      summary: Add corp note to a store
+  /v1/contacts/{contact}/notes:
+    get:
+      summary: Corp notes on a contact
+    post:
+      summary: Add corp note to a contact
+  /v1/entity-notes/{entityNote}:
+    patch:
+      summary: Update a corp note
+    delete:
+      summary: Delete a corp note
+  /v1/todos:
+    get:
+      summary: Staff corp todos
+    post:
+      summary: Create staff todo
+  /v1/todos/{staffTodo}:
+    patch:
+      summary: Update staff todo
+    delete:
+      summary: Delete staff todo
   /v1/query/{resource}:
     post:
       summary: Grid rows + aggregations (Postgres; ES-compatible aggregations shape)
@@ -221,6 +283,9 @@ paths:
   /public/v1/branding:
     get:
       summary: "Public V1 Branding"
+  /v1/ach-transfers/reconciliation:
+    get:
+      summary: "V1 Ach Transfers Reconciliation"
   /v1/ach-transfers:
     get:
       summary: "V1 Ach Transfers Index"
@@ -394,6 +459,9 @@ paths:
   /v1/query/{resource}/interpret:
     post:
       summary: "V1 Query Interpret"
+  /v1/royalties/intelligence:
+    get:
+      summary: "V1 Royalties Intelligence"
   /v1/royalty-periods/{royaltyPeriod}:
     get:
       summary: "V1 Royalty Periods Show"

@@ -193,6 +193,7 @@ See [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) for the full Phase 4 
 | `SQLSTATE[08006]` / connection refused | `docker compose up -d postgres` |
 | Artisan uses wrong DB (sqlite / e2e) | Unset shell overrides: `unset DB_CONNECTION DB_DATABASE` — E2E script exports sqlite only inside its subshell, but a parent shell may still have them |
 | Drip emails not sent | Start `php artisan queue:work database` |
+| History **Page visits** empty; `POST …/page-views` **503** | **Postgres:** `unset DB_CONNECTION DB_DATABASE` then `php artisan migrate --force` (migration `2026_06_03_120000_create_activity_navigation_table`). **Restart** `php artisan serve` — a long-running server started with `DB_CONNECTION=sqlite` in the shell only sees the test DB (no `activity_navigation`). In Network, page-views should return **202**, not 503. On History, use **Page visits** (not **Staff actions**). Browse detail routes (not grid list URLs); tracker waits ~3s. |
 
 ## When to notify the team
 

@@ -44,6 +44,13 @@ cd /home/forge/fil.on-forge.com/backend && php artisan mvp:staging-check
 
 ---
 
+## Zorzees gap review (2026-06-01)
+
+- [ZORZEES_GAP_REVIEW.md](./ZORZEES_GAP_REVIEW.md) — feature matrix vs legacy
+- [V1_SCOPE_DECISIONS.md](./V1_SCOPE_DECISIONS.md) — long-form portal post-v1 until client confirms
+- [BUG_PASS_RESULTS.md](./BUG_PASS_RESULTS.md) — automated + E2E results
+- `php artisan legacy:spot-check` — post-import tier-1 samples
+
 ## Related docs
 
 - [PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md)

@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Public\V1\StoreLeadRequest;
 use App\Http\Resources\Api\Public\V1\PublicLeadResource;
 use App\Models\Field;
 use App\Services\Fields\FieldValueWriter;
+use App\Services\Portal\ProspectPortalTokenService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
@@ -19,6 +20,7 @@ final class LeadIntakeController extends Controller
         StoreLeadRequest $request,
         CreatePublicLead $createPublicLead,
         FieldValueWriter $fieldValues,
+        ProspectPortalTokenService $portalTokens,
     ): JsonResponse {
         $lead = $createPublicLead->handle($request->validated());
 
@@ -57,6 +59,14 @@ final class LeadIntakeController extends Controller
             }
         }
 
-        return ApiResponse::resource(new PublicLeadResource($lead), 201);
+        $prospect = $lead->prospect;
+
+        return ApiResponse::resource(
+            new PublicLeadResource(
+                $lead,
+                $prospect !== null ? $portalTokens->issueSetupToken($prospect) : null,
+            ),
+            201,
+        );
     }
 }

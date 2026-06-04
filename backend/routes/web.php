@@ -15,6 +15,11 @@ Route::middleware(['auth', 'staff'])->group(function (): void {
 
 Route::view('/app/login', 'app')->name('login');
 
+Route::view('/portal/login', 'app')->name('portal.login');
+Route::view('/portal/{any?}', 'app')
+    ->where('any', '.*')
+    ->name('portal.spa');
+
 Route::middleware(['auth', 'staff'])->group(function (): void {
     Route::get('/documents/{document}/download', DocumentDownloadController::class)
         ->name('documents.download');

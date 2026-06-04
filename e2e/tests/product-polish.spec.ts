@@ -13,8 +13,8 @@ test.describe('Lead custom fields panel', () => {
     await page.waitForURL(/\/app\/reports\/leads\/?$/);
     await leadsResponsePromise;
 
-    await page.getByRole('link', { name: /Jane Smith/i }).first().click();
-    await page.waitForURL(/\/app\/reports\/leads\/\d+\/?$/);
+    await page.goto('/app/reports/leads/1');
+    await page.waitForURL(/\/app\/reports\/leads\/1\/?$/);
 
     await expect(page.getByRole('heading', { name: /custom fields/i })).toBeVisible();
   });

@@ -24,6 +24,8 @@ export interface ActivityFeedResponse {
   meta: {
     next_cursor: string | null;
     has_more: boolean;
+    /** False when `activity_navigation` migration has not been applied (page-visits feed only). */
+    navigation_table_ready?: boolean;
   };
 }
 
@@ -56,7 +58,10 @@ export function fetchActivityFeed(params?: {
   return apiGet<ActivityFeedResponse>(`/v1/activity${query ? `?${query}` : ''}`);
 }
 
-export async function fetchAllActivityFeed(days: number): Promise<ActivityItem[]> {
+export async function fetchAllActivityFeed(
+  days: number,
+  category?: string,
+): Promise<ActivityItem[]> {
   const items: ActivityItem[] = [];
   let cursor: string | undefined;
 
@@ -65,6 +70,7 @@ export async function fetchAllActivityFeed(days: number): Promise<ActivityItem[]
       days,
       limit: 200,
       cursor,
+      category,
     });
 
     items.push(...response.data);

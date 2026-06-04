@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Notifications;
 
 use App\Models\Lead;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Notifications\NotificationProcessor;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,12 +26,17 @@ final class ProcessNotificationTriggerJob implements ShouldQueue
         public readonly array $context = [],
         public readonly ?int $actorUserId = null,
         public readonly ?int $userId = null,
+        public readonly ?int $storeId = null,
     ) {}
 
     public function handle(NotificationProcessor $processor): void
     {
         $lead = $this->leadId !== null
             ? Lead::query()->with(['owner', 'prospect', 'area'])->find($this->leadId)
+            : null;
+
+        $store = $this->storeId !== null
+            ? Store::query()->with(['area', 'owners'])->find($this->storeId)
             : null;
 
         $actor = $this->actorUserId !== null
@@ -41,6 +47,6 @@ final class ProcessNotificationTriggerJob implements ShouldQueue
             ? User::query()->find($this->userId)
             : null;
 
-        $processor->process($this->triggerSlug, $lead, $this->context, $actor, $user);
+        $processor->process($this->triggerSlug, $lead, $this->context, $actor, $user, $store);
     }
 }

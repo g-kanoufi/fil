@@ -22,6 +22,8 @@ use App\Models\Lead;
 use App\Models\PosConnection;
 use App\Models\RoyaltyPeriod;
 use App\Models\Store;
+use App\Models\EntityNote;
+use App\Models\StaffTodo;
 use App\Models\User;
 use App\Policies\AchPolicy;
 use App\Policies\AiPolicy;
@@ -31,6 +33,7 @@ use App\Policies\ClosingPolicy;
 use App\Policies\CommunicationPolicy;
 use App\Policies\ContactPolicy;
 use App\Policies\DocumentPolicy;
+use App\Policies\EntityNotePolicy;
 use App\Policies\FddPolicy;
 use App\Policies\FieldSchemaPolicy;
 use App\Policies\InterestRegionPolicy;
@@ -38,7 +41,9 @@ use App\Policies\LeadPolicy;
 use App\Policies\PosPolicy;
 use App\Policies\RoyaltyPolicy;
 use App\Policies\SettingPolicy;
+use App\Policies\ProspectPolicy;
 use App\Policies\StaffPolicy;
+use App\Policies\StaffTodoPolicy;
 use App\Policies\StorePolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -54,6 +59,8 @@ final class AuthServiceProvider extends ServiceProvider
         Store::class => StorePolicy::class,
         Fdd::class => FddPolicy::class,
         Closing::class => ClosingPolicy::class,
+        EntityNote::class => EntityNotePolicy::class,
+        StaffTodo::class => StaffTodoPolicy::class,
         Communication::class => CommunicationPolicy::class,
         FieldGroup::class => FieldSchemaPolicy::class,
         InterestRegion::class => InterestRegionPolicy::class,
@@ -76,6 +83,7 @@ final class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('accessStaffApp', [StaffPolicy::class, 'accessStaffApp']);
+        Gate::define('accessProspectPortal', [ProspectPolicy::class, 'accessProspectPortal']);
         Gate::define('viewContact', fn (User $user, User $contact): bool => app(ContactPolicy::class)->view($user, $contact));
         Gate::define('updateContact', fn (User $user, User $contact): bool => app(ContactPolicy::class)->update($user, $contact));
         Gate::define('viewAnyRoyalty', [RoyaltyPolicy::class, 'viewAny']);

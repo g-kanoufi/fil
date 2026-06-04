@@ -69,6 +69,7 @@ Run dry-runs first, then execute in this order on a **fresh migrated DB** (no de
 | 6 | `legacy:import --execute` | Write all entities |
 | 7 | `legacy:parity-report` | FIL vs legacy count comparison |
 | 7b | `legacy:parity-report --samples` | Post-import field_values, interest_region, extras, documents spot checks |
+| 7c | `legacy:spot-check` | Sample N leads/stores with tier-1 fields for Zorzees UI spot-check |
 | 7c | `legacy:mapping-gaps --entity=store` | Unmapped postmeta audit — see [LEGACY_MAPPING_GAPS.md](./LEGACY_MAPPING_GAPS.md) |
 | 8 | `legacy:finalize` | Extras JSON drain check |
 | 9 | `legacy:finalize --strict` | Fail CI if extras remain |

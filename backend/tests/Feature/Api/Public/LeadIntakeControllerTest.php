@@ -61,5 +61,6 @@ test('public form config requires site key', function () {
 test('public form config returns schema with site key', function () {
     $this->getJson('/api/public/v1/form-config?site_key=pk_dev')
         ->assertOk()
-        ->assertJsonPath('data.form_key', 'lead_short');
+        ->assertJsonPath('data.form_key', 'lead_short')
+        ->assertJsonPath('data.redirect_after_intake', true);
 });

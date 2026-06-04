@@ -31,6 +31,9 @@ Single index for product, engineering, and operations docs.
 | Doc | Purpose |
 | --- | --- |
 | [parity-checklist.md](./parity-checklist.md) | Legacy CRM parity IDs |
+| [PLAN_3_STAGE_PLATFORM.md](./PLAN_3_STAGE_PLATFORM.md) | Stage-complete platform roadmap |
+| [ZORZEES_GAP_REVIEW.md](./ZORZEES_GAP_REVIEW.md) | Zorzees → FIL gap summary |
+| [V1_SCOPE_DECISIONS.md](./V1_SCOPE_DECISIONS.md) | v1 vs post-v1 scope (client sign-off) |
 | [ACTIVITY_HISTORY.md](./ACTIVITY_HISTORY.md) | Activity feed design |
 | [schema-mapping.md](./schema-mapping.md) | Legacy → FIL table mapping |
 | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) | Phase 4 import checklist |

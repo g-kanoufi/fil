@@ -7,6 +7,7 @@ namespace App\Services\Notifications;
 use App\Models\Area;
 use App\Models\Lead;
 use App\Models\NotificationRule;
+use App\Models\Store;
 use App\Models\User;
 use App\Models\UserNotificationPreference;
 
@@ -136,6 +137,47 @@ final class NotificationRecipientResolver
     }
 
     /**
+     * @param  list<string>  $tokens
+     * @return list<array{email: string, user_id: int|null, name: string|null}>
+     */
+    public function resolveForStore(NotificationRule $rule, Store $store, array $tokens): array
+    {
+        $resolved = [];
+
+        foreach ($tokens as $token) {
+            $token = trim($token);
+
+            if ($token === '') {
+                continue;
+            }
+
+            if (filter_var($token, FILTER_VALIDATE_EMAIL)) {
+                $resolved[] = ['email' => $token, 'user_id' => null, 'name' => null];
+
+                continue;
+            }
+
+            if (str_starts_with($token, 'related:')) {
+                $role = substr($token, strlen('related:'));
+
+                foreach ($this->usersForStoreRole($store, $role) as $user) {
+                    if (filled($user->email)) {
+                        $resolved[] = [
+                            'email' => $user->email,
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                        ];
+                    }
+                }
+
+                continue;
+            }
+        }
+
+        return $this->dedupeRecipients($resolved, $rule);
+    }
+
+    /**
      * @param  list<array{email: string, user_id: int|null, name: string|null}>  $resolved
      * @return list<array{email: string, user_id: int|null, name: string|null}>
      */
@@ -175,6 +217,45 @@ final class NotificationRecipientResolver
             'area_rep' => $this->areaRepsForLead($lead),
             default => [],
         };
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function usersForStoreRole(Store $store, string $role): array
+    {
+        return match ($role) {
+            'store_owner', 'owner' => $store->owners->all(),
+            'area_rep' => $this->areaRepsForStore($store),
+            default => [],
+        };
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function areaRepsForStore(Store $store): array
+    {
+        if ($store->area_id === null) {
+            return [];
+        }
+
+        $area = $store->relationLoaded('area') ? $store->area : Area::query()->find($store->area_id);
+
+        if ($area === null) {
+            return [];
+        }
+
+        $extras = is_array($area->extras ?? null) ? $area->extras : [];
+        $repUserId = $extras['rep_user_id'] ?? $extras['area_rep_user_id'] ?? null;
+
+        if ($repUserId === null) {
+            return [];
+        }
+
+        $rep = User::query()->find((int) $repUserId);
+
+        return $rep !== null && filled($rep->email) ? [$rep] : [];
     }
 
     /**

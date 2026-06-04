@@ -6,7 +6,7 @@ import { choiceOptions, tierOneFieldMap } from '@/lib/fields/fieldChoices';
 import { fetchFieldSchema, type FieldDef } from '@/lib/api/fields';
 import { updateLead, type Lead } from '@/lib/api/leads';
 
-const TIER_ONE_KEYS = ['lead_status', 'lead_stage', 'lead_temp', 'lead_fdd_status', 'lead_source'] as const;
+const TIER_ONE_KEYS = ['lead_status', 'lead_stage', 'lead_temp', 'lead_source'] as const;
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -51,7 +51,6 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
   const [leadStatus, setLeadStatus] = useState(lead.lead_status ?? '');
   const [leadStage, setLeadStage] = useState(lead.lead_stage ?? '');
   const [leadTemp, setLeadTemp] = useState(lead.lead_temp ?? '');
-  const [leadFddStatus, setLeadFddStatus] = useState(lead.lead_fdd_status ?? '');
   const [leadSource, setLeadSource] = useState(lead.lead_source ?? '');
   const [schemaFields, setSchemaFields] = useState<Map<string, FieldDef>>(new Map());
   const [saving, setSaving] = useState(false);
@@ -81,10 +80,9 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
       lead_status: leadStatus,
       lead_stage: leadStage,
       lead_temp: leadTemp,
-      lead_fdd_status: leadFddStatus,
       lead_source: leadSource,
     }),
-    [leadStatus, leadStage, leadTemp, leadFddStatus, leadSource],
+    [leadStatus, leadStage, leadTemp, leadSource],
   );
 
   const fieldSetters = useMemo(
@@ -92,7 +90,6 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
       lead_status: setLeadStatus,
       lead_stage: setLeadStage,
       lead_temp: setLeadTemp,
-      lead_fdd_status: setLeadFddStatus,
       lead_source: setLeadSource,
     }),
     [],
@@ -114,7 +111,6 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
         lead_status: leadStatus.trim() || null,
         lead_stage: leadStage.trim() || null,
         lead_temp: leadTemp.trim() || null,
-        lead_fdd_status: leadFddStatus.trim() || null,
         lead_source: leadSource.trim() || null,
       });
       onUpdated(response.data);
@@ -145,10 +141,9 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
     }
 
     const labels: Record<(typeof TIER_ONE_KEYS)[number], string> = {
-      lead_status: 'Status',
+      lead_status: 'Application status',
       lead_stage: 'Stage',
       lead_temp: 'Temperature',
-      lead_fdd_status: 'FDD status',
       lead_source: 'Source',
     };
 

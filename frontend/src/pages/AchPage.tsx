@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AchReconciliationPanel } from '@/components/ach/AchReconciliationPanel';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -14,6 +15,7 @@ import {
   fetchAchTransfers,
   type AchTransfer,
 } from '@/lib/api/ach';
+import { fetchAchReconciliation, type AchReconciliationSummary } from '@/lib/api/ach-reconciliation';
 
 function formatMoney(value: string | null | undefined): string {
   if (!value) {
@@ -43,6 +45,7 @@ export function AchPage() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reconciliation, setReconciliation] = useState<AchReconciliationSummary | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -50,11 +53,15 @@ export function AchPage() {
 
     try {
       const storeId = storeFilter.trim() === '' ? undefined : Number(storeFilter);
-      const rows = await fetchAchTransfers({
-        store_id: Number.isFinite(storeId) ? storeId : undefined,
-        status: statusFilter || undefined,
-      });
+      const [rows, recon] = await Promise.all([
+        fetchAchTransfers({
+          store_id: Number.isFinite(storeId) ? storeId : undefined,
+          status: statusFilter || undefined,
+        }),
+        fetchAchReconciliation(),
+      ]);
       setTransfers(rows);
+      setReconciliation(recon);
       setSelected(null);
     } catch (loadError: unknown) {
       setError(loadError instanceof Error ? loadError.message : 'Failed to load ACH transfers');
@@ -93,6 +100,8 @@ export function AchPage() {
       />
 
       {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
+
+      {reconciliation ? <AchReconciliationPanel summary={reconciliation} /> : null}
 
       <Card className="mb-6">
         <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">

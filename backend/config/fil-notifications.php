@@ -41,6 +41,7 @@ return [
         'user.registered' => 'User registered',
         'user.profile_updated' => 'User profile updated',
         'scheduled.leads' => 'Scheduled date-based (leads)',
+        'store.inspection_due' => 'Store inspection due',
     ],
 
     /** Legacy merge-tag field → Lead column */

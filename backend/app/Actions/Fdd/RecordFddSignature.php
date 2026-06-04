@@ -55,6 +55,7 @@ final class RecordFddSignature
                         'signed_name' => $signedName,
                         'method' => 'electronic',
                     ],
+                    'vendor' => 'local',
                     'ip_address' => request()->ip(),
                 ]);
             } else {
@@ -69,6 +70,7 @@ final class RecordFddSignature
                         'signed_name' => $signedName,
                         'method' => 'electronic',
                     ],
+                    'vendor' => 'local',
                     'ip_address' => request()->ip(),
                 ]);
             }

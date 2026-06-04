@@ -42,11 +42,30 @@ export interface SessionUser {
   user_has_panel_access: boolean;
 }
 
+export interface LeadApplicationStatusChoice {
+  value: string;
+  label: string;
+  slug: string;
+  category: string | null;
+  closed: boolean;
+  pipeline_phase: number | null;
+  sort: number;
+  filter_values: string[];
+}
+
 export interface AppConfig {
   options: Record<string, unknown>;
   menus: {
     top_menus: Array<{ name: string; label: string; url: string }>;
     menus_with_columns: Record<string, unknown>;
+  };
+  lead_application_status?: {
+    choices: LeadApplicationStatusChoice[];
+    groups: {
+      active: { submenu_key: string; values: string[]; filter_values: string[] };
+      won: { submenu_key: string; values: string[]; filter_values: string[] };
+      closed: { values: string[]; filter_values: string[] };
+    };
   };
   pipeline?: {
     phases: Array<{ id: number; label: string; description: string }>;

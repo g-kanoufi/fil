@@ -10,6 +10,7 @@ use App\Http\Resources\Api\V1\ClosingResource;
 use App\Models\Closing;
 use App\Services\Activity\ActivityRecorder;
 use App\Services\Auth\ResourceScopeService;
+use App\Services\Closings\ClosingDocumentLinker;
 use App\Services\Closings\ClosingExportService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -102,6 +103,7 @@ final class ClosingController extends Controller
         UpdateClosingRequest $request,
         Closing $closing,
         ActivityRecorder $activity,
+        ClosingDocumentLinker $documents,
     ): JsonResponse {
         $changedKeys = [];
 
@@ -115,6 +117,13 @@ final class ClosingController extends Controller
             $extras['fees'] = $request->feeLines();
             $closing->extras = $extras;
             $changedKeys[] = 'fee_lines';
+        }
+
+        if ($request->has('document_ids')) {
+            $user = $request->user();
+            abort_unless($user !== null, 403);
+            $documents->sync($closing, $request->documentIds(), $user);
+            $changedKeys[] = 'documents';
         }
 
         if ($changedKeys !== []) {

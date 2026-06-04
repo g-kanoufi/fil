@@ -190,4 +190,16 @@ final class NotificationRule extends Model
             ->whereIn('status', ['queued', 'sent'])
             ->exists();
     }
+
+    public function shouldSkipDuplicateSendForStore(Store $store): bool
+    {
+        if (! str_starts_with($this->normalizedTriggerSlug(), 'store.')) {
+            return false;
+        }
+
+        return $this->deliveries()
+            ->whereIn('status', ['queued', 'sent'])
+            ->get()
+            ->contains(fn (NotificationDelivery $delivery): bool => (int) ($delivery->meta['store_id'] ?? 0) === $store->id);
+    }
 }

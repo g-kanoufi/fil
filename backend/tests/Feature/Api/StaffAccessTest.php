@@ -42,6 +42,22 @@ test('session includes roles permissions and navigation', function () {
     expect($navigation->contains('settings'))->toBeFalse();
 });
 
+test('franchisor session navigation includes closings', function () {
+    $user = User::factory()->create([
+        'email' => 'nav-franchisor@fil.test',
+        'password' => Hash::make('secret'),
+    ]);
+    $user->assignRole('franchisor');
+
+    $navigation = collect($this->actingAs($user)->getJson('/api/v1/session')
+        ->assertOk()
+        ->json('data.navigation'))
+        ->filter(fn (array $item): bool => isset($item['id']))
+        ->pluck('id');
+
+    expect($navigation->contains('closings'))->toBeTrue();
+});
+
 test('prospect cannot log in to staff app', function () {
     User::factory()->create([
         'email' => 'prospect@fil.test',

@@ -25,6 +25,10 @@ final class Store extends Model
         'area_id',
         'status',
         'store_status',
+        'buildout_started_at',
+        'expected_opening_at',
+        'opened_at',
+        'next_inspection_at',
         'spa_id',
         'pos_provider',
         'pos_external_id',
@@ -42,6 +46,10 @@ final class Store extends Model
             'royalty_config' => 'array',
             'extras' => 'array',
             'legacy_post_id' => 'integer',
+            'buildout_started_at' => 'date',
+            'expected_opening_at' => 'date',
+            'opened_at' => 'date',
+            'next_inspection_at' => 'date',
         ];
     }
 
@@ -60,5 +68,10 @@ final class Store extends Model
         return $this->belongsToMany(User::class, 'store_owners')
             ->withPivot(['ownership_pct', 'role'])
             ->withTimestamps();
+    }
+
+    public function openingChecklistItems(): HasMany
+    {
+        return $this->hasMany(StoreOpeningChecklistItem::class);
     }
 }

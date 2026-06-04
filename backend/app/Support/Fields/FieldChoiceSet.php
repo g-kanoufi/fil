@@ -116,6 +116,46 @@ final class FieldChoiceSet
         return is_numeric($phase) ? (int) $phase : null;
     }
 
+    public function categoryFor(?string $storedValue): ?string
+    {
+        $category = $this->metaFor($storedValue)['category'] ?? null;
+
+        return is_string($category) && $category !== '' ? $category : null;
+    }
+
+    /**
+     * Stored values and aliases suitable for grid WHERE IN matching.
+     *
+     * @return list<string>
+     */
+    public function filterValuesFor(?string $storedValue): array
+    {
+        $choice = $this->matchChoice($storedValue ?? '');
+
+        if ($choice === null) {
+            $trimmed = trim((string) $storedValue);
+
+            return $trimmed === '' ? [] : [$trimmed, strtolower($trimmed)];
+        }
+
+        $values = [
+            $choice['value'],
+            strtolower($choice['value']),
+            $choice['label'],
+            strtolower($choice['label']),
+        ];
+
+        foreach ($choice['aliases'] ?? [] as $alias) {
+            $values[] = $alias;
+            $values[] = strtolower($alias);
+        }
+
+        $slug = strtolower(preg_replace('/[-\s]+/', '_', $choice['value']) ?? $choice['value']);
+        $values[] = $slug;
+
+        return array_values(array_unique(array_filter($values, fn (string $v): bool => $v !== '')));
+    }
+
     /**
      * @return Choice|null
      */

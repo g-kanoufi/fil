@@ -8,6 +8,7 @@ use App\Models\ActivityNavigation;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 final class NavigationActivityRecorder
 {
@@ -20,6 +21,10 @@ final class NavigationActivityRecorder
      */
     public function upsertBatch(User $actor, array $paths): int
     {
+        if (! Schema::hasTable('activity_navigation')) {
+            return 0;
+        }
+
         $recorded = 0;
         $periodBucket = CarbonImmutable::now('UTC')->toDateString();
         $now = now();

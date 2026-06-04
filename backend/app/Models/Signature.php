@@ -19,6 +19,8 @@ final class Signature extends Model
         'signer_user_id',
         'signed_at',
         'status',
+        'vendor',
+        'vendor_reference',
         'signature_data',
         'ip_address',
         'extras',

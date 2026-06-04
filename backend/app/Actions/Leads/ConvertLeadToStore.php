@@ -30,6 +30,8 @@ final class ConvertLeadToStore
             $lead->update([
                 'status' => 'converted',
                 'lead_status' => 'converted',
+                'lead_fdd_status' => 'converted',
+                'pipeline_phase' => 10,
             ]);
 
             return $store->fresh(['area']);

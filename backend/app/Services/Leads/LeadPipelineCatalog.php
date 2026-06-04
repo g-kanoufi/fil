@@ -96,7 +96,7 @@ final class LeadPipelineCatalog
 
     private function inferPhaseFromSignals(Lead $lead): ?int
     {
-        foreach ([$lead->lead_fdd_status, $lead->lead_status] as $status) {
+        foreach ([$lead->lead_status, $lead->lead_fdd_status] as $status) {
             $phase = $this->phaseHintFromStatus($status);
 
             if ($phase !== null) {
@@ -166,8 +166,8 @@ final class LeadPipelineCatalog
 
         $trimmed = trim($value);
 
-        return $this->choices->label('lead', 'lead_fdd_status', $trimmed)
-            ?? $this->choices->label('lead', 'lead_status', $trimmed)
+        return $this->choices->label('lead', 'lead_status', $trimmed)
+            ?? $this->choices->label('lead', 'lead_fdd_status', $trimmed)
             ?? $this->humanizeUnknownLabel($trimmed);
     }
 

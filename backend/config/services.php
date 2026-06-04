@@ -67,4 +67,9 @@ return [
         'webhook_url' => env('PLAID_WEBHOOK_URL'),
     ],
 
+    'square' => [
+        'base_url' => env('SQUARE_BASE_URL', 'https://connect.squareupsandbox.com'),
+        'environment' => env('SQUARE_ENVIRONMENT', 'sandbox'),
+    ],
+
 ];

@@ -6,6 +6,7 @@ import { DetailPanelChrome } from '@/components/ui/SlideOver';
 import type { EntityDetailPageProps } from '@/components/detail/types';
 import { CommunicationComposer } from '@/components/communications/CommunicationComposer';
 import { EntityActivityTimeline } from '@/components/activity/EntityActivityTimeline';
+import { EntityNotesPanel } from '@/components/operations/EntityNotesPanel';
 import { EntityCustomFieldsPanel } from '@/components/fields/EntityCustomFieldsPanel';
 import { FddSignModal } from '@/components/fdd/FddSignModal';
 import { LeadEditForm } from '@/components/leads/LeadEditForm';
@@ -27,6 +28,7 @@ import {
   type FddDelivery,
 } from '@/lib/api/fdds';
 import { fetchLead, transitionLeadPhase, convertLeadToStore, updateLead, type Lead } from '@/lib/api/leads';
+import { isWonApplicationStatus } from '@/lib/leadApplicationStatus';
 import { pipelinePhaseLabel, selectablePipelinePhases } from '@/lib/leadPipeline';
 import { useAuth } from '@/providers/AuthProvider';
 
@@ -225,6 +227,11 @@ export function LeadDetailPage({
 
   const pipelinePhases = selectablePipelinePhases(appConfig);
   const canEditLead = can('leads.manage');
+  const canConvertToStore =
+    canEditLead
+    && lead.status !== 'converted'
+    && (isWonApplicationStatus(appConfig, lead.lead_status ?? lead.lead_fdd_status)
+      || lead.pipeline_phase === 10);
   const statusLabel =
     lead.application_status_label
     ?? lead.lead_fdd_status
@@ -310,8 +317,11 @@ export function LeadDetailPage({
             }}
           />
 
-          {canEditLead && lead.status !== 'converted' ? (
+          {canConvertToStore ? (
             <div className="mt-6 border-t border-border pt-4">
+              <p className="mb-2 text-sm text-muted">
+                Awarded applications can be converted into a store record; assign store owners after conversion.
+              </p>
               <Button
                 type="button"
                 variant="secondary"
@@ -435,6 +445,8 @@ export function LeadDetailPage({
         </ul>
         )}
       </Card>
+
+      <EntityNotesPanel subjectType="lead" subjectId={lead.id} />
 
       <div className="mt-6">
         <EntityActivityTimeline subjectType="lead" subjectId={lead.id} />

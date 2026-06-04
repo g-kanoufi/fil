@@ -18,7 +18,7 @@ test.describe('FIL auth & authorization', () => {
     await page.goto('/app/reports/stores');
 
     await page.waitForURL(/\/app\/login\/?$/);
-    await expect(page.getByRole('heading', { name: 'Staff sign in' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
   });
 
   test('missing route permission redirects to forbidden', async ({ page }) => {

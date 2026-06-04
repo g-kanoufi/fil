@@ -52,23 +52,28 @@ final class UiAccessService
     {
         $roles = $user->getRoleNames()->all();
         $entities = config('fil-ui-catalog.note_entities', ['lead', 'store', 'area', 'contact']);
-        $legacyMap = [
-            'lead' => 'application',
-            'store' => 'store',
-            'area' => 'franchise_location',
-            'contact' => 'user',
-        ];
-
         $result = [];
 
         foreach ($entities as $entity) {
-            $result[$legacyMap[$entity] ?? $entity] = [
+            $result[$this->noteEntityLegacyKey($entity)] = [
                 'notes' => $this->roleNoteAllowed($roles, $entity, 'can_view_notes'),
                 'private_notes' => $this->roleNoteAllowed($roles, $entity, 'can_view_private_notes'),
             ];
         }
 
         return $result;
+    }
+
+    public function noteEntityLegacyKey(string $entityKey): string
+    {
+        return match ($entityKey) {
+            'lead' => 'application',
+            'store' => 'store',
+            'area' => 'franchise_location',
+            'contact' => 'user',
+            'closing' => 'closing',
+            default => $entityKey,
+        };
     }
 
     /**

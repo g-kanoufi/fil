@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Jobs\Activity\RecordNavigationJob;
 use App\Models\ActivityNavigation;
 use App\Models\Lead;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Activity\ActivityRecorder;
 use App\Services\Activity\NavigationActivityRecorder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
@@ -19,8 +19,6 @@ beforeEach(function () {
 });
 
 test('staff can ingest page views and upsert navigation rows', function () {
-    Queue::fake();
-
     $user = User::factory()->create(['name' => 'Nav User']);
     $user->assignRole('admin');
 
@@ -32,13 +30,6 @@ test('staff can ingest page views and upsert navigation rows', function () {
         ])
         ->assertStatus(202)
         ->assertJsonPath('accepted', true);
-
-    Queue::assertPushed(RecordNavigationJob::class, function (RecordNavigationJob $job) use ($user, $lead): bool {
-        return $job->actorUserId === $user->id
-            && $job->paths === ["/reports/leads/{$lead->id}"];
-    });
-
-    (new RecordNavigationJob($user->id, ["/reports/leads/{$lead->id}"]))->handle(app(NavigationActivityRecorder::class));
 
     $this->assertDatabaseHas('activity_navigation', [
         'actor_user_id' => $user->id,
@@ -52,6 +43,36 @@ test('staff can ingest page views and upsert navigation rows', function () {
 
     expect(ActivityNavigation::query()->where('actor_user_id', $user->id)->count())->toBe(1);
     expect(ActivityNavigation::query()->first()?->view_count)->toBe(2);
+});
+
+test('sequential store detail visits create separate navigation rows', function () {
+    $user = User::factory()->create(['name' => 'Store Nav']);
+    $user->assignRole('admin');
+
+    $storeA = Store::factory()->create(['name' => 'Unit Alpha']);
+    $storeB = Store::factory()->create(['name' => 'Unit Beta']);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/activity/page-views', [
+            'paths' => ["/reports/stores/{$storeA->id}"],
+        ])
+        ->assertStatus(202);
+
+    $this->actingAs($user)
+        ->postJson('/api/v1/activity/page-views', [
+            'paths' => ["/reports/stores/{$storeB->id}"],
+        ])
+        ->assertStatus(202);
+
+    expect(ActivityNavigation::query()->where('actor_user_id', $user->id)->count())->toBe(2);
+
+    $this->actingAs($user)
+        ->getJson('/api/v1/activity?category=navigation&days=30&limit=25')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.navigation_table_ready', true)
+        ->assertJsonPath('data.0.subject.id', $storeB->id)
+        ->assertJsonPath('data.1.subject.id', $storeA->id);
 });
 
 test('grid list paths are not recorded', function () {

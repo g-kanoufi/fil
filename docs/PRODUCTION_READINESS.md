@@ -18,7 +18,7 @@ Path from current codebase to **100% production-ready** for the first client VPS
 | Phase 0 — Staging ship (ops) | **~80%** ([fil.on-forge.com](https://fil.on-forge.com) live; partial UI smoke + embed/webhooks open) |
 | Phase 1 — Staff UX | **100%** — complete |
 | Phase 2 — Comms hardening | **~45%** (code done; Mailgun/Twilio prod creds pending) |
-| Phase 3 — Financial workflows | **~60%** (UI + closings; sandbox verify + reconciliation open) |
+| Phase 3 — Financial workflows | **~75%** (reconciliation + royalties intelligence; sandbox verify open) |
 | Phase 4 — Data / import | **0%** (staging VPS ready; client dump not imported) |
 | Phase 5 — Quality / observability | **~67%** (tests + E2E; Sentry + VPS logging pending) |
 | Phase 6 — Security / compliance | **100%** — local code complete; live-money verify at deploy |
@@ -116,7 +116,7 @@ Complete. Grids, detail pages, FDD (single + bulk), SMS/email composer, activity
 | 3.1 | Closing workflow + fee line items | ☑ |
 | 3.2 | CSV export (closings + activity) | ☑ |
 | 3.3 | Dwolla enrollment UI | ☑ UI shipped — sandbox browser verify pending |
-| 3.4 | Admin reconciliation view | ☐ |
+| 3.4 | Admin reconciliation view | ☑ |
 
 **Priority:** After Phase 2 if client needs fees at launch; otherwise post-v1.
 

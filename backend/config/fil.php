@@ -120,6 +120,9 @@ return [
         'ai.use',
         'settings.manage',
         'fields.manage',
+        'notes.manage',
+        'todos.view',
+        'todos.manage',
     ],
 
     /*
@@ -149,6 +152,9 @@ return [
             'communications.manage',
             'ai.use',
             'fields.manage',
+            'notes.manage',
+            'todos.view',
+            'todos.manage',
         ],
         'lead_owner' => [
             'app.access',
@@ -160,6 +166,8 @@ return [
             'fdd.view',
             'communications.view',
             'ai.use',
+            'todos.view',
+            'todos.manage',
         ],
         'area_rep' => [
             'app.access',
@@ -173,6 +181,8 @@ return [
             'fdd.view',
             'communications.view',
             'ai.use',
+            'todos.view',
+            'todos.manage',
         ],
         'franchisee' => [
             'app.access',
@@ -210,6 +220,7 @@ return [
         ['id' => 'stores', 'label' => 'My Units', 'path' => '/reports/stores', 'policy' => Store::class, 'ability' => 'viewAny'],
         ['id' => 'contacts', 'label' => 'Contacts', 'path' => '/reports/contacts', 'policy' => Contact::class, 'ability' => 'viewAny'],
         ['id' => 'leads', 'label' => 'Leads', 'path' => '/reports/leads', 'policy' => Lead::class, 'ability' => 'viewAny'],
+        ['id' => 'closings', 'label' => 'Closings', 'path' => '/reports/closings', 'policy' => Lead::class, 'ability' => 'viewAny'],
         ['type' => 'section', 'label' => 'Finance'],
         ['id' => 'royalties', 'label' => 'Royalties', 'path' => '/reports/royalties', 'gate' => 'viewAnyRoyalty'],
         ['id' => 'ach', 'label' => 'ACH', 'path' => '/reports/ach', 'gate' => 'viewAnyAch'],

@@ -28,6 +28,8 @@ final class UpdateClosingRequest extends FormRequest
             'fee_lines' => ['sometimes', 'array'],
             'fee_lines.*.label' => ['required', 'string', 'max:120'],
             'fee_lines.*.amount_cents' => ['required', 'integer', 'min:0'],
+            'document_ids' => ['sometimes', 'array'],
+            'document_ids.*' => ['integer', 'exists:documents,id'],
         ];
     }
 
@@ -61,5 +63,16 @@ final class UpdateClosingRequest extends FormRequest
         $lines = $this->validated('fee_lines');
 
         return app(ClosingWorkflowCatalog::class)->normalizeFeeLines(is_array($lines) ? $lines : null);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function documentIds(): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->input('document_ids', []);
+
+        return array_values(array_map(intval(...), $ids));
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import { ClosingFeeLinesEditor } from '@/components/closings/ClosingFeeLinesEditor';
 import { TextLink } from '@/components/ui/TextLink';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { EntityLoadState } from '@/components/ui/EntityLoadState';
+import { FormField } from '@/components/ui/FormField';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { fetchClosing, formatFeeCents, updateClosing, type Closing } from '@/lib/api/closings';
 import { useAuth } from '@/providers/AuthProvider';
@@ -210,6 +211,87 @@ export function ClosingDetailPage() {
           onSave={onSaveFees}
         />
       </Card>
+
+      <ClosingDocumentsCard
+        closing={closing}
+        canEdit={canEdit}
+        onUpdated={setClosing}
+      />
     </>
+  );
+}
+
+function ClosingDocumentsCard({
+  closing,
+  canEdit,
+  onUpdated,
+}: {
+  closing: Closing;
+  canEdit: boolean;
+  onUpdated: (closing: Closing) => void;
+}) {
+  const [documentId, setDocumentId] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function linkDocument(event: FormEvent) {
+    event.preventDefault();
+
+    const id = Number(documentId);
+
+    if (!Number.isFinite(id) || id <= 0) {
+      setError('Enter a valid document id.');
+
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const existingIds = closing.documents.map((document) => document.id);
+      onUpdated(
+        await updateClosing(closing.id, {
+          document_ids: [...existingIds, id],
+        }),
+      );
+      setDocumentId('');
+    } catch {
+      setError('Unable to link document.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card className="mt-6">
+      <CardHeader title="Agreement documents" description="Link documents from the library to this closing." />
+      {error ? <Alert variant="error" className="mb-4">{error}</Alert> : null}
+      {closing.documents.length === 0 ? (
+        <p className="text-sm text-muted">No documents linked yet.</p>
+      ) : (
+        <ul className="mb-4 space-y-2 text-sm">
+          {closing.documents.map((document) => (
+            <li key={document.id}>
+              <TextLink to={`/documents/${document.id}`}>{document.title}</TextLink>
+            </li>
+          ))}
+        </ul>
+      )}
+      {canEdit ? (
+        <form onSubmit={linkDocument} className="flex flex-wrap items-end gap-3">
+          <FormField
+            label="Document ID"
+            id="closing-document-id"
+            value={documentId}
+            onChange={(event) => setDocumentId(event.target.value)}
+            className="w-40"
+          />
+          <Button type="submit" disabled={saving}>
+            {saving ? 'Linking…' : 'Link document'}
+          </Button>
+        </form>
+      ) : null}
+    </Card>
   );
 }

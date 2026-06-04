@@ -9,6 +9,7 @@ use App\Models\Lead;
 use App\Models\NotificationDelivery;
 use App\Models\NotificationLog;
 use App\Models\NotificationRule;
+use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -29,7 +30,12 @@ final class NotificationProcessor
         array $context = [],
         ?User $actor = null,
         ?User $subjectUser = null,
+        ?Store $store = null,
     ): int {
+        if ($store !== null && str_starts_with($triggerSlug, 'store.')) {
+            return $this->processStoreTrigger($triggerSlug, $store, $context, $actor);
+        }
+
         if ($lead === null && $subjectUser !== null && str_starts_with($triggerSlug, 'user.')) {
             return $this->processUserTrigger($triggerSlug, $subjectUser, $context, $actor);
         }
@@ -73,7 +79,61 @@ final class NotificationProcessor
                 $subject = $this->mergeTags->render($rule->emailSubjectTemplate(), $lead, $recipientUser, $context);
                 $body = $this->mergeTags->render($rule->emailBodyTemplate(), $lead, $recipientUser, $context);
 
-                $this->queueEmail($rule, $triggerSlug, $lead->id, null, $row, $subject, $body, $actor);
+                $this->queueEmail($rule, $triggerSlug, $lead->id, null, null, $row, $subject, $body, $actor);
+                $queued++;
+            }
+        }
+
+        return $queued;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function processStoreTrigger(
+        string $triggerSlug,
+        Store $store,
+        array $context,
+        ?User $actor,
+    ): int {
+        /** @var Collection<int, NotificationRule> $rules */
+        $rules = $this->matchingRules($triggerSlug);
+        $queued = 0;
+
+        foreach ($rules as $rule) {
+            if ($rule->shouldSkipDuplicateSendForStore($store)) {
+                $this->logSkip($rule, $triggerSlug, 'Duplicate send suppressed', ['store_id' => $store->id]);
+
+                continue;
+            }
+
+            $recipientRows = $this->recipients->resolveForStore($rule, $store, $rule->recipientTokens());
+
+            if ($recipientRows === []) {
+                $this->logSkip($rule, $triggerSlug, 'No recipients resolved', ['store_id' => $store->id]);
+
+                continue;
+            }
+
+            foreach ($recipientRows as $row) {
+                $recipientUser = $row['user_id'] !== null
+                    ? User::query()->find($row['user_id'])
+                    : null;
+
+                $subject = $this->mergeTags->renderForStore(
+                    $rule->emailSubjectTemplate(),
+                    $store,
+                    $recipientUser,
+                    $context,
+                );
+                $body = $this->mergeTags->renderForStore(
+                    $rule->emailBodyTemplate(),
+                    $store,
+                    $recipientUser,
+                    $context,
+                );
+
+                $this->queueEmail($rule, $triggerSlug, null, null, $store->id, $row, $subject, $body, $actor);
                 $queued++;
             }
         }
@@ -121,7 +181,7 @@ final class NotificationProcessor
                     $context,
                 );
 
-                $this->queueEmail($rule, $triggerSlug, null, $subjectUser->id, $row, $subject, $body, $actor);
+                $this->queueEmail($rule, $triggerSlug, null, $subjectUser->id, null, $row, $subject, $body, $actor);
                 $queued++;
             }
         }
@@ -158,6 +218,7 @@ final class NotificationProcessor
         string $triggerSlug,
         ?int $leadId,
         ?int $subjectUserId,
+        ?int $storeId,
         array $row,
         string $subject,
         string $body,
@@ -177,6 +238,7 @@ final class NotificationProcessor
                 'actor_user_id' => $actor?->id,
                 'recipient_name' => $row['name'],
                 'subject_user_id' => $subjectUserId,
+                'store_id' => $storeId,
             ],
         ]);
 

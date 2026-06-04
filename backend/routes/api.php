@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\Public\V1\BrandingController;
 use App\Http\Controllers\Api\Public\V1\FormConfigController;
 use App\Http\Controllers\Api\Public\V1\LeadIntakeController;
+use App\Http\Controllers\Api\Portal\V1\PortalSessionController;
+use App\Http\Controllers\Api\Portal\V1\ProspectApplicationController;
+use App\Http\Controllers\Api\Portal\V1\ProspectFddController;
 use App\Http\Controllers\Api\V1\AchCustomerController;
 use App\Http\Controllers\Api\V1\AchTransferController;
 use App\Http\Controllers\Api\V1\ActivityController;
@@ -17,6 +20,7 @@ use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\DocumentDownloadController;
+use App\Http\Controllers\Api\V1\EntityNoteController;
 use App\Http\Controllers\Api\V1\DocumentsBrowserController;
 use App\Http\Controllers\Api\V1\DocumentsExportController;
 use App\Http\Controllers\Api\V1\DripCampaignController;
@@ -43,13 +47,17 @@ use App\Http\Controllers\Api\V1\PosConnectionController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\RelatableEntityController;
 use App\Http\Controllers\Api\V1\RoyaltyController;
+use App\Http\Controllers\Api\V1\RoyaltyIntelligenceController;
 use App\Http\Controllers\Api\V1\SessionController;
+use App\Http\Controllers\Api\V1\StaffTodoController;
 use App\Http\Controllers\Api\V1\StoreController;
+use App\Http\Controllers\Api\V1\StoreOpeningChecklistController;
 use App\Http\Controllers\Api\V1\StoreOwnerController;
 use App\Http\Controllers\Api\V1\WidgetFormController;
 use App\Http\Controllers\Api\V1\WidgetFormFieldSyncController;
 use App\Http\Controllers\Api\V1\WidgetFormRotateSiteKeyController;
 use App\Http\Controllers\Webhooks\DwollaWebhookController;
+use App\Http\Controllers\Webhooks\ESignWebhookController;
 use App\Http\Controllers\Webhooks\MailgunInboundWebhookController;
 use App\Http\Controllers\Webhooks\MailgunWebhookController;
 use App\Http\Controllers\Webhooks\PlaidWebhookController;
@@ -109,6 +117,10 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.leads.transition-phase');
         Route::post('/leads/{lead}/convert', [LeadController::class, 'convert'])
             ->name('api.v1.leads.convert');
+        Route::get('/leads/{lead}/notes', [EntityNoteController::class, 'indexForLead'])
+            ->name('api.v1.leads.notes.index');
+        Route::post('/leads/{lead}/notes', [EntityNoteController::class, 'storeForLead'])
+            ->name('api.v1.leads.notes.store');
         Route::get('/fdds/summary', [FddController::class, 'summary'])->name('api.v1.fdds.summary');
         Route::get('/fdds', [FddController::class, 'index'])->name('api.v1.fdds.index');
         Route::post('/fdds', [FddController::class, 'store'])->name('api.v1.fdds.store');
@@ -148,10 +160,30 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/closings/{closing}', [ClosingController::class, 'update'])->name('api.v1.closings.update');
         Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('api.v1.contacts.show');
         Route::patch('/contacts/{contact}', [ContactController::class, 'update'])->name('api.v1.contacts.update');
+        Route::get('/contacts/{contact}/notes', [EntityNoteController::class, 'indexForContact'])
+            ->name('api.v1.contacts.notes.index');
+        Route::post('/contacts/{contact}/notes', [EntityNoteController::class, 'storeForContact'])
+            ->name('api.v1.contacts.notes.store');
         Route::get('/stores', [StoreController::class, 'index'])->name('api.v1.stores.index');
         Route::post('/stores', [StoreController::class, 'store'])->name('api.v1.stores.store');
         Route::get('/stores/{store}', [StoreController::class, 'show'])->name('api.v1.stores.show');
         Route::patch('/stores/{store}', [StoreController::class, 'update'])->name('api.v1.stores.update');
+        Route::get('/stores/{store}/opening-checklist', [StoreOpeningChecklistController::class, 'show'])
+            ->name('api.v1.stores.opening-checklist.show');
+        Route::patch('/stores/{store}/opening-checklist', [StoreOpeningChecklistController::class, 'update'])
+            ->name('api.v1.stores.opening-checklist.update');
+        Route::get('/stores/{store}/notes', [EntityNoteController::class, 'indexForStore'])
+            ->name('api.v1.stores.notes.index');
+        Route::post('/stores/{store}/notes', [EntityNoteController::class, 'storeForStore'])
+            ->name('api.v1.stores.notes.store');
+        Route::get('/todos', [StaffTodoController::class, 'index'])->name('api.v1.todos.index');
+        Route::post('/todos', [StaffTodoController::class, 'store'])->name('api.v1.todos.store');
+        Route::patch('/todos/{staffTodo}', [StaffTodoController::class, 'update'])->name('api.v1.todos.update');
+        Route::delete('/todos/{staffTodo}', [StaffTodoController::class, 'destroy'])->name('api.v1.todos.destroy');
+        Route::patch('/entity-notes/{entityNote}', [EntityNoteController::class, 'update'])
+            ->name('api.v1.entity-notes.update');
+        Route::delete('/entity-notes/{entityNote}', [EntityNoteController::class, 'destroy'])
+            ->name('api.v1.entity-notes.destroy');
         Route::get('/stores/{store}/owners', [StoreOwnerController::class, 'index'])
             ->name('api.v1.stores.owners.index');
         Route::put('/stores/{store}/owners', [StoreOwnerController::class, 'sync'])
@@ -164,6 +196,10 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.stores.royalty-periods.trigger-ach');
         Route::get('/royalty-periods/{royaltyPeriod}', [RoyaltyController::class, 'show'])
             ->name('api.v1.royalty-periods.show');
+        Route::get('/royalties/intelligence', RoyaltyIntelligenceController::class)
+            ->name('api.v1.royalties.intelligence');
+        Route::get('/ach-transfers/reconciliation', [AchTransferController::class, 'reconciliation'])
+            ->name('api.v1.ach-transfers.reconciliation');
         Route::get('/ach-transfers', [AchTransferController::class, 'index'])->name('api.v1.ach-transfers.index');
         Route::get('/ach-transfers/{achTransfer}', [AchTransferController::class, 'show'])
             ->name('api.v1.ach-transfers.show');
@@ -250,6 +286,9 @@ Route::post('/webhooks/mailgun', MailgunWebhookController::class)
 Route::post('/webhooks/mailgun/inbound', MailgunInboundWebhookController::class)
     ->middleware('throttle:120,1')
     ->name('api.webhooks.mailgun.inbound');
+Route::post('/webhooks/esign', ESignWebhookController::class)
+    ->middleware('throttle:120,1')
+    ->name('api.webhooks.esign');
 
 Route::prefix('public/v1')->middleware(['throttle:60,1'])->group(function (): void {
     Route::get('/branding', BrandingController::class)->name('api.public.v1.branding');
@@ -258,6 +297,27 @@ Route::prefix('public/v1')->middleware(['throttle:60,1'])->group(function (): vo
 Route::prefix('public/v1')->middleware(['throttle:60,1', 'throttle.embed_lead_intake', 'embed.site_key', 'embed.origin'])->group(function (): void {
     Route::get('/form-config', FormConfigController::class)->name('api.public.v1.form-config');
     Route::post('/leads', [LeadIntakeController::class, 'store'])->name('api.public.v1.leads.store');
+});
+
+Route::prefix('portal/v1')->middleware(['throttle:60,1'])->group(function (): void {
+    Route::post('/session', [PortalSessionController::class, 'store'])->name('api.portal.v1.session.store');
+    Route::post('/setup-password', [PortalSessionController::class, 'setupPassword'])
+        ->name('api.portal.v1.setup-password');
+
+    Route::middleware(['auth:sanctum', 'prospect.portal'])->group(function (): void {
+        Route::get('/session', [PortalSessionController::class, 'show'])->name('api.portal.v1.session.show');
+        Route::delete('/session', [PortalSessionController::class, 'destroy'])->name('api.portal.v1.session.destroy');
+        Route::get('/application', [ProspectApplicationController::class, 'show'])
+            ->name('api.portal.v1.application.show');
+        Route::patch('/application', [ProspectApplicationController::class, 'update'])
+            ->name('api.portal.v1.application.update');
+        Route::get('/fdd-deliveries', [ProspectFddController::class, 'index'])
+            ->name('api.portal.v1.fdd-deliveries.index');
+        Route::post('/fdd-deliveries/{fddDelivery}/sign-session', [ProspectFddController::class, 'signSession'])
+            ->name('api.portal.v1.fdd-deliveries.sign-session');
+        Route::post('/fdd-deliveries/{fddDelivery}/sign', [ProspectFddController::class, 'sign'])
+            ->name('api.portal.v1.fdd-deliveries.sign');
+    });
 });
 
 Route::prefix('webhooks')->middleware('throttle:120,1')->group(function (): void {

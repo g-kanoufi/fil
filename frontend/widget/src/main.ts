@@ -23,7 +23,22 @@ interface FormConfig {
   version: number;
   fields: FormConfigField[];
   recaptcha_site_key?: string | null;
+  portal_app_url?: string | null;
+  redirect_after_intake?: boolean;
   theme?: WidgetTheme | null;
+}
+
+interface PortalRedirect {
+  setup_token?: string;
+  setup_path?: string;
+  redirect_url?: string;
+  redirect_after_intake?: boolean;
+}
+
+interface LeadIntakeResponse {
+  message?: string;
+  title?: string;
+  portal?: PortalRedirect;
 }
 
 const STYLE_ID = 'fil-widget-styles';
@@ -378,9 +393,21 @@ function renderForm(mount: HTMLElement, config: WidgetConfig, formConfig: FormCo
           throw new Error(await response.text());
         }
 
-        setStatus(status, 'Thanks — we received your inquiry.', 'success');
+        const body = (await response.json()) as { data?: LeadIntakeResponse };
+        const portal = body.data?.portal;
+
+        setStatus(status, 'Thanks — redirecting you to complete your application…', 'success');
         form.reset();
         clearFieldErrors(form);
+
+        if (portal?.redirect_after_intake !== false && portal?.redirect_url) {
+          window.setTimeout(() => {
+            window.location.assign(portal.redirect_url as string);
+          }, 800);
+          return;
+        }
+
+        setStatus(status, 'Thanks — we received your inquiry.', 'success');
       })
       .catch((error: Error) => {
         if (error.message !== 'validation') {

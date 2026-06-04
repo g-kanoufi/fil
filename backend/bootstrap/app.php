@@ -37,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'staff' => EnsureStaffAccess::class,
+            'prospect.portal' => \App\Http\Middleware\EnsureProspectPortalAccess::class,
             'embed.site_key' => ValidateEmbedSiteKey::class,
             'embed.origin' => ValidateEmbedOrigin::class,
             'throttle.staff_login' => ThrottleStaffLogin::class,

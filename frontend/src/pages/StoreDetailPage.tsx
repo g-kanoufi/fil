@@ -13,8 +13,10 @@ import { EntityLoadState } from '@/components/ui/EntityLoadState';
 import { FormField } from '@/components/ui/FormField';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StoreAchEnrollmentCard } from '@/components/ach/StoreAchEnrollmentCard';
+import { StoreOpeningChecklistCard } from '@/components/stores/StoreOpeningChecklistCard';
 import { StoreEditForm } from '@/components/stores/StoreEditForm';
 import { EntityActivityTimeline } from '@/components/activity/EntityActivityTimeline';
+import { EntityNotesPanel } from '@/components/operations/EntityNotesPanel';
 import { EntityCustomFieldsPanel } from '@/components/fields/EntityCustomFieldsPanel';
 import {
   calculateRoyalties,
@@ -186,6 +188,8 @@ export function StoreDetailPage({
           />
         </Card>
 
+        <StoreOpeningChecklistCard storeId={store.id} canEdit={canEditStore} />
+
         <Card>
           <CardHeader title="Owners" />
           {owners.length === 0 ? (
@@ -273,6 +277,8 @@ export function StoreDetailPage({
         />
       </Card>
       ) : null}
+
+      <EntityNotesPanel subjectType="store" subjectId={store.id} />
 
       <div className={panelMode ? 'mt-4' : 'mt-6'}>
         <EntityActivityTimeline subjectType="store" subjectId={store.id} />

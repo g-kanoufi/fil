@@ -50,8 +50,9 @@ if ! curl -sf "$BASE_URL/api/health" >/dev/null; then
   exit 1
 fi
 
-echo "==> Playwright smoke"
+echo "==> Playwright smoke (MVP + auth + Plan 3 platform)"
 cd "$ROOT/e2e"
+export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-0}"
 npm ci --no-audit --no-fund
 npx playwright install chromium
 E2E_BASE_URL="$BASE_URL" npm test

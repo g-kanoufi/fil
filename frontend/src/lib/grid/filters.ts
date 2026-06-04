@@ -1,3 +1,9 @@
+import type { AppConfig } from '@/types/auth';
+import {
+  filterValuesForChoiceSlug,
+  filterValuesForStatusGroup,
+  leadApplicationStatusConfig,
+} from '@/lib/leadApplicationStatus';
 import type { GridQueryParams } from './useGridQueryParams';
 
 export interface EntityMenus {
@@ -6,41 +12,6 @@ export interface EntityMenus {
 }
 
 export const LEADS_SPECIFIC_FILTERS = ['leads_active', 'leads_awarded_deals'] as const;
-
-const INACTIVE_LEAD_STATUSES = [
-  'inactive',
-  'transfer sale',
-  'international leads',
-  'not qualified',
-  'dead deal',
-  'close application',
-  'deny application',
-];
-
-const AWARDED_STATUSES = [
-  'award portfolio deal (agreement signed for portfolio brand)',
-  'award franchise (agreement signed)',
-  'award area (master agreement signed)',
-  'award portfolio',
-  'award franchise',
-  'award area',
-  'award-portfolio',
-  'award-franchise',
-  'award-area',
-];
-
-/** Fallback when dynamic status menus are not yet hydrated (fl-react parity). */
-const DEFAULT_ACTIVE_FDD_STATUSES = [
-  'active',
-  'disclosed',
-  'waiting_period',
-  'new lead',
-  'New Lead',
-  'viewed_intro',
-  'viewed_fdd_page',
-  'in_waiting_period',
-  'out_of_waiting_period',
-];
 
 function normalizeKey(value: string): string {
   return value.replace(/[-\s]+/g, '_').toLowerCase();
@@ -82,45 +53,11 @@ function resolveSubFilterKey(
   return found ?? null;
 }
 
-function isInactiveLeadStatus(key: string, label: string): boolean {
-  const normalizedLabel = label.toLowerCase();
-
-  return INACTIVE_LEAD_STATUSES.some(
-    (inactive) =>
-      normalizedLabel.includes(inactive) ||
-      key.includes(inactive.replace(/\s/g, '_')),
-  );
-}
-
-function collectLeadStatusFilterValues(
-  menus: EntityMenus | undefined,
-  includeEntry: (key: string, label: string) => boolean,
-): string[] {
-  const subItems = menus?.subMenuItems?.lead_status ?? {};
-  const values: string[] = [];
-
-  for (const [key, item] of Object.entries(subItems)) {
-    const normKey = normalizeKey(key);
-
-    if (LEADS_SPECIFIC_FILTERS.includes(normKey as (typeof LEADS_SPECIFIC_FILTERS)[number])) {
-      continue;
-    }
-
-    const label = item.label ?? '';
-    if (!includeEntry(normKey, label)) {
-      continue;
-    }
-
-    values.push(label, label.toLowerCase(), item.slug, normalizeKey(item.slug));
-  }
-
-  return values.filter(Boolean);
-}
-
 export function buildGridFilters(
   resource: 'leads' | 'stores' | 'contacts',
   params: GridQueryParams,
   menus?: EntityMenus,
+  appConfig?: AppConfig | null,
 ): Record<string, unknown> {
   const filters: Record<string, unknown> = {};
   const { filter, subFilter, leadtemp } = params;
@@ -168,9 +105,10 @@ export function buildGridFilters(
     return filters;
   }
 
+  const statusConfig = leadApplicationStatusConfig(appConfig);
   const metaField =
     filter === 'lead_status'
-      ? 'lead_fdd_status'
+      ? 'lead_status'
       : filter === 'lead_temp'
         ? 'lead_temp'
         : filter === 'lead_source'
@@ -181,19 +119,34 @@ export function buildGridFilters(
     const normalizedSub = normalizeKey(subFilter);
 
     if (normalizedSub === 'leads_awarded_deals') {
-      filters.lead_fdd_status = AWARDED_STATUSES;
+      const won = filterValuesForStatusGroup(appConfig, 'won');
+      filters.lead_status = won.length > 0 ? [...new Set(won)] : subFilterValues(menus, filter);
+
       return filters;
     }
 
     if (normalizedSub === 'leads_active') {
-      const active = collectLeadStatusFilterValues(
-        menus,
-        (key, label) => !isInactiveLeadStatus(key, label),
-      );
+      const active = filterValuesForStatusGroup(appConfig, 'active');
+      const closed = filterValuesForStatusGroup(appConfig, 'closed');
 
-      filters.lead_fdd_status =
-        active.length > 0 ? [...new Set(active)] : DEFAULT_ACTIVE_FDD_STATUSES;
+      if (active.length > 0) {
+        filters.lead_status = [...new Set(active)];
+      } else {
+        const fromMenus = collectLeadStatusFilterValues(menus, () => true);
+        filters.lead_status = fromMenus.length > 0 ? fromMenus : ['active', 'new_lead', 'New Lead'];
+      }
 
+      if (closed.length > 0 && Array.isArray(filters.lead_status)) {
+        const closedSet = new Set(closed);
+        filters.lead_status = (filters.lead_status as string[]).filter((v) => !closedSet.has(v));
+      }
+
+      return filters;
+    }
+
+    const catalogValues = filterValuesForChoiceSlug(appConfig, normalizedSub);
+    if (catalogValues.length > 0) {
+      filters[metaField] = catalogValues;
       return filters;
     }
 
@@ -204,11 +157,17 @@ export function buildGridFilters(
       : [subFilter.replace(/_/g, ' '), subFilter, normalizedSub];
 
     filters[metaField] = values;
+
     return filters;
   }
 
   if (menus?.subMenuItems?.[filter]) {
-    filters[metaField] = subFilterValues(menus, filter);
+    if (filter === 'lead_status' && statusConfig) {
+      filters[metaField] = statusConfig.choices.flatMap((choice) => choice.filter_values);
+    } else {
+      filters[metaField] = subFilterValues(menus, filter);
+    }
+
     return filters;
   }
 
@@ -218,4 +177,29 @@ export function buildGridFilters(
   }
 
   return filters;
+}
+
+function collectLeadStatusFilterValues(
+  menus: EntityMenus | undefined,
+  includeEntry: (key: string, label: string) => boolean,
+): string[] {
+  const subItems = menus?.subMenuItems?.lead_status ?? {};
+  const values: string[] = [];
+
+  for (const [key, item] of Object.entries(subItems)) {
+    const normKey = normalizeKey(key);
+
+    if (LEADS_SPECIFIC_FILTERS.includes(normKey as (typeof LEADS_SPECIFIC_FILTERS)[number])) {
+      continue;
+    }
+
+    const label = item.label ?? '';
+    if (!includeEntry(normKey, label)) {
+      continue;
+    }
+
+    values.push(label, label.toLowerCase(), item.slug, normalizeKey(item.slug));
+  }
+
+  return values.filter(Boolean);
 }

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\AchTransferResource;
 use App\Models\AchTransfer;
+use App\Services\Ach\AchReconciliationService;
 use App\Services\Auth\ResourceScopeService;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -43,6 +44,16 @@ final class AchTransferController extends Controller
         $transfers = $query->limit(200)->get();
 
         return ApiResponse::collection(AchTransferResource::collection($transfers));
+    }
+
+    public function reconciliation(Request $request, AchReconciliationService $reconciliation): JsonResponse
+    {
+        $this->authorize('viewAny', AchTransfer::class);
+
+        $user = $request->user();
+        abort_unless($user !== null, 403);
+
+        return ApiResponse::payload($reconciliation->summary($user));
     }
 
     public function show(AchTransfer $achTransfer): JsonResponse

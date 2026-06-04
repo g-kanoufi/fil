@@ -13,6 +13,8 @@ import { formatHealthLabel, useHealth } from '@/hooks/useHealth';
 import { fetchDashboardStats, type DashboardStats } from '@/lib/api/dashboard';
 import { fetchActivityFeed, type ActivityItem } from '@/lib/api/activity';
 import { ActivityFeedList } from '@/components/activity/ActivityFeedList';
+import { FranchiseeStoreOpsPanel } from '@/components/dashboard/FranchiseeStoreOpsPanel';
+import { StaffTodosPanel } from '@/components/operations/StaffTodosPanel';
 import { cn } from '@/lib/cn';
 import { surface } from '@/lib/ui/tokens';
 
@@ -72,27 +74,35 @@ export function HomePage() {
 
       {stats ? (
         <>
-          <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label="Active leads" value={stats.leads.total.toLocaleString()} accent="brand" />
-            <StatCard label="Active stores" value={stats.stores.total.toLocaleString()} accent="neutral" />
-            <StatCard
-              label="FDD sent (30d)"
-              value={stats.fdd_deliveries.sent_30d.toLocaleString()}
-              hint={`${stats.fdd_deliveries.total.toLocaleString()} total deliveries`}
-              accent="success"
-            />
-            <StatCard
-              label="Pipeline stages"
-              value={stats.pipeline.length}
-              hint="Active leads in pipeline"
-            />
-          </div>
+          {stats.store_ops ? (
+            <FranchiseeStoreOpsPanel storeOps={stats.store_ops} />
+          ) : (
+            <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard label="Active leads" value={stats.leads.total.toLocaleString()} accent="brand" />
+              <StatCard label="Active stores" value={stats.stores.total.toLocaleString()} accent="neutral" />
+              <StatCard
+                label="FDD sent (30d)"
+                value={stats.fdd_deliveries.sent_30d.toLocaleString()}
+                hint={`${stats.fdd_deliveries.total.toLocaleString()} total deliveries`}
+                accent="success"
+              />
+              <StatCard
+                label="Pipeline stages"
+                value={stats.pipeline.length}
+                hint="Active leads in pipeline"
+              />
+            </div>
+          )}
 
-          <Suspense fallback={<LoadingState label="Loading charts…" className="mb-6" />}>
-            <DashboardCharts stats={stats} months={months} onMonthsChange={setMonths} />
-          </Suspense>
+          {!stats.store_ops ? (
+            <Suspense fallback={<LoadingState label="Loading charts…" className="mb-6" />}>
+              <DashboardCharts stats={stats} months={months} onMonthsChange={setMonths} />
+            </Suspense>
+          ) : null}
 
-          <Card className="mt-6">
+          {!stats.store_ops ? (
+            <>
+              <Card className="mt-6">
             <CardHeader
               title="Activity history"
               description="Your team's recent actions."
@@ -144,8 +154,14 @@ export function HomePage() {
               </table>
             </div>
           </Card>
+            </>
+          ) : null}
         </>
       ) : null}
+
+      <div className="mt-6">
+        {!stats?.store_ops ? <StaffTodosPanel /> : null}
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>

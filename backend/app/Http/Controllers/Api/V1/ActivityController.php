@@ -41,12 +41,18 @@ final class ActivityController extends Controller
             category: $request->string('category')->toString() ?: null,
         );
 
+        $meta = [
+            'next_cursor' => $result['next_cursor'],
+            'has_more' => $result['has_more'],
+        ];
+
+        if (array_key_exists('navigation_table_ready', $result)) {
+            $meta['navigation_table_ready'] = $result['navigation_table_ready'];
+        }
+
         return response()->json([
             'data' => $result['items'],
-            'meta' => [
-                'next_cursor' => $result['next_cursor'],
-                'has_more' => $result['has_more'],
-            ],
+            'meta' => $meta,
         ]);
     }
 
