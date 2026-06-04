@@ -112,6 +112,30 @@ describe('buildGridFilters', () => {
     );
   });
 
+  it('maps store_status subFilter slug to stored value', () => {
+    const filters = buildGridFilters(
+      'stores',
+      {
+        filter: 'store_status',
+        subFilter: 'in_development',
+        search: '',
+        sortField: 'updated_at',
+        sortDirection: 'desc',
+        leadtemp: '',
+      },
+      {
+        menuItems: { store_status: { label: 'Unit statuses', slug: 'store_status' } },
+        subMenuItems: {
+          store_status: {
+            in_development: { label: 'In Development', slug: 'in_development' },
+          },
+        },
+      },
+    );
+
+    expect(filters.store_status).toBe('in_development');
+  });
+
   it('maps store_area subFilter to area_id', () => {
     const filters = buildGridFilters(
       'stores',

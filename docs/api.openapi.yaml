@@ -324,11 +324,26 @@ paths:
   /v1/areas:
     get:
       summary: "V1 Areas Index"
+    post:
+      summary: "V1 Areas Store"
+  /v1/areas/{area}:
+    get:
+      summary: "V1 Areas Show"
+    patch:
+      summary: "V1 Areas Update"
+    delete:
+      summary: "V1 Areas Destroy"
+  /v1/geography/north-america:
+    get:
+      summary: "V1 Geography North America catalog"
   /v1/interest-regions:
     get:
       summary: "V1 Interest Regions Index"
     post:
       summary: "V1 Interest Regions Store"
+  /v1/interest-regions/sync-defaults:
+    post:
+      summary: "V1 Interest Regions sync US/Canada defaults"
   /v1/interest-regions/{interestRegion}:
     patch:
       summary: "V1 Interest Regions Update"

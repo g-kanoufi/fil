@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\V1\FieldSchemaController;
 use App\Http\Controllers\Api\V1\GridQueryController;
 use App\Http\Controllers\Api\V1\GridQueryInterpretController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\GeographyController;
 use App\Http\Controllers\Api\V1\InterestRegionController;
 use App\Http\Controllers\Api\V1\LeadController;
 use App\Http\Controllers\Api\V1\MailSettingsController;
@@ -252,6 +253,12 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/drip-campaigns/{dripCampaign}', [DripCampaignController::class, 'destroy'])
             ->name('api.v1.drip-campaigns.destroy');
         Route::get('/areas', [AreaController::class, 'index'])->name('api.v1.areas.index');
+        Route::post('/areas', [AreaController::class, 'store'])->name('api.v1.areas.store');
+        Route::get('/areas/{area}', [AreaController::class, 'show'])->name('api.v1.areas.show');
+        Route::patch('/areas/{area}', [AreaController::class, 'update'])->name('api.v1.areas.update');
+        Route::delete('/areas/{area}', [AreaController::class, 'destroy'])->name('api.v1.areas.destroy');
+        Route::get('/geography/north-america', [GeographyController::class, 'northAmerica'])
+            ->name('api.v1.geography.north-america');
         Route::get('/interest-regions', [InterestRegionController::class, 'index'])
             ->name('api.v1.interest-regions.index');
         Route::post('/interest-regions', [InterestRegionController::class, 'store'])
@@ -260,6 +267,8 @@ Route::prefix('v1')->group(function (): void {
             ->name('api.v1.interest-regions.update');
         Route::delete('/interest-regions/{interestRegion}', [InterestRegionController::class, 'destroy'])
             ->name('api.v1.interest-regions.destroy');
+        Route::post('/interest-regions/sync-defaults', [InterestRegionController::class, 'syncDefaults'])
+            ->name('api.v1.interest-regions.sync-defaults');
         Route::get('/organizations', [OrganizationController::class, 'index'])->name('api.v1.organizations.index');
         Route::post('/query/{resource}', GridQueryController::class)->name('api.v1.query');
         Route::post('/query/{resource}/interpret', GridQueryInterpretController::class)

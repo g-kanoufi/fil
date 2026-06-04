@@ -9,6 +9,7 @@ use App\Models\Store;
 use App\Models\UiMenuItem;
 use App\Models\User;
 use App\Services\Leads\LeadStatusMenuService;
+use App\Services\Stores\StoreStatusMenuService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,6 +17,7 @@ final class MenuStructureService
 {
     public function __construct(
         private readonly LeadStatusMenuService $leadStatusMenus,
+        private readonly StoreStatusMenuService $storeStatusMenus,
     ) {}
 
     /**
@@ -80,10 +82,10 @@ final class MenuStructureService
                 'menuItems' => $menuItems,
                 'subMenuItems' => $subMenuItems,
             ]),
-            'grid_stores' => $this->enrichStoreMenus([
+            'grid_stores' => $this->storeStatusMenus->enrichStoreMenus($this->enrichStoreAreaMenus([
                 'menuItems' => $menuItems,
                 'subMenuItems' => $subMenuItems,
-            ]),
+            ])),
             'grid_contacts' => $this->enrichContactMenus([
                 'menuItems' => $menuItems,
                 'subMenuItems' => $subMenuItems,
@@ -108,25 +110,12 @@ final class MenuStructureService
      * @param  array{menuItems: array<string, array{label: string|null, slug: string}>, subMenuItems: array<string, array<string, array{label: string|null, slug: string}>>}  $menu
      * @return array{menuItems: array<string, array{label: string|null, slug: string}>, subMenuItems: array<string, array<string, array{label: string|null, slug: string}>>}
      */
-    private function enrichStoreMenus(array $menu): array
+    /**
+     * @param  array{menuItems: array<string, array{label: string|null, slug: string}>, subMenuItems: array<string, array<string, array{label: string|null, slug: string}>>}  $menu
+     * @return array{menuItems: array<string, array{label: string|null, slug: string}>, subMenuItems: array<string, array<string, array{label: string|null, slug: string}>>}
+     */
+    private function enrichStoreAreaMenus(array $menu): array
     {
-        if (isset($menu['menuItems']['store_status'])) {
-            $statuses = Store::query()
-                ->whereNotNull('store_status')
-                ->where('store_status', '!=', '')
-                ->distinct()
-                ->orderBy('store_status')
-                ->pluck('store_status');
-
-            foreach ($statuses as $status) {
-                $slug = $this->slugForStoreStatus((string) $status);
-                $menu['subMenuItems']['store_status'][$slug] = [
-                    'label' => (string) $status,
-                    'slug' => $slug,
-                ];
-            }
-        }
-
         if (isset($menu['menuItems']['store_area'])) {
             $storeAreaIds = Store::query()
                 ->whereNotNull('area_id')
@@ -184,13 +173,6 @@ final class MenuStructureService
         }
 
         return $menu;
-    }
-
-    private function slugForStoreStatus(string $status): string
-    {
-        $normalized = preg_replace('/[\s\/]+/', '_', trim($status)) ?? $status;
-
-        return strtolower($normalized);
     }
 
     private function slugForRole(string $role): string

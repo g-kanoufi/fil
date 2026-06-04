@@ -8,21 +8,14 @@ const activeRowClass = 'bg-[var(--color-sidebar-active)]';
 
 const submenuItems: NavItem[] = [
   {
-    id: 'stores',
-    label: 'Stores',
-    path: '/reports/stores',
-    children: [
-      {
-        id: 'stores-store_status',
-        label: 'Status',
-        path: '/reports/stores?filter=store_status',
-      },
-      {
-        id: 'stores-store_area',
-        label: 'Area',
-        path: '/reports/stores?filter=store_area',
-      },
-    ],
+    id: 'stores-open',
+    label: 'Open',
+    path: '/reports/stores?filter=store_status&subFilter=open',
+  },
+  {
+    id: 'stores-pending',
+    label: 'Pending',
+    path: '/reports/stores?filter=store_status&subFilter=pending',
   },
 ];
 
@@ -42,12 +35,12 @@ function renderNavMenu(initialEntry: string) {
 
 describe('NavMenu', () => {
   it('highlights only the submenu item matching the current filter', () => {
-    renderNavMenu('/reports/stores?filter=store_status');
+    renderNavMenu('/reports/stores?filter=store_status&subFilter=open');
 
-    const statusLink = screen.getByRole('link', { name: 'Status' });
-    const areaLink = screen.getByRole('link', { name: 'Area' });
+    const openLink = screen.getByRole('link', { name: 'Open' });
+    const pendingLink = screen.getByRole('link', { name: 'Pending' });
 
-    expect(statusLink.className).toContain(activeRowClass);
-    expect(areaLink.className).not.toContain(activeRowClass);
+    expect(openLink.className).toContain(activeRowClass);
+    expect(pendingLink.className).not.toContain(activeRowClass);
   });
 });

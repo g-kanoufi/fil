@@ -9,6 +9,7 @@ import {
   createInterestRegion,
   deleteInterestRegion,
   fetchInterestRegions,
+  syncInterestRegionDefaults,
   updateInterestRegion,
   type InterestRegion,
 } from '@/lib/api/interestRegions';
@@ -42,9 +43,12 @@ function regionToDraft(region: InterestRegion): RegionDraft {
   };
 }
 
-export function InterestRegionsAdminPage() {
+export function InterestRegionsAdminPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { user } = useAuth();
-  const canManage = user?.permissions.includes('settings.manage') ?? false;
+  const canManageSettings = user?.permissions.includes('settings.manage') ?? false;
+  const canManageStores = user?.permissions.includes('stores.manage') ?? false;
+  const canManage = embedded ? canManageSettings || canManageStores : canManageSettings;
+  const canView = embedded ? (user?.permissions.includes('stores.view') ?? false) : canManageSettings;
   const [regions, setRegions] = useState<InterestRegion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,10 +73,25 @@ export function InterestRegionsAdminPage() {
   }, []);
 
   useEffect(() => {
-    if (canManage) {
+    if (canManage || canView) {
       void load();
     }
-  }, [canManage, load]);
+  }, [canManage, canView, load]);
+
+  async function syncDefaults() {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const result = await syncInterestRegionDefaults();
+      setSuccess(
+        `Synced ${result.countries} countries and ${result.subdivisions} states/provinces from the built-in catalog.`,
+      );
+      await load();
+    } catch (syncError: unknown) {
+      setError(syncError instanceof Error ? syncError.message : 'Failed to sync defaults');
+    }
+  }
 
   const subdivisionCount = regions.reduce((total, country) => total + (country.children?.length ?? 0), 0);
 
@@ -242,26 +261,30 @@ export function InterestRegionsAdminPage() {
     );
   }
 
-  if (!canManage) {
+  if (!canManage && !canView) {
     return (
       <>
-        <PageHeader title="Interest regions" description="Geography catalog for lead area-of-interest." />
-        <Alert variant="warning">You do not have permission to manage interest regions.</Alert>
+        {embedded ? null : (
+          <PageHeader title="Interest regions" description="Geography catalog for lead area-of-interest." />
+        )}
+        <Alert variant="warning">You do not have permission to view interest regions.</Alert>
       </>
     );
   }
 
   return (
     <>
-      <PageHeader
-        title="Interest regions"
-        description="US and Canada states/provinces used for lead “area of interest”. Separate from franchise territories."
-        actions={
-          <Link to="/settings" className="text-sm font-medium text-link hover:underline">
-            ← Settings
-          </Link>
-        }
-      />
+      {embedded ? null : (
+        <PageHeader
+          title="Interest regions"
+          description="US and Canada states/provinces used for lead “area of interest”. Separate from franchise territories."
+          actions={
+            <Link to="/settings" className="text-sm font-medium text-link hover:underline">
+              ← Settings
+            </Link>
+          }
+        />
+      )}
 
       {error ? <Alert variant="danger">{error}</Alert> : null}
       {success ? <Alert variant="success">{success}</Alert> : null}
@@ -273,9 +296,18 @@ export function InterestRegionsAdminPage() {
               {regions.length} countries · {subdivisionCount} states/provinces
             </p>
           </div>
-          <Button type="button" onClick={startCreateCountry}>
-            Add country
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {canManage ? (
+              <>
+                <Button type="button" variant="secondary" onClick={() => void syncDefaults()}>
+                  Sync US &amp; Canada defaults
+                </Button>
+                <Button type="button" onClick={startCreateCountry}>
+                  Add country
+                </Button>
+              </>
+            ) : null}
+          </div>
         </div>
         {editingId === 'new-country' ? renderDraftForm('New country') : null}
       </Card>
@@ -302,17 +334,19 @@ export function InterestRegionsAdminPage() {
                     </button>
                     <p className="text-sm text-muted">{children.length} subdivisions · status {country.status}</p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="secondary" onClick={() => startCreateSubdivision(country.id)}>
-                      Add subdivision
-                    </Button>
-                    <Button type="button" variant="secondary" onClick={() => startEdit(country)}>
-                      Edit
-                    </Button>
-                    <Button type="button" variant="danger" onClick={() => void removeRegion(country)}>
-                      Delete
-                    </Button>
-                  </div>
+                  {canManage ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="secondary" onClick={() => startCreateSubdivision(country.id)}>
+                        Add subdivision
+                      </Button>
+                      <Button type="button" variant="secondary" onClick={() => startEdit(country)}>
+                        Edit
+                      </Button>
+                      <Button type="button" variant="danger" onClick={() => void removeRegion(country)}>
+                        Delete
+                      </Button>
+                    </div>
+                  ) : null}
                 </div>
 
                 {editingId === country.id ? renderDraftForm(`Edit ${country.name}`) : null}
@@ -339,14 +373,16 @@ export function InterestRegionsAdminPage() {
                                 {child.status !== 'active' ? ` · ${child.status}` : ''}
                               </p>
                             </div>
-                            <div className="flex gap-2">
-                              <Button type="button" variant="secondary" onClick={() => startEdit(child)}>
-                                Edit
-                              </Button>
-                              <Button type="button" variant="danger" onClick={() => void removeRegion(child)}>
-                                Delete
-                              </Button>
-                            </div>
+                            {canManage ? (
+                              <div className="flex gap-2">
+                                <Button type="button" variant="secondary" onClick={() => startEdit(child)}>
+                                  Edit
+                                </Button>
+                                <Button type="button" variant="danger" onClick={() => void removeRegion(child)}>
+                                  Delete
+                                </Button>
+                              </div>
+                            ) : null}
                           </li>
                           {editingId === child.id ? (
                             <li className="pb-3">{renderDraftForm(`Edit ${child.name}`)}</li>

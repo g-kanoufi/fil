@@ -56,22 +56,15 @@ describe('buildNavigationTree', () => {
     expect(leads.children?.find((child) => child.id === 'leads-lead_owner')?.children).toHaveLength(1);
   });
 
-  it('nests unit statuses and areas under My Units', () => {
+  it('promotes unit status filters without My Units parent or Areas submenu', () => {
     const navigation: NavItem[] = [{ id: 'stores', label: 'My Units', path: '/reports/stores' }];
 
     const tree = buildNavigationTree(navigation, appConfig, () => false);
-    const stores = tree[0] as NavItem;
-    const labels = (stores.children ?? []).map((child) => child.label);
+    const labels = tree.map((entry) => (entry as NavItem).label);
 
-    expect(labels).toEqual(['Unit statuses', 'Areas']);
-    expect(stores.children?.find((child) => child.id === 'stores-store_status')?.children?.map((c) => c.label)).toEqual([
-      'open',
-      'pending',
-    ]);
-    expect(stores.children?.find((child) => child.id === 'stores-store_area')?.children?.map((c) => c.label)).toEqual([
-      'North',
-      'South',
-    ]);
+    expect(labels).toEqual(['open', 'pending']);
+    expect(tree.some((entry) => (entry as NavItem).label === 'My Units')).toBe(false);
+    expect(tree.some((entry) => (entry as NavItem).label === 'Areas')).toBe(false);
   });
 
   it('unwraps a lone settings parent under an admin section', () => {
@@ -144,8 +137,7 @@ describe('buildNavigationTree', () => {
 
     const navigation: NavItem[] = [{ id: 'stores', label: 'My Units', path: '/reports/stores' }];
     const tree = buildNavigationTree(navigation, menusOnlyStatus, () => false);
-    const stores = tree[0] as NavItem;
 
-    expect((stores.children ?? []).map((child) => child.label)).toEqual(['open', 'pending']);
+    expect(tree.map((entry) => (entry as NavItem).label)).toEqual(['open', 'pending']);
   });
 });

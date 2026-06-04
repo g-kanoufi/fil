@@ -22,6 +22,8 @@ final class AreaResource extends JsonResource
             'slug' => $this->slug,
             'status' => $this->status,
             'approval_status' => $this->approval_status,
+            'territory' => $this->territory,
+            'store_count' => $this->whenCounted('stores'),
         ];
     }
 }

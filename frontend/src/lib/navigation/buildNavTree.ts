@@ -5,12 +5,22 @@ const REPORT_RESOURCES = ['stores', 'contacts', 'leads'] as const;
 
 type ReportResource = (typeof REPORT_RESOURCES)[number];
 
-/** Submenu values rendered as siblings under the report root (fl-react parity — leads only). */
+/** Submenu values rendered as siblings under the report root (no parent row link). */
 export const FLAT_SUBMENU_GROUPS: Record<ReportResource, readonly string[]> = {
   leads: ['lead_status'],
-  stores: [],
+  stores: ['store_status'],
   contacts: [],
 };
+
+/** Grid-only filters — not shown in the sidebar (dedicated pages instead). */
+export const SIDEBAR_EXCLUDED_MENU_KEYS: Record<ReportResource, readonly string[]> = {
+  leads: [],
+  stores: ['store_area'],
+  contacts: [],
+};
+
+/** Report roots whose filter children replace the parent in the sidebar. */
+export const PROMOTE_CHILDREN_ONLY: ReadonlySet<string> = new Set(['stores']);
 
 /** Grid filter chips flatten these groups; sidebar uses nested children instead. */
 export const GRID_FLAT_SUBMENU_GROUPS: Record<ReportResource, readonly string[]> = {
@@ -118,6 +128,10 @@ function buildReportFilterChildren(
   const flatGroups = new Set(FLAT_SUBMENU_GROUPS[resource]);
 
   for (const key of menuKeys) {
+    if ((SIDEBAR_EXCLUDED_MENU_KEYS[resource] ?? []).includes(key)) {
+      continue;
+    }
+
     if (isUiDisabled(uiDomain, key)) {
       continue;
     }
@@ -127,18 +141,22 @@ function buildReportFilterChildren(
     const subEntries = Object.entries(subItems).filter(([subKey]) => !isUiDisabled(uiDomain, subKey));
 
     if (subEntries.length > 0 && flatGroups.has(key)) {
-      if (resource === 'leads' && key === 'lead_status') {
-        children.push({
-          id: `${resource}-${key}`,
-          label: item.label ?? key,
-          path: basePath,
-        });
-      } else {
-        children.push({
-          id: `${resource}-${key}`,
-          label: item.label ?? key,
-          path: filterPath(basePath, key),
-        });
+      const skipGroupHeader = resource === 'stores' && key === 'store_status';
+
+      if (! skipGroupHeader) {
+        if (resource === 'leads' && key === 'lead_status') {
+          children.push({
+            id: `${resource}-${key}`,
+            label: item.label ?? key,
+            path: basePath,
+          });
+        } else {
+          children.push({
+            id: `${resource}-${key}`,
+            label: item.label ?? key,
+            path: filterPath(basePath, key),
+          });
+        }
       }
 
       for (const [subKey, subItem] of subEntries) {
@@ -177,35 +195,49 @@ function buildReportFilterChildren(
   return children;
 }
 
+function expandNavigationEntry(
+  entry: NavItem | NavSection,
+  appConfig: AppConfig | null,
+  isUiDisabled: (domain: 'leads' | 'stores' | 'contacts', key: string) => boolean,
+): Array<NavItem | NavSection> {
+  if ('type' in entry && entry.type === 'section') {
+    return [entry];
+  }
+
+  const item = entry as NavItem;
+
+  if (isReportResource(item.id)) {
+    const filterChildren = collapseLoneNestedFilterGroups(
+      buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled),
+    );
+
+    if (filterChildren.length === 0) {
+      return [item];
+    }
+
+    if (PROMOTE_CHILDREN_ONLY.has(item.id)) {
+      return filterChildren;
+    }
+
+    return [
+      {
+        ...item,
+        children: filterChildren,
+      },
+    ];
+  }
+
+  return [item];
+}
+
 export function buildNavigationTree(
   navigation: Array<NavItem | NavSection>,
   appConfig: AppConfig | null,
   isUiDisabled: (domain: 'leads' | 'stores' | 'contacts', key: string) => boolean,
 ): Array<NavItem | NavSection> {
-  const withFilters = navigation.map((entry) => {
-    if ('type' in entry && entry.type === 'section') {
-      return entry;
-    }
-
-    const item = entry as NavItem;
-
-    if (isReportResource(item.id)) {
-      const filterChildren = collapseLoneNestedFilterGroups(
-        buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled),
-      );
-
-      if (filterChildren.length === 0) {
-        return item;
-      }
-
-      return {
-        ...item,
-        children: filterChildren,
-      };
-    }
-
-    return item;
-  });
+  const withFilters = navigation.flatMap((entry) =>
+    expandNavigationEntry(entry, appConfig, isUiDisabled),
+  );
 
   return unwrapSingleParentSections(withFilters);
 }

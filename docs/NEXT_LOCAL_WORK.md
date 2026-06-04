@@ -6,7 +6,9 @@ Local P1–P3 engineering is **complete**.
 
 **Last updated:** 2026-06-03 · **Tests:** backend Pest · 76 Vitest · **20 Playwright** (`./scripts/e2e-smoke.sh`)
 
-**Plan 3** (four-stage platform A–D) is merged to **`dev`**. Next engineering focus: **Phase 4 — legacy import** on staging.
+**Plan 3** (four-stage platform A–D) is merged to **`dev`**. Sidebar shows unit status filters directly (no “My Units” parent); **Areas** lives at `/reports/areas` with franchise territories + US/Canada defaults.
+
+Next engineering focus: **Phase 4 — legacy import** on staging.
 
 ---
 

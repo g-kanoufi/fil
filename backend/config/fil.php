@@ -218,6 +218,7 @@ return [
         ['id' => 'fdd', 'label' => 'FDD', 'path' => '/fdd', 'policy' => Fdd::class, 'ability' => 'viewAny'],
         ['type' => 'section', 'label' => 'Reports'],
         ['id' => 'stores', 'label' => 'My Units', 'path' => '/reports/stores', 'policy' => Store::class, 'ability' => 'viewAny'],
+        ['id' => 'areas', 'label' => 'Areas', 'path' => '/reports/areas', 'policy' => Store::class, 'ability' => 'viewAny'],
         ['id' => 'contacts', 'label' => 'Contacts', 'path' => '/reports/contacts', 'policy' => Contact::class, 'ability' => 'viewAny'],
         ['id' => 'leads', 'label' => 'Leads', 'path' => '/reports/leads', 'policy' => Lead::class, 'ability' => 'viewAny'],
         ['id' => 'closings', 'label' => 'Closings', 'path' => '/reports/closings', 'policy' => Lead::class, 'ability' => 'viewAny'],

@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\StoreInterestRegionRequest;
 use App\Http\Requests\Api\V1\UpdateInterestRegionRequest;
 use App\Http\Resources\Api\V1\InterestRegionResource;
 use App\Models\InterestRegion;
+use App\Services\Geography\InterestRegionDefaultsSync;
 use App\Support\Api\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class InterestRegionController extends Controller
 {
+    public function __construct(
+        private readonly InterestRegionDefaultsSync $defaultsSync,
+    ) {}
+
+    public function syncDefaults(): JsonResponse
+    {
+        $this->authorize('create', InterestRegion::class);
+
+        $counts = $this->defaultsSync->sync();
+
+        return ApiResponse::payload([
+            'message' => 'US and Canada state/province defaults synced.',
+            'countries' => $counts['countries'],
+            'subdivisions' => $counts['subdivisions'],
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', InterestRegion::class);

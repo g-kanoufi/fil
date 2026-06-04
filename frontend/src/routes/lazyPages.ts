@@ -56,6 +56,9 @@ export const DripCampaignsAdminPage = lazy(() =>
 export const InterestRegionsAdminPage = lazy(() =>
   import('@/pages/InterestRegionsAdminPage').then((m) => ({ default: m.InterestRegionsAdminPage })),
 );
+export const AreasAdminPage = lazy(() =>
+  import('@/pages/AreasAdminPage').then((m) => ({ default: m.AreasAdminPage })),
+);
 export const FieldsAdminPage = lazy(() =>
   import('@/pages/FieldsAdminPage').then((m) => ({ default: m.FieldsAdminPage })),
 );

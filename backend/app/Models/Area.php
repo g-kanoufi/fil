@@ -7,6 +7,7 @@ namespace App\Models;
 use Database\Factories\AreaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Area extends Model
 {
@@ -36,5 +37,13 @@ final class Area extends Model
             'extras' => 'array',
             'legacy_post_id' => 'integer',
         ];
+    }
+
+    /**
+     * @return HasMany<Store, $this>
+     */
+    public function stores(): HasMany
+    {
+        return $this->hasMany(Store::class);
     }
 }

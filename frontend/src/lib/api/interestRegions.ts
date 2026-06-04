@@ -13,6 +13,16 @@ export interface InterestRegion {
   children?: InterestRegion[];
 }
 
+export function syncInterestRegionDefaults(): Promise<{ countries: number; subdivisions: number }> {
+  return apiPost<{ data: { countries: number; subdivisions: number; message?: string } }>(
+    '/v1/interest-regions/sync-defaults',
+    {},
+  ).then((body) => ({
+    countries: body.data.countries,
+    subdivisions: body.data.subdivisions,
+  }));
+}
+
 export function fetchInterestRegions(options?: { flat?: boolean }): Promise<InterestRegion[]> {
   const query = options?.flat ? '?flat=1' : '';
 

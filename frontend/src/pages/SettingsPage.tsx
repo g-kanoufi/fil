@@ -65,8 +65,8 @@ export function SettingsPage() {
               title="Interest regions"
               description="US/Canada states and provinces for lead area-of-interest (separate from franchise territories)."
             />
-            <Link to="/settings/interest-regions" className="text-sm font-medium text-link hover:underline">
-              Manage interest regions →
+            <Link to="/reports/areas" className="text-sm font-medium text-link hover:underline">
+              Manage in Areas →
             </Link>
           </Card>
         ) : null}

@@ -81,7 +81,8 @@ export function buildGridFilters(
   if (resource === 'stores') {
     if (filter === 'store_status') {
       if (subFilter) {
-        filters.store_status = subFilter.replace(/_/g, ' ');
+        const key = resolveSubFilterKey(menus, filter, subFilter);
+        filters.store_status = key ?? subFilter;
       } else {
         filters.store_status = subFilterValues(menus, filter);
       }

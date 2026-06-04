@@ -18,6 +18,7 @@ import {
   DocumentDetailPage,
   DocumentsPage,
   DripCampaignsAdminPage,
+  AreasAdminPage,
   InterestRegionsAdminPage,
   FddPage,
   FieldsAdminPage,
@@ -91,6 +92,14 @@ export function AppRoutes() {
             element={
               <RequirePermission permission="stores.view">
                 <StoreDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/reports/areas"
+            element={
+              <RequirePermission permission="stores.view">
+                <AreasAdminPage />
               </RequirePermission>
             }
           />

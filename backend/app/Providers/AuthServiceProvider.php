@@ -9,6 +9,7 @@ use App\Domain\AppConfig;
 use App\Domain\Contact;
 use App\Domain\Document;
 use App\Domain\Settings;
+use App\Models\Area;
 use App\Models\AchCustomer;
 use App\Models\AchTransfer;
 use App\Models\AiThread;
@@ -26,6 +27,7 @@ use App\Models\EntityNote;
 use App\Models\StaffTodo;
 use App\Models\User;
 use App\Policies\AchPolicy;
+use App\Policies\AreaPolicy;
 use App\Policies\AiPolicy;
 use App\Policies\AiThreadPolicy;
 use App\Policies\AppConfigPolicy;
@@ -57,6 +59,7 @@ final class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Lead::class => LeadPolicy::class,
         Store::class => StorePolicy::class,
+        Area::class => AreaPolicy::class,
         Fdd::class => FddPolicy::class,
         Closing::class => ClosingPolicy::class,
         EntityNote::class => EntityNotePolicy::class,
