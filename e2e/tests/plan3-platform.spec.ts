@@ -17,8 +17,8 @@ test.describe('Plan 3 — Grow + Earn (Phase D)', () => {
     await intelligencePromise;
 
     await expect(page.getByRole('heading', { name: 'Royalties', level: 1 })).toBeVisible();
-    await expect(page.getByText('Unit performance')).toBeVisible();
-    await expect(page.getByText('Area performance')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Unit performance' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Area performance' })).toBeVisible();
   });
 
   test('admin sees ACH reconciliation summary', async ({ page }) => {

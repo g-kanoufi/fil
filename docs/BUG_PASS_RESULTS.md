@@ -34,7 +34,7 @@ php artisan legacy:spot-check --leads=10 --stores=5 --fail-on-extras
 | --- | --- | --- |
 | `php artisan mvp:staging-check` (local) | **Pass with WARN** | `APP_URL` localhost; embed/webhook/CSP checks skipped outside staging |
 | `mvp:staging-check` on Forge | **Ops** | Run on server per [NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md) |
-| `./scripts/e2e-smoke.sh` | **8/10 passed** (after `cd e2e && PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium`) | Script sets `PLAYWRIGHT_BROWSERS_PATH=0`; E2E fixes: login heading, lead `/leads/1` |
+| `./scripts/e2e-smoke.sh` | **20/20 passed** (2026-06-03) | MVP + auth + **Plan 3** (`plan3-platform.spec.ts`); install browsers via `PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium` |
 | Mailgun / Twilio / Dwolla+CSP on staging | **Pending ops** | Not verifiable without credentials |
 
 ### E2E notes

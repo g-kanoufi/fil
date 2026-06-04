@@ -4,7 +4,9 @@ Local P1–P3 engineering is **complete**.
 
 **Staging live:** https://fil.on-forge.com — see [STAGING.local.md](./STAGING.local.md) (gitignored) and [FORGE_STAGING_CHECKLIST.md](./FORGE_STAGING_CHECKLIST.md).
 
-**Last updated:** 2026-06-01 · **Tests:** 385 Pest · 68 Vitest · 10 Playwright
+**Last updated:** 2026-06-03 · **Tests:** backend Pest · 76 Vitest · **20 Playwright** (`./scripts/e2e-smoke.sh`)
+
+**Plan 3** (four-stage platform A–D) is merged to **`dev`**. Next engineering focus: **Phase 4 — legacy import** on staging.
 
 ---
 

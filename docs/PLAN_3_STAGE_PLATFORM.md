@@ -1,6 +1,6 @@
 # Plan 3 — Stage-complete Franchise Intelligence Platform
 
-**Status:** Active (feature/plan-3-stage-platform)  
+**Status:** Complete on `dev` (merged 2026-06-03) · E2E: `e2e/tests/plan3-platform.spec.ts` (10 tests)  
 **Supersedes:** [V1_SCOPE_DECISIONS.md](./V1_SCOPE_DECISIONS.md) default on long-form portal (now in v1 under Plan 3).
 
 Organize FIL as a **four-stage platform** aligned with Zorzees ICP v3 / Franchise Intelligence positioning:
