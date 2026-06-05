@@ -1,3 +1,0 @@
-INSERT INTO `wp_9_posts` (`ID`, `post_author`, `post_date`, `post_date_gmt`, `post_content`, `post_title`, `post_excerpt`, `post_status`, `comment_status`, `ping_status`, `post_password`, `post_name`, `to_ping`, `pinged`, `post_modified`, `post_modified_gmt`, `post_content_filtered`, `post_parent`, `guid`, `menu_order`, `post_type`, `post_mime_type`, `comment_count`) VALUES
-(101,1,'2024-01-01 00:00:00','2024-01-01 00:00:00','','Jane Applicant','','publish','closed','closed','','jane-applicant','','','2024-01-02 00:00:00','2024-01-02 00:00:00','',0,'',0,'application','',0),
-(102,1,'2024-01-01 00:00:00','2024-01-01 00:00:00','','Bob Applicant','','publish','closed','closed','','bob-applicant','','','2024-01-02 00:00:00','2024-01-02 00:00:00','',0,'',0,'application','',0);
