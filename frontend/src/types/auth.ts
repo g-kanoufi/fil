@@ -3,6 +3,8 @@ export interface NavItem {
   label: string;
   path: string;
   children?: NavItem[];
+  /** Sidebar group header only — expand/collapse, no route link (e.g. Units + status filters). */
+  expandOnly?: boolean;
 }
 
 export interface NavSection {

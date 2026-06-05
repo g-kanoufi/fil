@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 use App\Models\Area;
+use App\Models\Lead;
 use App\Models\StoreOwner;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
@@ -31,4 +32,18 @@ test('seeds franchise role matrix users and assignments', function () {
         ->exists())->toBeTrue();
 
     $this->assertDatabaseCount('leads', 4);
+
+    $jane = Lead::query()->where('title', 'Jane Smith Application')->firstOrFail();
+    expect($jane->prospect_user_id)->toBe($prospect->id);
+});
+
+test('demo prospect can sign in to portal after seed', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $this->seed(DemoSeeder::class);
+
+    $this->postJson('/api/portal/v1/session', [
+        'email' => 'prospect@fil.test',
+        'password' => 'password',
+    ])->assertOk()
+        ->assertJsonPath('data.email', 'prospect@fil.test');
 });

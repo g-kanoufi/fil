@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\FieldSchemaSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\UiAccessSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -76,4 +77,19 @@ test('app config returns options and menus', function () {
                 ],
             ],
         ]);
+});
+
+test('app config exposes all unit statuses in store menus', function () {
+    $this->seed(FieldSchemaSeeder::class);
+
+    $user = User::factory()->create();
+    $user->assignRole('franchisor');
+
+    $response = $this->actingAs($user)->getJson('/api/v1/app-config');
+
+    $response->assertOk();
+
+    $statuses = $response->json('data.menus.menus_with_columns.stores.subMenuItems.store_status');
+
+    expect($statuses)->toHaveKeys(['pending', 'in_development', 'open', 'closed']);
 });

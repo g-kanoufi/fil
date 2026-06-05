@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\InterestRegion;
 use App\Models\User;
 use App\Services\Mail\OutboundMailGuard;
 use Illuminate\Console\Command;
@@ -53,6 +54,8 @@ final class MvpStagingCheckCommand extends Command
             $this->checkContentSecurityPolicy(),
             $this->checkSpaAssets(),
             $this->checkFinancialScheduler(),
+            $this->checkInterestRegionCatalog(),
+            $this->checkLegacyDumpPath(),
         ];
 
         $this->table(['Check', 'Status', 'Detail'], $checks);
@@ -448,6 +451,46 @@ final class MvpStagingCheckCommand extends Command
         }
 
         return ['SPA assets', 'OK', 'Staff SPA + widget bundles present'];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkInterestRegionCatalog(): array
+    {
+        if (! Schema::hasTable('interest_regions')) {
+            return ['Interest regions', 'FAIL', 'interest_regions table missing — run migrate'];
+        }
+
+        $subdivisions = InterestRegion::query()->whereNotNull('parent_id')->count();
+
+        if ($subdivisions < 50) {
+            return [
+                'Interest regions',
+                'WARN',
+                "{$subdivisions} subdivisions — run POST /api/v1/interest-regions/sync-defaults or InterestRegionSeeder",
+            ];
+        }
+
+        return ['Interest regions', 'OK', "{$subdivisions} US/CA states & provinces"];
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function checkLegacyDumpPath(): array
+    {
+        $path = (string) config('fil-legacy.dump_path', env('FIL_LEGACY_DUMP_PATH', ''));
+
+        if ($path === '' || ! is_readable($path)) {
+            return [
+                'Legacy client dump',
+                'WARN',
+                'FIL_LEGACY_DUMP_PATH not set or not readable — Phase 4 import pending',
+            ];
+        }
+
+        return ['Legacy client dump', 'OK', 'Dump file readable'];
     }
 
     /**

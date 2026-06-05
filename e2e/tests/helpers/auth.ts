@@ -20,10 +20,10 @@ export const DEMO_STORE_IDS = {
 } as const;
 
 export async function loginAs(page: Page, email: string, password = DEMO_PASSWORD): Promise<void> {
-  await page.goto('/app/login');
+  await page.goto('/login');
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.waitForURL(/\/app(\/)?(\?.*)?$/, { timeout: 15_000 });
+  await page.waitForURL((url) => new URL(url).pathname === '/', { timeout: 15_000 });
   await expect(page.getByRole('navigation', { name: 'Staff navigation' })).toBeVisible();
 }

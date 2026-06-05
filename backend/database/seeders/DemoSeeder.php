@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Actions\Demo\EnsureDemoProspectPortal;
 use App\Models\Area;
 use App\Models\Fdd;
 use App\Models\Lead;
@@ -67,7 +68,7 @@ final class DemoSeeder extends Seeder
             'employee',
         );
 
-        $this->demoUser(
+        $prospect = $this->demoUser(
             'prospect@fil.test',
             'Prospect Demo',
             'Prospect',
@@ -123,20 +124,26 @@ final class DemoSeeder extends Seeder
         ];
 
         foreach ($leadDefinitions as $definition) {
-            Lead::query()->firstOrCreate(
+            $attributes = [
+                ...$definition,
+                'owner_user_id' => $leadOwner->id,
+                'area_id' => $area->id,
+                'lead_stage' => (string) $definition['pipeline_phase'],
+                'likelihood_to_close' => match ($definition['lead_temp']) {
+                    'hot' => 80,
+                    'warm' => 50,
+                    default => 20,
+                },
+                'status' => 'active',
+            ];
+
+            if ($definition['title'] === 'Jane Smith Application') {
+                $attributes['prospect_user_id'] = $prospect->id;
+            }
+
+            Lead::query()->updateOrCreate(
                 ['title' => $definition['title']],
-                [
-                    ...$definition,
-                    'owner_user_id' => $leadOwner->id,
-                    'area_id' => $area->id,
-                    'lead_stage' => (string) $definition['pipeline_phase'],
-                    'likelihood_to_close' => match ($definition['lead_temp']) {
-                        'hot' => 80,
-                        'warm' => 50,
-                        default => 20,
-                    },
-                    'status' => 'active',
-                ],
+                $attributes,
             );
         }
 
@@ -159,6 +166,8 @@ final class DemoSeeder extends Seeder
                 'area_id' => $area->id,
             ],
         );
+
+        app(EnsureDemoProspectPortal::class)->handle();
 
         unset($franchisor);
     }

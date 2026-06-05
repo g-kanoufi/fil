@@ -261,16 +261,16 @@ function PortalRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
+        <Route path="/login" element={<PortalLoginPage />} />
+        <Route path="/setup" element={<PortalSetupPage />} />
         <Route element={<PortalLayout />}>
-          <Route path="/login" element={<PortalLoginPage />} />
-          <Route path="/setup" element={<PortalSetupPage />} />
           <Route element={<RequirePortalAuth />}>
             <Route path="/application" element={<PortalApplicationPage />} />
             <Route path="/fdd/:deliveryId" element={<PortalFddPage />} />
             <Route path="/" element={<Navigate to="/application" replace />} />
           </Route>
-          <Route path="*" element={<Navigate to="/application" replace />} />
         </Route>
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
   );
@@ -288,7 +288,7 @@ function StaffAppRouter() {
   return (
     <ThemeProvider>
       <ClientBrandingProvider>
-        <BrowserRouter basename="/app">
+        <BrowserRouter>
           <AuthProvider>
             <AuthApiNavigationBridge />
             <AppConfigBrandSync />

@@ -35,7 +35,7 @@
 1. Prospect long-form portal — **Phase A shipped** ([PLAN_3_STAGE_PLATFORM.md](./PLAN_3_STAGE_PLATFORM.md)); polish + legacy field parity ongoing
 2. `legacy:import-stream` — optional
 3. ~~Closings nav~~ — added to sidebar
-4. Areas / organizations — no admin UI
+4. Areas / organizations — **Areas admin shipped** (`/reports/areas`); organizations still API/import-only
 5. ACH reconciliation UI — **Phase D shipped** ([PLAN_3_STAGE_PLATFORM.md](./PLAN_3_STAGE_PLATFORM.md))
 6. POS — Square adapter foundation (sandbox fallback); OAuth polish open
 7. FDD PDF placeholder + staff sign vs fl-signature

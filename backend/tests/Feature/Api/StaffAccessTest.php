@@ -76,7 +76,7 @@ test('unauthenticated session is rejected', function () {
 });
 
 test('staff web spa requires authentication', function () {
-    $this->get('/app')->assertRedirect(route('login'));
+    $this->get('/reports/leads')->assertRedirect(route('login'));
 });
 
 test('authenticated staff can load spa shell', function () {
@@ -84,11 +84,16 @@ test('authenticated staff can load spa shell', function () {
     $user->assignRole('admin');
 
     $this->actingAs($user)
-        ->get('/app')
+        ->get('/')
         ->assertOk()
         ->assertSee('id="root"', false);
 });
 
 test('login page is public', function () {
-    $this->get('/app/login')->assertOk();
+    $this->get('/login')->assertOk();
+});
+
+test('legacy /app urls redirect to unprefixed staff paths', function () {
+    $this->get('/app/login')->assertRedirect('/login');
+    $this->get('/app/reports/leads')->assertRedirect('/reports/leads');
 });

@@ -8,14 +8,22 @@ const activeRowClass = 'bg-[var(--color-sidebar-active)]';
 
 const submenuItems: NavItem[] = [
   {
-    id: 'stores-open',
-    label: 'Open',
-    path: '/reports/stores?filter=store_status&subFilter=open',
-  },
-  {
-    id: 'stores-pending',
-    label: 'Pending',
-    path: '/reports/stores?filter=store_status&subFilter=pending',
+    id: 'stores',
+    label: 'Units',
+    path: '/reports/stores',
+    expandOnly: true,
+    children: [
+      {
+        id: 'stores-open',
+        label: 'Open',
+        path: '/reports/stores?filter=store_status&subFilter=open',
+      },
+      {
+        id: 'stores-pending',
+        label: 'Pending',
+        path: '/reports/stores?filter=store_status&subFilter=pending',
+      },
+    ],
   },
 ];
 
@@ -36,6 +44,8 @@ function renderNavMenu(initialEntry: string) {
 describe('NavMenu', () => {
   it('highlights only the submenu item matching the current filter', () => {
     renderNavMenu('/reports/stores?filter=store_status&subFilter=open');
+
+    expect(screen.queryByRole('link', { name: 'Units' })).toBeNull();
 
     const openLink = screen.getByRole('link', { name: 'Open' });
     const pendingLink = screen.getByRole('link', { name: 'Pending' });

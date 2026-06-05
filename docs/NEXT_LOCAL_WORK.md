@@ -6,9 +6,23 @@ Local P1–P3 engineering is **complete**.
 
 **Last updated:** 2026-06-03 · **Tests:** backend Pest · 76 Vitest · **20 Playwright** (`./scripts/e2e-smoke.sh`)
 
-**Plan 3** (four-stage platform A–D) is merged to **`dev`**. Sidebar shows unit status filters directly (no “My Units” parent); **Areas** lives at `/reports/areas` with franchise territories + US/Canada defaults.
+**Plan 3** (four-stage platform A–D) is merged to **`dev`**. Sidebar: **Units** parent (expand-only, not a list link) with all status chips; **Areas** is a top-level item at `/reports/areas` (not under Reports). Staff URLs have no `/app` prefix; legacy `/app/*` 301s to the same paths.
 
-Next engineering focus: **Phase 4 — legacy import** on staging.
+Next engineering focus: **Phase 4 — legacy import** with production data.
+
+**Slim dump** (from repo-root `mysql.sql` or `data/mysql.sql`):
+
+```bash
+./tools/slim-legacy-dump.sh mysql.sql data/client-site9.sql.gz
+EXECUTE=1 ./scripts/phase4-import-client.sh data/client-site9.sql.gz
+```
+
+**Without dump (schema prep only):**
+
+```bash
+cd backend && php artisan legacy:prep
+./scripts/phase4-prep-local.sh   # or SKIP_E2E=1 if no Playwright browsers
+```
 
 ---
 

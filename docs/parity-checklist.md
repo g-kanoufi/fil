@@ -14,7 +14,7 @@ Map legacy CRM behavior to FIL tests. Legacy plugin names are reference-only for
 | P-002 | Staff login | `POST /api/v1/session` + `app.access` permission |
 | P-002a | Prospect blocked from staff app | login returns 422; no `app.access` |
 | P-002b | Session returns roles, permissions, navigation | `GET /api/v1/session` |
-| P-002c | Unauthenticated `/app` redirects to login | web middleware |
+| P-002c | Unauthenticated staff routes redirect to login | web middleware |
 | P-002d | Adminimize-style grid/nav restrictions per role | `session.ui_restrictions` from `ui_menu_items` + `role_ui_grants` |
 | P-002e | React options branding/menus | `GET /api/v1/app-config` → `client_settings` + catalog |
 | P-003 | Lead list/show/update | `GET/PATCH /api/v1/leads` |

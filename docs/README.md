@@ -37,6 +37,7 @@ Single index for product, engineering, and operations docs.
 | [ACTIVITY_HISTORY.md](./ACTIVITY_HISTORY.md) | Activity feed design |
 | [schema-mapping.md](./schema-mapping.md) | Legacy → FIL table mapping |
 | [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md) | Phase 4 import checklist |
+| [PHASE4_PROD_DATA.md](./PHASE4_PROD_DATA.md) | Slim prod dump + Forge import runbook |
 
 ## Engineering reference
 

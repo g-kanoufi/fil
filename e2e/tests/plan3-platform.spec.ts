@@ -13,7 +13,7 @@ test.describe('Plan 3 — Grow + Earn (Phase D)', () => {
       (response) => response.url().includes('/api/v1/royalties/intelligence') && response.ok(),
     );
 
-    await page.goto('/app/reports/royalties');
+    await page.goto('/reports/royalties');
     await intelligencePromise;
 
     await expect(page.getByRole('heading', { name: 'Royalties', level: 1 })).toBeVisible();
@@ -28,7 +28,7 @@ test.describe('Plan 3 — Grow + Earn (Phase D)', () => {
       (response) => response.url().includes('/api/v1/ach-transfers/reconciliation') && response.ok(),
     );
 
-    await page.goto('/app/reports/ach');
+    await page.goto('/reports/ach');
     await reconPromise;
 
     await expect(page.getByRole('heading', { name: 'ACH transfers', level: 1 })).toBeVisible();
@@ -45,7 +45,7 @@ test.describe('Plan 3 — Operate + Inspect (Phase C)', () => {
       (response) => response.url().includes('/api/v1/dashboard') && response.ok(),
     );
 
-    await page.goto('/app');
+    await page.goto('/');
     await dashboardPromise;
 
     await expect(page.getByText('Store operations')).toBeVisible();
@@ -54,7 +54,7 @@ test.describe('Plan 3 — Operate + Inspect (Phase C)', () => {
 
   test('admin can open history page visits tab', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
-    await page.goto('/app/history');
+    await page.goto('/history');
 
     await page.getByRole('button', { name: 'Page visits' }).click();
     await expect(page.getByRole('heading', { name: 'Page visits' })).toBeVisible();
@@ -62,7 +62,7 @@ test.describe('Plan 3 — Operate + Inspect (Phase C)', () => {
 
   test('admin sees corp todos on dashboard', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
-    await page.goto('/app');
+    await page.goto('/');
 
     await expect(page.getByText('Corp todos')).toBeVisible();
   });
@@ -71,7 +71,7 @@ test.describe('Plan 3 — Operate + Inspect (Phase C)', () => {
 test.describe('Plan 3 — Build + Open (Phase B)', () => {
   test('admin store detail shows opening checklist', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
-    await page.goto(`/app/reports/stores/${DEMO_STORE_IDS.scottsdale}`);
+    await page.goto(`/reports/stores/${DEMO_STORE_IDS.scottsdale}`);
 
     await expect(page.getByRole('heading', { name: 'PrimeIV Scottsdale', level: 1 })).toBeVisible();
     await expect(page.getByText('Opening checklist')).toBeVisible();
@@ -87,8 +87,8 @@ test.describe('Plan 3 — Build + Open (Phase B)', () => {
         response.ok(),
     );
 
-    await page.goto('/app/reports/closings');
-    await page.waitForURL(/\/app\/reports\/closings\/?$/);
+    await page.goto('/reports/closings');
+    await page.waitForURL(/\/reports\/closings\/?$/);
     await gridPromise;
 
     await expect(page.getByRole('heading', { name: 'Closings', level: 1 })).toBeVisible();
@@ -105,14 +105,14 @@ test.describe('Plan 3 — Find + Sell (Phase A)', () => {
 
   test('admin lead detail shows corp notes panel', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
-    await page.goto('/app/reports/leads/1');
+    await page.goto('/reports/leads/1');
 
     await expect(page.getByText('Corp notes')).toBeVisible();
   });
 
   test('admin store detail shows corp notes panel', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
-    await page.goto(`/app/reports/stores/${DEMO_STORE_IDS.scottsdale}`);
+    await page.goto(`/reports/stores/${DEMO_STORE_IDS.scottsdale}`);
 
     await expect(page.getByText('Corp notes')).toBeVisible();
   });

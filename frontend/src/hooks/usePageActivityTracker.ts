@@ -16,17 +16,17 @@ const GRID_PATHS = new Set([
   '/reports/ach',
 ]);
 
-/** Strip Vite/nginx /app prefix when pathname includes it. */
+/** Normalize pathname for activity keys (legacy /app prefix + trailing slash). */
 export function normalizeAppPath(pathname: string): string {
-  if (pathname === '/app' || pathname === '/app/') {
-    return '/';
+  let path = pathname;
+
+  if (path === '/app' || path === '/app/') {
+    path = '/';
+  } else if (path.startsWith('/app/')) {
+    path = path.slice(4) || '/';
   }
 
-  if (pathname.startsWith('/app/')) {
-    return pathname.slice(4) || '/';
-  }
-
-  return pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
+  return path.length > 1 ? path.replace(/\/$/, '') : path;
 }
 
 function shouldTrack(pathname: string): boolean {

@@ -108,7 +108,7 @@ export function NotificationPreferencesPage() {
               {saving ? 'Saving…' : 'Save preferences'}
             </Button>
             {canManageRules ? (
-              <a href="/app/settings/notifications/rules" className="self-center text-sm text-link hover:underline">
+              <a href="/settings/notifications/rules" className="self-center text-sm text-link hover:underline">
                 Admin: notification rules
               </a>
             ) : null}

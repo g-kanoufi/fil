@@ -11,6 +11,7 @@ use App\Models\FranchiseLocation;
 use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
+use Illuminate\Database\Eloquent\Model;
 
 final class LegacyPostImportService
 {
@@ -103,7 +104,7 @@ final class LegacyPostImportService
             ['legacy_post_id' => $legacyPostId],
             [
                 'title' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($slug, $legacyPostId, Lead::class),
                 'pipeline_phase' => 1,
                 'status' => 'active',
             ],
@@ -136,7 +137,7 @@ final class LegacyPostImportService
             ['legacy_post_id' => $legacyPostId],
             [
                 'name' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($slug, $legacyPostId, Store::class),
                 'status' => 'active',
             ],
         );
@@ -168,7 +169,7 @@ final class LegacyPostImportService
             ['legacy_post_id' => $legacyPostId],
             [
                 'name' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($slug, $legacyPostId, Area::class),
                 'status' => 'active',
             ],
         );
@@ -200,7 +201,7 @@ final class LegacyPostImportService
             ['legacy_post_id' => $legacyPostId],
             [
                 'name' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($slug, $legacyPostId, FranchiseLocation::class),
                 'status' => 'active',
             ],
         );
@@ -232,7 +233,7 @@ final class LegacyPostImportService
             ['legacy_post_id' => $legacyPostId],
             [
                 'name' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($slug, $legacyPostId, Organization::class),
                 'status' => 'active',
             ],
         );
@@ -261,15 +262,34 @@ final class LegacyPostImportService
             return;
         }
 
+        $baseSlug = $slug !== '' ? $slug : 'fdd-'.$legacyPostId;
+
         Fdd::query()->updateOrCreate(
             ['legacy_post_id' => $legacyPostId],
             [
                 'type' => $postType === 'areafdd' ? 'area' : 'unit',
                 'title' => $title,
-                'slug' => $slug !== '' ? $slug : null,
+                'slug' => $this->resolveImportSlug($baseSlug, $legacyPostId, Fdd::class) ?? $baseSlug,
                 'status' => 'active',
             ],
         );
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     */
+    private function resolveImportSlug(string $slug, int $legacyPostId, string $modelClass): ?string
+    {
+        if ($slug === '') {
+            return null;
+        }
+
+        $collision = $modelClass::query()
+            ->where('slug', $slug)
+            ->where('legacy_post_id', '!=', $legacyPostId)
+            ->exists();
+
+        return $collision ? $slug.'-'.$legacyPostId : $slug;
     }
 
     /**

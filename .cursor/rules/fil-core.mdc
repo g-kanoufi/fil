@@ -24,3 +24,5 @@ Before starting the next phase or feature chunk:
 4. **Do not stack** unfinished routes, models, or migrations without tests and wiring.
 
 Verification: `cd backend && php artisan test --compact`
+
+**Browser testing:** keep `./scripts/dev-serve.sh` up (`status` / `start` / `restart`) — see `.cursor/rules/fil-dev-server.mdc`.

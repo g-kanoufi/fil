@@ -1,12 +1,12 @@
 # FIL authentication & authorization
 
-Staff SPA is **logged-in only**. Prospects use the **prospect portal** at `/portal` (not `/app`).
+Staff SPA is **logged-in only**. Prospects use the **prospect portal** at `/portal` (separate from staff routes).
 
 ## Surfaces
 
 | Surface | URL | Auth |
 | ------- | --- | ---- |
-| Staff SPA | `/app/*` | `app.access` permission; prospects rejected at login |
+| Staff SPA | `/` (e.g. `/reports/leads`, `/login`) | `app.access` permission; prospects rejected at login |
 | Prospect portal | `/portal/*` | Prospect role + active lead; staff accounts rejected |
 | Public widget | embed on client sites | Site key + origin allowlist |
 
@@ -14,7 +14,7 @@ Staff SPA is **logged-in only**. Prospects use the **prospect portal** at `/port
 
 | Layer | Mechanism |
 | ----- | --------- |
-| **Web** | Laravel `auth` + `staff` middleware on `/app/*`; `/portal/*` uses separate prospect session |
+| **Web** | Laravel `auth` + `staff` middleware on staff SPA catch-all; `/portal/*` uses separate prospect session |
 | **API** | `auth:sanctum` + `staff` on `/api/v1/*`; `auth:sanctum` + `prospect.portal` on `/api/portal/v1/*` |
 | **Login** | Staff: `LoginUser` + `accessStaffApp`. Prospect: `LoginProspect` + `accessProspectPortal` |
 | **Routes / controllers** | `$this->authorize(...)` via **Policies** and named **Gates** |

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureProspectPortalAccess;
 use App\Http\Middleware\EnsureStaffAccess;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\ThrottleEmbedLeadIntake;
@@ -37,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'staff' => EnsureStaffAccess::class,
-            'prospect.portal' => \App\Http\Middleware\EnsureProspectPortalAccess::class,
+            'prospect.portal' => EnsureProspectPortalAccess::class,
             'embed.site_key' => ValidateEmbedSiteKey::class,
             'embed.origin' => ValidateEmbedOrigin::class,
             'throttle.staff_login' => ThrottleStaffLogin::class,

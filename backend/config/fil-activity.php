@@ -66,6 +66,7 @@ return [
             '/reports/stores',
             '/reports/contacts',
             '/reports/closings',
+            '/reports/areas',
             '/reports/royalties',
             '/reports/ach',
         ],

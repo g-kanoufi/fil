@@ -11,7 +11,7 @@ test.describe('FIL MVP smoke', () => {
 
     await page.getByRole('navigation', { name: 'Staff navigation' }).getByRole('link', { name: 'Leads', exact: true }).click();
 
-    await page.waitForURL(/\/app\/reports\/leads\/?$/);
+    await page.waitForURL(/\/reports\/leads\/?$/);
     await expect(page.getByRole('heading', { name: 'Leads', level: 1 })).toBeVisible();
 
     const gridResponse = await gridResponsePromise;

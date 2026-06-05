@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Legacy\LegacyDumpTableSchema;
 use App\Services\Legacy\LegacyNamedTableImporter;
 use App\Services\Legacy\LegacyNotificationImportService;
 use App\Services\Notifications\NotificationConditionNormalizer;
@@ -8,7 +9,7 @@ use App\Services\Notifications\NotificationScheduleNormalizer;
 
 test('decode json handles sql escaped carrier payload', function () {
     $service = new LegacyNotificationImportService(
-        new LegacyNamedTableImporter,
+        new LegacyNamedTableImporter(new LegacyDumpTableSchema),
         new NotificationConditionNormalizer,
         new NotificationScheduleNormalizer,
         new NotificationRecipientTokenNormalizer,

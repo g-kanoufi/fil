@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Lead;
 use App\Support\Fields\FieldChoiceCatalog;
+use App\Support\Fields\FieldChoiceSet;
 use Illuminate\Console\Command;
 
 final class NormalizeLeadStatusCommand extends Command
@@ -77,7 +78,7 @@ final class NormalizeLeadStatusCommand extends Command
         return self::SUCCESS;
     }
 
-    private function canonicalValue(\App\Support\Fields\FieldChoiceSet $primary, \App\Support\Fields\FieldChoiceSet $fdd, ?string $stored): ?string
+    private function canonicalValue(FieldChoiceSet $primary, FieldChoiceSet $fdd, ?string $stored): ?string
     {
         if ($stored === null || trim($stored) === '') {
             return null;

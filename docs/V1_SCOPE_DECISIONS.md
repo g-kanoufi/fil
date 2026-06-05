@@ -12,7 +12,7 @@
 | 3 | **legacy:import-stream** (WP Stream backfill) | Optional stretch | — | Runtime activity replaced ([ACTIVITY_HISTORY.md](./ACTIVITY_HISTORY.md) Phase D). |
 | 4 | **POS revenue sync** | Stub / manual | Square/Clover/Booker adapters | MVP: POS sync not required. |
 | 5 | **ACH admin reconciliation UI** | Post-v1 unless launch needs fees | SEC-007 daily reconcile command | Phase 3.4 open ([PRODUCTION_READINESS.md](./PRODUCTION_READINESS.md)). |
-| 6 | **Areas / organizations admin UI** | Import-only reference data | CRUD screens if client edits often | APIs: `GET /v1/areas`, `GET /v1/organizations` only. |
+| 6 | **Areas / organizations admin UI** | **Areas:** staff CRUD at `/reports/areas` (2026-06) | **Organizations:** import + `GET /v1/organizations` only unless client needs UI | Areas needed for territory edits without re-import. |
 | 7 | **Closings in sidebar nav** | **In v1** (shipped) | — | Feature complete; was deep-link only — added to nav 2026-06-01. |
 | 8 | **Per-subject PII export bundle** | Post-v1 | — | [NEXT_LOCAL_WORK.md](./NEXT_LOCAL_WORK.md) optional stretch. |
 | 9 | **fl-marketing, fl-operations, fl-inspections, website galleries** | Out of scope | Phase 8 / WP public site | [AGENTS.md](../AGENTS.md) scope (out). |

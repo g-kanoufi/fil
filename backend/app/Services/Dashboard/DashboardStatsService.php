@@ -11,6 +11,7 @@ use App\Models\StoreOpeningChecklistItem;
 use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use App\Services\Leads\LeadPipelineCatalog;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 final class DashboardStatsService
@@ -135,7 +136,7 @@ final class DashboardStatsService
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<Store>  $storeQuery
+     * @param  Builder<Store>  $storeQuery
      * @return array<string, mixed>
      */
     private function storeOpsSummary(User $user, $storeQuery): array
@@ -143,7 +144,7 @@ final class DashboardStatsService
         $lookaheadDays = (int) config('fil-platform.operate_inspect.inspection_lookahead_days', 14);
         $dueBefore = now()->addDays($lookaheadDays)->endOfDay();
 
-        /** @var \Illuminate\Support\Collection<int, Store> $stores */
+        /** @var Collection<int, Store> $stores */
         $stores = (clone $storeQuery)
             ->orderBy('name')
             ->get(['id', 'name', 'store_status', 'next_inspection_at', 'opened_at']);

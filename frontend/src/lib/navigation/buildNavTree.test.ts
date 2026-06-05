@@ -56,15 +56,30 @@ describe('buildNavigationTree', () => {
     expect(leads.children?.find((child) => child.id === 'leads-lead_owner')?.children).toHaveLength(1);
   });
 
-  it('promotes unit status filters without My Units parent or Areas submenu', () => {
-    const navigation: NavItem[] = [{ id: 'stores', label: 'My Units', path: '/reports/stores' }];
+  it('nests unit status filters under Units parent without area submenu', () => {
+    const navigation: NavItem[] = [{ id: 'stores', label: 'Units', path: '/reports/stores' }];
 
     const tree = buildNavigationTree(navigation, appConfig, () => false);
-    const labels = tree.map((entry) => (entry as NavItem).label);
+    const units = tree[0] as NavItem;
 
-    expect(labels).toEqual(['open', 'pending']);
-    expect(tree.some((entry) => (entry as NavItem).label === 'My Units')).toBe(false);
-    expect(tree.some((entry) => (entry as NavItem).label === 'Areas')).toBe(false);
+    expect(units.label).toBe('Units');
+    expect(units.expandOnly).toBe(true);
+    expect((units.children ?? []).map((child) => child.label)).toEqual(['open', 'pending']);
+    expect(units.children?.some((child) => child.label === 'Areas')).toBe(false);
+  });
+
+  it('keeps Areas outside Reports when navigation lists areas before the section', () => {
+    const navigation = [
+      { id: 'areas', label: 'Areas', path: '/reports/areas' },
+      { type: 'section', label: 'Reports' },
+      { id: 'stores', label: 'Units', path: '/reports/stores' },
+    ] as const;
+
+    const tree = buildNavigationTree(navigation as unknown as NavItem[], appConfig, () => false);
+
+    expect(tree[0]).toMatchObject({ id: 'areas', label: 'Areas' });
+    expect(tree[1]).toMatchObject({ type: 'section', label: 'Reports' });
+    expect(tree[2]).toMatchObject({ id: 'stores', label: 'Units' });
   });
 
   it('unwraps a lone settings parent under an admin section', () => {
@@ -135,9 +150,11 @@ describe('buildNavigationTree', () => {
       },
     } as const;
 
-    const navigation: NavItem[] = [{ id: 'stores', label: 'My Units', path: '/reports/stores' }];
+    const navigation: NavItem[] = [{ id: 'stores', label: 'Units', path: '/reports/stores' }];
     const tree = buildNavigationTree(navigation, menusOnlyStatus, () => false);
+    const units = tree[0] as NavItem;
 
-    expect(tree.map((entry) => (entry as NavItem).label)).toEqual(['open', 'pending']);
+    expect(units.label).toBe('Units');
+    expect((units.children ?? []).map((child) => child.label)).toEqual(['open', 'pending']);
   });
 });

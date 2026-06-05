@@ -14,9 +14,9 @@ beforeEach(function () {
 });
 
 test('embed demo requires staff authentication', function () {
-    $this->get('/embed-demo')->assertRedirect('/app/login');
-    $this->get('/embed-demo/inline')->assertRedirect('/app/login');
-    $this->get('/embed-demo/frame')->assertRedirect('/app/login');
+    $this->get('/embed-demo')->assertRedirect('/login');
+    $this->get('/embed-demo/inline')->assertRedirect('/login');
+    $this->get('/embed-demo/frame')->assertRedirect('/login');
 });
 
 test('staff can open embed demo preview routes', function () {
@@ -32,7 +32,7 @@ test('staff can open embed demo preview routes', function () {
 
     $this->actingAs($user)
         ->get('/embed-demo')
-        ->assertRedirect('/app/settings/widget/demo');
+        ->assertRedirect('/settings/widget/demo');
 
     $this->actingAs($user)
         ->get('/embed-demo/inline')

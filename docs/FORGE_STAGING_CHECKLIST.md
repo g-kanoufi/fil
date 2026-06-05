@@ -150,24 +150,25 @@ php artisan security:csp
 
 **Runbook:** [LEGACY_IMPORT_DRY_RUN.md](./LEGACY_IMPORT_DRY_RUN.md)
 
-- [ ] Obtain latest client `.sql.gz`; upload to server (not in git)
-- [ ] Set `FIL_LEGACY_DUMP_PATH`, `FIL_LEGACY_TABLE_PREFIX`
-- [ ] Fresh DB (from `backend/`):
+- [ ] Slim the production dump locally (do **not** upload 5GB `mysql.sql`):
 
 ```bash
-cd /home/forge/fil.on-forge.com/backend
-php artisan migrate --force
+./tools/slim-legacy-dump.sh mysql.sql data/client-site9.sql.gz
+scp data/client-site9.sql.gz forge@YOUR_HOST:/home/forge/imports/client-site9.sql.gz
 ```
 
-- [ ] Pipeline (same directory; pass dump path or set `FIL_LEGACY_DUMP_PATH`):
+- [ ] On Forge: `FIL_LEGACY_DUMP_PATH=/home/forge/imports/client-site9.sql.gz`, `FIL_LEGACY_TABLE_PREFIX=vnzokz0zw_9_`
+- [ ] One-shot pipeline from repo root on server:
 
-  1. `php artisan legacy:import-acf`
-  2. `php artisan legacy:sync-interest-region-terms /path/to/dump.sql.gz --execute`
-  3. `php artisan legacy:import /path/to/dump.sql.gz` (dry-run — review counts)
-  4. `php artisan legacy:import /path/to/dump.sql.gz --execute --force --confirm=legacy-import`
-  5. `php artisan legacy:drain-extras --execute`
-  6. `php artisan legacy:finalize --strict`
-- [ ] `php artisan legacy:parity-report /path/to/dump.sql.gz --samples`
+```bash
+cd /home/forge/fil.on-forge.com
+FORCE=1 EXECUTE=1 ./scripts/phase4-import-client.sh /home/forge/imports/client-site9.sql.gz
+```
+
+(`FORCE=1` required when `APP_ENV=staging`; includes interest-region seed, access seeders, execute, parity-report, spot-check.)
+
+- [ ] Or dry-run first: `./scripts/phase4-import-client.sh /home/forge/imports/client-site9.sql.gz`
+- [ ] After execute: `php artisan legacy:finalize --strict` if extras remain
 - [ ] UI spot-check: 10 leads, 5 stores, 3 contacts
 - [ ] Client sign-off on parity report
 

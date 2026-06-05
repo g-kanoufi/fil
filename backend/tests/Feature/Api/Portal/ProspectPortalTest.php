@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Field;
-use App\Models\FieldGroup;
 use App\Models\Fdd;
 use App\Models\FddDelivery;
+use App\Models\Field;
+use App\Models\FieldGroup;
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\Portal\ProspectPortalTokenService;

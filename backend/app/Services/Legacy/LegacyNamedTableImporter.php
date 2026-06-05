@@ -10,6 +10,10 @@ final class LegacyNamedTableImporter
 {
     use ReadsLegacyDump;
 
+    public function __construct(
+        private readonly LegacyDumpTableSchema $schema,
+    ) {}
+
     /**
      * @param  callable(array<string, string|null>, bool): void  $onRow
      * @return array{matched: int, skipped: int}
@@ -31,19 +35,23 @@ final class LegacyNamedTableImporter
                     continue;
                 }
 
-                if (! preg_match('/INSERT INTO `[^`]+` \(([^)]+)\) VALUES/i', $line, $headerMatch)) {
-                    continue;
-                }
-
-                $columns = array_map(
-                    static fn (string $column): string => trim($column, " `\t\n\r"),
-                    explode(',', $headerMatch[1]),
-                );
-
                 $valuesPos = stripos($line, 'VALUES');
 
                 if ($valuesPos === false) {
                     continue;
+                }
+
+                if (preg_match('/INSERT INTO `[^`]+` \(([^)]+)\) VALUES/i', $line, $headerMatch)) {
+                    $columns = array_map(
+                        static fn (string $column): string => trim($column, " `\t\n\r"),
+                        explode(',', $headerMatch[1]),
+                    );
+                } else {
+                    $columns = $this->schema->columnNames($dumpPath, $tableName);
+
+                    if ($columns === null) {
+                        continue;
+                    }
                 }
 
                 $buffer = substr($line, $valuesPos + 6);

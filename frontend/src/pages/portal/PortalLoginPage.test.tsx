@@ -10,8 +10,12 @@ vi.mock('@/providers/PortalAuthProvider', () => ({
   }),
 }));
 
+vi.mock('@/providers/ClientBrandingProvider', () => ({
+  useClientBrand: () => ({ brandName: 'FIL', logoUrl: null }),
+}));
+
 describe('PortalLoginPage', () => {
-  it('renders prospect sign in heading', () => {
+  it('renders shared sign-in shell with brand and prospect heading', () => {
     render(
       <MemoryRouter>
         <PortalLoginPage />
@@ -19,5 +23,8 @@ describe('PortalLoginPage', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Prospect sign in' })).toBeInTheDocument();
+    expect(screen.getByText('FIL')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 });

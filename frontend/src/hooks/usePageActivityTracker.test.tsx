@@ -26,9 +26,10 @@ function TrackerHarness(): null {
 }
 
 describe('normalizeAppPath', () => {
-  it('strips /app basename prefix', () => {
+  it('normalizes staff paths and legacy /app prefix', () => {
+    expect(normalizeAppPath('/reports/leads/1')).toBe('/reports/leads/1');
+    expect(normalizeAppPath('/history')).toBe('/history');
     expect(normalizeAppPath('/app/reports/leads/1')).toBe('/reports/leads/1');
-    expect(normalizeAppPath('/app/history')).toBe('/history');
   });
 });
 
@@ -51,8 +52,8 @@ describe('usePageActivityTracker', () => {
     expect(activityApi.postActivityPageViews).toHaveBeenCalledWith(['/reports/leads/42']);
   });
 
-  it('posts normalized path when router includes /app prefix', () => {
-    renderWithPath('/app/history');
+  it('posts normalized path for staff routes', () => {
+    renderWithPath('/history');
 
     vi.advanceTimersByTime(3_000);
 

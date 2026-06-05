@@ -10,11 +10,11 @@ test.describe('Lead custom fields panel', () => {
     );
 
     await page.getByRole('navigation', { name: 'Staff navigation' }).getByRole('link', { name: 'Leads', exact: true }).click();
-    await page.waitForURL(/\/app\/reports\/leads\/?$/);
+    await page.waitForURL(/\/reports\/leads\/?$/);
     await leadsResponsePromise;
 
-    await page.goto('/app/reports/leads/1');
-    await page.waitForURL(/\/app\/reports\/leads\/1\/?$/);
+    await page.goto('/reports/leads/1');
+    await page.waitForURL(/\/reports\/leads\/1\/?$/);
 
     await expect(page.getByRole('heading', { name: /custom fields/i })).toBeVisible();
   });
@@ -24,7 +24,7 @@ test.describe('Widget demo page', () => {
   test('staff can open widget demo preview', async ({ page }) => {
     await loginAs(page, DEMO_USERS.admin);
 
-    await page.goto('/app/settings/widget/demo');
+    await page.goto('/settings/widget/demo');
     await expect(page.getByRole('heading', { name: /widget demo/i })).toBeVisible();
     await expect(page.getByTitle('FIL widget inline preview')).toBeVisible();
   });

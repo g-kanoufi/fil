@@ -77,39 +77,67 @@ function NavMenuItem({
   const paddingLeft = depth === 0 ? undefined : `${0.75 + depth * 0.625}rem`;
 
   if (hasChildren) {
+    const expandOnly = item.expandOnly === true;
+
     return (
       <li className="w-full">
         <div
           className={cn(
             'flex w-full min-w-0 items-stretch',
-            navRowClass({ depth, directlyActive, hasActiveChild }),
+            navRowClass({
+              depth,
+              directlyActive: expandOnly ? false : directlyActive,
+              hasActiveChild,
+            }),
           )}
         >
-          <NavLink
-            to={item.path}
-            onClick={onClose}
-            style={{ paddingLeft }}
-            end={!item.path.includes('?')}
-            className="flex min-w-0 flex-1 items-center gap-2.5 outline-none"
-          >
-            {depth === 0 ? <NavIcon id={item.id} /> : null}
-            <span className="truncate">{item.label}</span>
-          </NavLink>
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.label}`}
-            className={cn(
-              'mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-white',
-              focusRing,
-            )}
-            onClick={(event) => {
-              event.preventDefault();
-              toggleExpanded(item.id);
-            }}
-          >
-            {isExpanded ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
-          </button>
+          {expandOnly ? (
+            <button
+              type="button"
+              aria-expanded={isExpanded}
+              className={cn(
+                'flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5 text-left outline-none',
+                focusRing,
+              )}
+              onClick={() => toggleExpanded(item.id)}
+            >
+              <NavIcon id={item.id} />
+              <span className="truncate">{item.label}</span>
+              {isExpanded ? (
+                <IconChevronDown className="ml-auto h-4 w-4 shrink-0 text-white/55" />
+              ) : (
+                <IconChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/55" />
+              )}
+            </button>
+          ) : (
+            <>
+              <NavLink
+                to={item.path}
+                onClick={onClose}
+                style={{ paddingLeft }}
+                end={!item.path.includes('?')}
+                className="flex min-w-0 flex-1 items-center gap-2.5 outline-none"
+              >
+                {depth === 0 ? <NavIcon id={item.id} /> : null}
+                <span className="truncate">{item.label}</span>
+              </NavLink>
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.label}`}
+                className={cn(
+                  'mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-white',
+                  focusRing,
+                )}
+                onClick={(event) => {
+                  event.preventDefault();
+                  toggleExpanded(item.id);
+                }}
+              >
+                {isExpanded ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
+              </button>
+            </>
+          )}
         </div>
         {isExpanded ? (
           <ul className="mt-0.5 space-y-0.5 border-l border-white/10 py-0.5 pl-2" style={{ marginLeft: depth === 0 ? '0.75rem' : '1.25rem' }}>

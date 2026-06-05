@@ -1,11 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { SignInPageShell } from '@/components/auth/SignInPageShell';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { ApiError } from '@/lib/api/client';
-import { loginInner, loginShell } from '@/lib/ui/tokens';
 import { usePortalAuth } from '@/providers/PortalAuthProvider';
 
 export function PortalLoginPage() {
@@ -39,43 +38,44 @@ export function PortalLoginPage() {
   }
 
   return (
-    <Card className={loginShell} padding="md">
-      <div className={loginInner}>
-        <h1 className="text-2xl font-semibold text-foreground">Prospect sign in</h1>
-        <p className="mt-2 text-sm text-content-secondary">
-          Continue your franchise application.
-        </p>
-
-        {error ? (
-          <Alert variant="danger" className="mt-4">
-            {error}
+    <SignInPageShell
+      title="Prospect sign in"
+      subtitle="Continue your franchise application."
+      headingId="portal-login-heading"
+      devHint={
+        import.meta.env.DEV ? (
+          <Alert variant="info" className="mb-4">
+            Demo: <code className="text-xs">prospect@fil.test</code> — password{' '}
+            <code className="text-xs">password</code> (linked to Jane Smith Application)
           </Alert>
-        ) : null}
-
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <FormField
-            label="Email"
-            id="portal-email"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-          <FormField
-            label="Password"
-            id="portal-password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-          <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Signing in…' : 'Sign in'}
-          </Button>
-        </form>
-      </div>
-    </Card>
+        ) : null
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4" aria-labelledby="portal-login-heading">
+        <FormField
+          label="Email"
+          id="portal-email"
+          type="email"
+          autoComplete="username"
+          autoFocus
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+        />
+        <FormField
+          label="Password"
+          id="portal-password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+        />
+        {error ? <Alert variant="error">{error}</Alert> : null}
+        <Button type="submit" disabled={submitting} className="w-full">
+          {submitting ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </form>
+    </SignInPageShell>
   );
 }

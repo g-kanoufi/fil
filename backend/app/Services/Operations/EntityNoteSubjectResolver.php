@@ -10,6 +10,7 @@ use App\Models\Store;
 use App\Models\User;
 use App\Support\Contacts\ContactUser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use InvalidArgumentException;
 
 final class EntityNoteSubjectResolver
@@ -39,7 +40,7 @@ final class EntityNoteSubjectResolver
             $subject instanceof Lead => abort_unless($viewer->can('view', $subject), 403),
             $subject instanceof Store => abort_unless($viewer->can('view', $subject), 403),
             $subject instanceof User => abort_unless(
-                \Illuminate\Support\Facades\Gate::forUser($viewer)->allows('viewContact', $subject),
+                Gate::forUser($viewer)->allows('viewContact', $subject),
                 403,
             ),
             $subject instanceof Closing => abort_unless($viewer->can('view', $subject), 403),

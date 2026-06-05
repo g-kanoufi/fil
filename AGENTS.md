@@ -64,7 +64,7 @@ php tools/inventory-dump.php data/local.sql.gz
 
 Documentation index: **`docs/README.md`**. Production roadmap: **`docs/PRODUCTION_READINESS.md`**.
 
-After frontend or auth changes, follow **`docs/LOCAL_DEV.md`**. MVP deploy checklist: **`docs/MVP_DEPLOY.md`**.
+After frontend or auth changes, follow **`docs/LOCAL_DEV.md`**. For browser checks, keep **`./scripts/dev-serve.sh`** running (`start` / `restart` after PHP or `npm run build` changes). MVP deploy checklist: **`docs/MVP_DEPLOY.md`**.
 
 ## Scope (in)
 

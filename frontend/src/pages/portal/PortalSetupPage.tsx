@@ -1,11 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
+import { SignInPageShell } from '@/components/auth/SignInPageShell';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { ApiError } from '@/lib/api/client';
-import { loginInner, loginShell } from '@/lib/ui/tokens';
 import { usePortalAuth } from '@/providers/PortalAuthProvider';
 
 export function PortalSetupPage() {
@@ -23,9 +22,14 @@ export function PortalSetupPage() {
 
   if (!token) {
     return (
-      <Alert variant="danger">
-        Missing setup link. Submit the short form again or contact your franchise team.
-      </Alert>
+      <SignInPageShell
+        title="Create your password"
+        subtitle="Set a password to access and complete your franchise application."
+      >
+        <Alert variant="error">
+          Missing setup link. Submit the short form again or contact your franchise team.
+        </Alert>
+      </SignInPageShell>
     );
   }
 
@@ -49,43 +53,35 @@ export function PortalSetupPage() {
   }
 
   return (
-    <Card className={loginShell} padding="md">
-      <div className={loginInner}>
-        <h1 className="text-2xl font-semibold text-foreground">Create your password</h1>
-        <p className="mt-2 text-sm text-content-secondary">
-          Set a password to access and complete your franchise application.
-        </p>
-
-        {error ? (
-          <Alert variant="danger" className="mt-4">
-            {error}
-          </Alert>
-        ) : null}
-
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <FormField
-            label="Password"
-            id="portal-setup-password"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-          <FormField
-            label="Confirm password"
-            id="portal-setup-password-confirm"
-            type="password"
-            autoComplete="new-password"
-            value={passwordConfirmation}
-            onChange={(event) => setPasswordConfirmation(event.target.value)}
-            required
-          />
-          <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Saving…' : 'Continue to application'}
-          </Button>
-        </form>
-      </div>
-    </Card>
+    <SignInPageShell
+      title="Create your password"
+      subtitle="Set a password to access and complete your franchise application."
+      headingId="portal-setup-heading"
+    >
+      <form onSubmit={onSubmit} className="space-y-4" aria-labelledby="portal-setup-heading">
+        <FormField
+          label="Password"
+          id="portal-setup-password"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+        />
+        <FormField
+          label="Confirm password"
+          id="portal-setup-password-confirm"
+          type="password"
+          autoComplete="new-password"
+          value={passwordConfirmation}
+          onChange={(event) => setPasswordConfirmation(event.target.value)}
+          required
+        />
+        {error ? <Alert variant="error">{error}</Alert> : null}
+        <Button type="submit" disabled={submitting} className="w-full">
+          {submitting ? 'Saving…' : 'Continue to application'}
+        </Button>
+      </form>
+    </SignInPageShell>
   );
 }

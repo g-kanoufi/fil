@@ -37,8 +37,8 @@ final class NotificationMergeTagRenderer
             '{user/first_name}' => $recipient?->first_name ?? $prospect?->first_name ?? '',
             '{user/last_name}' => $recipient?->last_name ?? $prospect?->last_name ?? '',
             '{user/display_name}' => $recipient?->name ?? $prospect?->name ?? '',
-            '{fil/app_url}' => rtrim((string) config('app.url'), '/').'/app',
-            '{fil/lead_url}' => rtrim((string) config('app.url'), '/').'/app/reports/leads/'.$lead->id,
+            '{fil/app_url}' => rtrim((string) config('app.url'), '/'),
+            '{fil/lead_url}' => rtrim((string) config('app.url'), '/').'/reports/leads/'.$lead->id,
         ];
 
         if (isset($context['from_phase'], $context['to_phase'])) {
@@ -74,7 +74,7 @@ final class NotificationMergeTagRenderer
             '{user/first_name}' => $recipient?->first_name ?? $subjectUser->first_name ?? '',
             '{user/last_name}' => $recipient?->last_name ?? $subjectUser->last_name ?? '',
             '{user/display_name}' => $recipient?->name ?? $subjectUser->name ?? '',
-            '{fil/app_url}' => rtrim((string) config('app.url'), '/').'/app',
+            '{fil/app_url}' => rtrim((string) config('app.url'), '/'),
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $template);
@@ -96,9 +96,9 @@ final class NotificationMergeTagRenderer
             '{user/first_name}' => $recipient?->first_name ?? '',
             '{user/last_name}' => $recipient?->last_name ?? '',
             '{user/display_name}' => $recipient?->name ?? '',
-            '{fil/app_url}' => rtrim((string) config('app.url'), '/').'/app',
+            '{fil/app_url}' => rtrim((string) config('app.url'), '/'),
             '{fil/store_name}' => $store->name,
-            '{fil/store_url}' => rtrim((string) config('app.url'), '/').'/app/reports/stores/'.$store->id,
+            '{fil/store_url}' => rtrim((string) config('app.url'), '/').'/reports/stores/'.$store->id,
             '{fil/next_inspection_at}' => (string) $inspectionDue,
             '{fil/store_status}' => (string) ($store->store_status ?? ''),
         ];

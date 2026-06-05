@@ -28,6 +28,43 @@ Other import commands follow the same pattern:
 
 ---
 
+## Prep without client dump (local / staging)
+
+Run before the dump arrives — validates schema, US/CA interest regions, unit status catalog, and tier-1 spot-check on demo or post-import data:
+
+```bash
+cd backend
+php artisan legacy:prep
+# CI-style (fail on WARN, e.g. missing dump path):
+php artisan legacy:prep --strict
+```
+
+Full local gate (Pint, tests, OpenAPI, frontend, optional E2E):
+
+```bash
+./scripts/phase4-prep-local.sh
+# Skip Playwright when browsers not installed:
+SKIP_E2E=1 ./scripts/phase4-prep-local.sh
+```
+
+`mvp:staging-check` also reports **Interest regions** and **Legacy client dump** (WARN until dump is uploaded).
+
+---
+
+## Slim dump from full production export
+
+Full multisite exports are often multi-GB. Keep only **site 9** (`vnzokz0zw_9_*`) plus network tables (`users`, `usermeta`, `site`, `sitemeta`, `blogs`, `blogmeta`):
+
+```bash
+# Input: repo-root mysql.sql (5GB+) or data/mysql.sql
+./tools/slim-legacy-dump.sh mysql.sql data/client-site9.sql.gz
+# ~300–400MB gzip typical for PrimeIV site 9
+```
+
+Upload `data/client-site9.sql.gz` to staging (not the full `mysql.sql`).
+
+---
+
 ## Prerequisites
 
 Before the first dry-run:
@@ -36,7 +73,7 @@ Before the first dry-run:
 - [ ] **Dump readable** — path set in `.env` or passed as argument:
 
   ```bash
-  FIL_LEGACY_DUMP_PATH=/path/to/client.sql.gz
+  FIL_LEGACY_DUMP_PATH=../data/client-site9.sql.gz
   FIL_LEGACY_TABLE_PREFIX=vnzokz0zw_9_   # site 9 default; confirm with client
   ```
 
@@ -175,11 +212,20 @@ php artisan legacy:import --only=ai_threads
 
 ## Example session (local)
 
+One-shot (dry-run by default; add `EXECUTE=1` to write):
+
+```bash
+./scripts/phase4-import-client.sh data/client-site9.sql.gz
+EXECUTE=1 ./scripts/phase4-import-client.sh data/client-site9.sql.gz
+```
+
+Manual steps:
+
 ```bash
 cd backend
 
 # 1. Baseline
-php artisan legacy:inventory ../data/local.sql.gz
+php artisan legacy:inventory ../data/client-site9.sql.gz
 
 # 2. Schema + access (on fresh DB)
 php artisan migrate:fresh --force

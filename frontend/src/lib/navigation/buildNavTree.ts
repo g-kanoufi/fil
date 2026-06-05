@@ -19,9 +19,6 @@ export const SIDEBAR_EXCLUDED_MENU_KEYS: Record<ReportResource, readonly string[
   contacts: [],
 };
 
-/** Report roots whose filter children replace the parent in the sidebar. */
-export const PROMOTE_CHILDREN_ONLY: ReadonlySet<string> = new Set(['stores']);
-
 /** Grid filter chips flatten these groups; sidebar uses nested children instead. */
 export const GRID_FLAT_SUBMENU_GROUPS: Record<ReportResource, readonly string[]> = {
   leads: ['lead_status'],
@@ -86,7 +83,11 @@ export function unwrapSingleParentSections(
 
     result.push(pendingSection);
 
-    if (sectionItems.length === 1 && (sectionItems[0].children?.length ?? 0) > 0) {
+    if (
+      sectionItems.length === 1
+      && (sectionItems[0].children?.length ?? 0) > 0
+      && ! sectionItems[0].expandOnly
+    ) {
       result.push(...(sectionItems[0].children ?? []));
     } else {
       result.push(...sectionItems);
@@ -207,21 +208,18 @@ function expandNavigationEntry(
   const item = entry as NavItem;
 
   if (isReportResource(item.id)) {
-    const filterChildren = collapseLoneNestedFilterGroups(
-      buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled),
-    );
+    const rawChildren = buildReportFilterChildren(item.id, item.path, appConfig, isUiDisabled);
+    const filterChildren =
+      item.id === 'stores' ? rawChildren : collapseLoneNestedFilterGroups(rawChildren);
 
     if (filterChildren.length === 0) {
       return [item];
     }
 
-    if (PROMOTE_CHILDREN_ONLY.has(item.id)) {
-      return filterChildren;
-    }
-
     return [
       {
         ...item,
+        expandOnly: item.id === 'stores',
         children: filterChildren,
       },
     ];

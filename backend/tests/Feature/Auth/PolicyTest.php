@@ -40,6 +40,25 @@ test('prospect cannot access staff app', function () {
     expect(Gate::forUser($user)->allows('accessStaffApp'))->toBeFalse();
 });
 
+test('prospect with active application can access prospect portal', function () {
+    $user = User::factory()->create();
+    $user->assignRole('prospect');
+
+    Lead::factory()->create([
+        'prospect_user_id' => $user->id,
+        'pipeline_phase' => 1,
+    ]);
+
+    expect(Gate::forUser($user)->allows('accessProspectPortal'))->toBeTrue();
+});
+
+test('prospect without linked lead cannot access prospect portal', function () {
+    $user = User::factory()->create();
+    $user->assignRole('prospect');
+
+    expect(Gate::forUser($user)->allows('accessProspectPortal'))->toBeFalse();
+});
+
 test('admin can manage settings', function () {
     $user = User::factory()->create();
     $user->assignRole('admin');

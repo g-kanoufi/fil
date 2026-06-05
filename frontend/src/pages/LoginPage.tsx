@@ -1,12 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { BrandMark } from '@/components/branding/BrandMark';
+import { SignInPageShell } from '@/components/auth/SignInPageShell';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { ApiError } from '@/lib/api/client';
-import { loginInner, loginShell } from '@/lib/ui/tokens';
 import { useAuth } from '@/providers/AuthProvider';
 
 export function LoginPage() {
@@ -46,56 +44,46 @@ export function LoginPage() {
   }
 
   return (
-    <main
-      id="main-content"
-      className="flex min-h-screen items-center justify-center bg-gradient-to-b from-accent-soft/50 to-[var(--body-bg-color)] px-4 py-10"
+    <SignInPageShell
+      title="Sign in"
+      headingId="login-heading"
+      devHint={
+        import.meta.env.DEV ? (
+          <Alert variant="info" className="mb-4">
+            Demo: <code className="text-xs">admin@fil.test</code>,{' '}
+            <code className="text-xs">franchisor@fil.test</code>,{' '}
+            <code className="text-xs">franchisee@fil.test</code>,{' '}
+            <code className="text-xs">area_rep@fil.test</code> — password{' '}
+            <code className="text-xs">password</code>
+          </Alert>
+        ) : null
+      }
     >
-      <div className={loginShell}>
-        <Card className={`w-full ${loginInner}`} padding="md">
-          <div className="mb-6 text-center">
-            <BrandMark variant="login" />
-            <h1 id="login-heading" className="mt-2 text-2xl font-semibold text-foreground">
-              Sign in
-            </h1>
-          </div>
-
-          {import.meta.env.DEV ? (
-            <Alert variant="info" className="mb-4">
-              Demo: <code className="text-xs">admin@fil.test</code>,{' '}
-              <code className="text-xs">franchisor@fil.test</code>,{' '}
-              <code className="text-xs">franchisee@fil.test</code>,{' '}
-              <code className="text-xs">area_rep@fil.test</code> — password{' '}
-              <code className="text-xs">password</code>
-            </Alert>
-          ) : null}
-
-          <form onSubmit={onSubmit} className="space-y-4" aria-labelledby="login-heading">
-            <FormField
-              label="Email"
-              id="email"
-              type="email"
-              autoComplete="username"
-              autoFocus
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-            <FormField
-              label="Password"
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-            {error ? <Alert variant="error">{error}</Alert> : null}
-            <Button type="submit" disabled={submitting} className="w-full">
-              {submitting ? 'Signing in…' : 'Sign in'}
-            </Button>
-          </form>
-        </Card>
-      </div>
-    </main>
+      <form onSubmit={onSubmit} className="space-y-4" aria-labelledby="login-heading">
+        <FormField
+          label="Email"
+          id="email"
+          type="email"
+          autoComplete="username"
+          autoFocus
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+        />
+        <FormField
+          label="Password"
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+        />
+        {error ? <Alert variant="error">{error}</Alert> : null}
+        <Button type="submit" disabled={submitting} className="w-full">
+          {submitting ? 'Signing in…' : 'Sign in'}
+        </Button>
+      </form>
+    </SignInPageShell>
   );
 }

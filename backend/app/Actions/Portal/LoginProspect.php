@@ -6,6 +6,7 @@ namespace App\Actions\Portal;
 
 use App\Models\User;
 use App\Services\Auth\UserAccessService;
+use App\Services\Portal\ProspectPortalAccessService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -13,6 +14,7 @@ final class LoginProspect
 {
     public function __construct(
         private readonly UserAccessService $access,
+        private readonly ProspectPortalAccessService $portalAccess,
     ) {}
 
     /**
@@ -29,7 +31,7 @@ final class LoginProspect
         /** @var User $user */
         $user = Auth::user();
 
-        if (! $user->hasRole('prospect') || $this->access->canAccessStaffApp($user)) {
+        if (! $user->hasRole('prospect', 'web') || $this->access->canAccessStaffApp($user)) {
             Auth::logout();
 
             throw ValidationException::withMessages([
@@ -37,7 +39,7 @@ final class LoginProspect
             ]);
         }
 
-        if (! $user->can('accessProspectPortal')) {
+        if (! $this->portalAccess->canAccessPortal($user)) {
             Auth::logout();
 
             throw ValidationException::withMessages([

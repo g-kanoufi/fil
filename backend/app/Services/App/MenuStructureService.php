@@ -46,7 +46,7 @@ final class MenuStructureService
                 'name' => $item['id'],
                 'label' => $item['label'],
                 'value' => $item['label'],
-                'url' => '/app'.$item['path'],
+                'url' => $item['path'],
             ])
             ->values()
             ->all();

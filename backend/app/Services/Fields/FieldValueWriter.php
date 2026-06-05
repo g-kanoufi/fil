@@ -12,6 +12,7 @@ use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
 use App\Support\Fields\FieldTypes;
+use App\Support\Fields\FieldValueCoercion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -63,6 +64,11 @@ final class FieldValueWriter
             return;
         }
 
+        if (! FieldValueCoercion::canCoerce($field, $value)) {
+            return;
+        }
+
+        $coerced = FieldValueCoercion::coerce($field, $value);
         $column = FieldTypes::valueColumn($field->type);
 
         FieldValue::query()->updateOrCreate(
@@ -71,7 +77,7 @@ final class FieldValueWriter
                 'entity_id' => $entityId,
                 'field_id' => $field->id,
             ],
-            [$column => $value],
+            [$column => $coerced],
         );
     }
 
@@ -83,9 +89,13 @@ final class FieldValueWriter
             return;
         }
 
+        if (! FieldValueCoercion::canCoerce($field, $value)) {
+            return;
+        }
+
         $modelClass::query()
             ->whereKey($entityId)
-            ->update([$field->maps_to_column => $value]);
+            ->update([$field->maps_to_column => FieldValueCoercion::coerce($field, $value)]);
     }
 
     /**

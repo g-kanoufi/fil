@@ -6,6 +6,7 @@ namespace App\Services\Ach;
 
 use App\Models\AchTransfer;
 use App\Models\RoyaltyLineItem;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Auth\ResourceScopeService;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,7 +76,7 @@ final class AchReconciliationService
             return;
         }
 
-        $storeIds = \App\Models\Store::query()
+        $storeIds = Store::query()
             ->tap(fn (Builder $storeQuery) => $this->scope->applyStoreScope($storeQuery, $user))
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
