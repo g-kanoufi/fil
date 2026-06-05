@@ -1,0 +1,39 @@
+---
+description: Keep local dev server running for browser testing (scripts/dev-serve.sh)
+alwaysApply: true
+---
+
+# Local dev server (browser testing)
+
+Keep the FIL dev stack available on **http://127.0.0.1:8000** while working in this repo.
+
+## Agent duties
+
+1. **Before browser verification** — run `./scripts/dev-serve.sh status`. If health is not ok, run `./scripts/dev-serve.sh start` (does not kill an already-healthy server).
+2. **After backend PHP changes** — run `./scripts/dev-serve.sh restart` (only then stop the listener on :8000).
+3. If `start` leaves health unreachable, run a **background terminal**: `cd backend && php artisan serve --host=127.0.0.1 --port=8000 --no-reload` (`block_until_ms: 0`).
+4. **After frontend changes that affect the built SPA** — run `cd frontend && npm run build`, then `./scripts/dev-serve.sh restart`.
+5. **Do not** leave a stale or wrong `php artisan serve` on :8000 (e.g. SQLite E2E env). Use only `./scripts/dev-serve.sh` (PostgreSQL from `backend/.env`).
+
+## Commands (repo root)
+
+```bash
+./scripts/dev-serve.sh start    # first time / cold start
+./scripts/dev-serve.sh restart  # after code or asset changes
+./scripts/dev-serve.sh status   # PID + /api/health
+```
+
+Logs: `/tmp/fil-dev-serve.log`
+
+## URLs for manual checks
+
+Use **http://127.0.0.1:8000** (not `/app/...` — that prefix was removed). If the browser shows “can’t connect”, run `./scripts/dev-serve.sh restart`.
+
+| Surface | URL | Demo login |
+|--------|-----|------------|
+| Staff SPA | http://127.0.0.1:8000/login | `admin@fil.test` / `password` |
+| Prospect portal | http://127.0.0.1:8000/portal/login | `prospect@fil.test` / `password` |
+
+If portal login says no active application: `cd backend && php artisan fil:ensure-demo-prospect`, then `restart`.
+
+Details: `docs/LOCAL_DEV.md`
