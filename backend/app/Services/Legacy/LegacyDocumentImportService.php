@@ -10,6 +10,7 @@ use App\Models\FranchiseLocation;
 use App\Models\Lead;
 use App\Models\Store;
 use App\Models\User;
+use App\Services\Documents\DocumentLinkRoleShortener;
 use App\Support\Legacy\LegacyTableNames;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -51,6 +52,7 @@ final class LegacyDocumentImportService
         private readonly LegacyAttachmentResolver $attachments,
         private readonly LegacyAcfFilePatternBuilder $acfPatterns,
         private readonly LegacyPostTypeIndex $postTypes,
+        private readonly DocumentLinkRoleShortener $roleShortener,
     ) {}
 
     /**
@@ -390,7 +392,7 @@ final class LegacyDocumentImportService
                 'document_id' => $document->id,
                 'linkable_type' => $linkable['type'],
                 'linkable_id' => $linkable['id'],
-                'role' => $role,
+                'role' => $this->storageRole($role),
                 'sort_order' => $sortOrder,
             ],
             [],
@@ -440,10 +442,15 @@ final class LegacyDocumentImportService
                 'document_id' => $document->id,
                 'linkable_type' => $linkable['type'],
                 'linkable_id' => $linkable['id'],
-                'role' => $role,
+                'role' => $this->storageRole($role),
                 'sort_order' => $sortOrder,
             ],
             [],
         );
+    }
+
+    private function storageRole(string $role): string
+    {
+        return $this->roleShortener->forStorage($role);
     }
 }

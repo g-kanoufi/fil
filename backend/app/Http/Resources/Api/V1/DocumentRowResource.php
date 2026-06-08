@@ -34,7 +34,9 @@ final class DocumentRowResource extends JsonResource
             'entity_id' => $this->linkable_id,
             'entity_title' => $this->entityTitle($linkable),
             'doc_type' => $this->role,
-            'doc_type_label' => config('fil-documents.labels.'.$this->role, $this->role),
+            'doc_type_label' => data_get($document?->extras, 'legacy_field_label')
+                ?? config('fil-documents.labels.'.$this->role)
+                ?? data_get($document?->extras, 'legacy_field_role', $this->role),
             'title' => $document?->title,
             'file_name' => $document ? basename($document->storage_path) : null,
             'mime_type' => $document?->mime_type,
