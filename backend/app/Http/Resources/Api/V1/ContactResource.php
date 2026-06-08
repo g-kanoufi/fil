@@ -28,7 +28,7 @@ final class ContactResource extends JsonResource
             'updated_at' => $this->updated_at?->toIso8601String(),
             'custom' => $this->when(
                 $request->routeIs('api.v1.contacts.show', 'api.v1.contacts.update'),
-                fn (): array => app(EntityFieldValueReader::class)->forEntity('contact', $this->id),
+                fn (): array => app(EntityFieldValueReader::class)->forEntity('contact', $this->id, 'user'),
             ),
         ];
     }

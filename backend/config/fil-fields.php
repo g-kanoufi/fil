@@ -45,6 +45,70 @@ return [
     ],
 
     /**
+     * Field groups shown in admin for each entity (legacy post-type attribution).
+     *
+     * @var array<string, list<string>>
+     */
+    'entity_group_keys' => [
+        'lead' => [
+            'applications',
+            'applications-advanced',
+            'private-notes',
+            'private-notes-application',
+            'administrative-notes',
+            'admin-notes-application',
+        ],
+        'store' => [
+            'units',
+            'units-client-fields',
+            'locations',
+            'private-notes-store',
+            'private-notes-location',
+            'admin-notes-store',
+            'admin-notes-location',
+        ],
+        'contact' => ['user', 'user-client-fields'],
+        'area' => ['areas'],
+        'organization' => ['organizations'],
+    ],
+
+    /**
+     * Groups editable on Settings → Custom fields (excludes note repeaters).
+     *
+     * @var array<string, list<string>>
+     */
+    'admin_group_keys' => [
+        'lead' => ['applications', 'applications-advanced'],
+        'store' => ['units', 'units-client-fields', 'locations'],
+        'contact' => ['user', 'user-client-fields'],
+        'area' => ['areas'],
+    ],
+
+    /**
+     * Note repeaters — use entity_notes table ({@see EntityNotesPanel}), not custom fields.
+     *
+     * @var list<string>
+     */
+    'note_field_group_keys' => [
+        'private-notes',
+        'private-notes-application',
+        'private-notes-store',
+        'private-notes-location',
+        'administrative-notes',
+        'admin-notes-application',
+        'admin-notes-store',
+        'admin-notes-location',
+    ],
+
+    /**
+     * @var list<string>
+     */
+    'note_field_keys' => [
+        'private_notes',
+        'administrative_notes',
+    ],
+
+    /**
      * plus legacy aliases so imported Zorzees numeric keys still resolve.
      *
      * @var array<string, array<string, array<string, mixed>>>

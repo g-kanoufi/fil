@@ -23,27 +23,15 @@ final class LegacyBundledAcfFieldCatalog
     {
         $keys = [];
 
-        foreach (glob(base_path('resources/legacy-acf/*.json')) ?: [] as $path) {
-            $json = json_decode((string) file_get_contents($path), true);
+        foreach ($this->groupJsonPaths() as $path) {
+            $json = $this->readGroupJson($path);
 
-            if (! is_array($json) || ! isset($json['key'], $json['title'])) {
+            if ($json === null) {
                 continue;
             }
 
             $legacyKey = (string) $json['key'];
-            /** @var array<string, array<string, mixed>> $configured */
-            $configured = config('fil-legacy-acf.groups', []);
-            $variants = $configured[$legacyKey]['post_type_variants'] ?? null;
-
-            if (is_array($variants) && isset($variants[$legacyPostType])) {
-                if (($variants[$legacyPostType]['import'] ?? true) === false) {
-                    continue;
-                }
-
-                $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $json['location'] ?? [], $legacyPostType, $variants[$legacyPostType]);
-            } else {
-                $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $json['location'] ?? [], $legacyPostType);
-            }
+            $meta = $this->resolveGroupMeta($legacyKey, $json, $legacyPostType);
 
             if ($meta === null || $meta['entity'] !== $entity) {
                 continue;
@@ -64,36 +52,126 @@ final class LegacyBundledAcfFieldCatalog
     /**
      * @return Collection<string, Field>
      */
-    public function fieldIndexForEntity(string $entity): Collection
+    public function fieldIndexForEntity(string $entity, ?string $legacyPostType = null): Collection
     {
         /** @var Collection<string, Field> $index */
         $index = collect();
 
-        foreach (glob(base_path('resources/legacy-acf/*.json')) ?: [] as $path) {
-            $json = json_decode((string) file_get_contents($path), true);
+        foreach ($this->groupJsonPaths() as $path) {
+            $json = $this->readGroupJson($path);
 
-            if (! is_array($json) || ! isset($json['key'], $json['title'])) {
+            if ($json === null) {
+                continue;
+            }
+
+            $legacyKey = (string) $json['key'];
+            /** @var array<string, array<string, mixed>> $configured */
+            $configured = config('fil-legacy-acf.groups', []);
+            $variants = $configured[$legacyKey]['post_type_variants'] ?? null;
+
+            if (is_array($variants) && $variants !== []) {
+                foreach ($variants as $postType => $variant) {
+                    if (($variant['import'] ?? true) === false) {
+                        continue;
+                    }
+
+                    if ($legacyPostType !== null && $postType !== $legacyPostType) {
+                        continue;
+                    }
+
+                    $meta = $this->groups->resolve(
+                        $legacyKey,
+                        (string) $json['title'],
+                        $json['location'] ?? [],
+                        $postType,
+                        $variant,
+                    );
+
+                    if ($meta === null || $meta['entity'] !== $entity) {
+                        continue;
+                    }
+
+                    $this->collectFields((array) ($json['fields'] ?? []), $entity, $index);
+                }
+
                 continue;
             }
 
             $meta = $this->groups->resolve(
-                (string) $json['key'],
+                $legacyKey,
                 (string) $json['title'],
                 $json['location'] ?? [],
+                $legacyPostType,
             );
 
             if ($meta === null || $meta['entity'] !== $entity) {
                 continue;
             }
 
-            $this->collectFields(
-                (array) ($json['fields'] ?? []),
-                $entity,
-                $index,
-            );
+            if ($legacyPostType !== null
+                && ($meta['legacy_post_type'] ?? '') !== ''
+                && $meta['legacy_post_type'] !== $legacyPostType) {
+                continue;
+            }
+
+            $this->collectFields((array) ($json['fields'] ?? []), $entity, $index);
         }
 
         return $index;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function groupJsonPaths(): array
+    {
+        return glob(base_path('resources/legacy-acf/group_*.json')) ?: [];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function readGroupJson(string $path): ?array
+    {
+        $json = json_decode((string) file_get_contents($path), true);
+
+        if (! is_array($json) || ! isset($json['key'], $json['title'])) {
+            return null;
+        }
+
+        return $json;
+    }
+
+    /**
+     * @param  array<string, mixed>  $json
+     * @return array{import: bool, key: string, title: string, entity: string, legacy_post_type: string, sort_order: int, merge_into?: string}|null
+     */
+    private function resolveGroupMeta(string $legacyKey, array $json, string $legacyPostType): ?array
+    {
+        /** @var array<string, array<string, mixed>> $configured */
+        $configured = config('fil-legacy-acf.groups', []);
+        $variants = $configured[$legacyKey]['post_type_variants'] ?? null;
+
+        if (is_array($variants) && isset($variants[$legacyPostType])) {
+            if (($variants[$legacyPostType]['import'] ?? true) === false) {
+                return null;
+            }
+
+            return $this->groups->resolve(
+                $legacyKey,
+                (string) $json['title'],
+                $json['location'] ?? [],
+                $legacyPostType,
+                $variants[$legacyPostType],
+            );
+        }
+
+        return $this->groups->resolve(
+            $legacyKey,
+            (string) $json['title'],
+            $json['location'] ?? [],
+            $legacyPostType,
+        );
     }
 
     /**

@@ -44,7 +44,11 @@ test('admin can create a text field', function () {
         ->assertJsonPath('data.key', 'referral_notes')
         ->assertJsonPath('data.storage', 'field_value');
 
-    $this->assertDatabaseHas('fields', ['key' => 'referral_notes', 'entity' => 'lead']);
+    $this->assertDatabaseHas('fields', [
+        'key' => 'referral_notes',
+        'entity' => 'lead',
+        'legacy_post_type' => 'application',
+    ]);
 });
 test('admin can create a relational field', function () {
     $group = group();
@@ -189,4 +193,107 @@ test('field groups context widget returns only application and user groups', fun
     $keys = collect($response->json('data'))->pluck('key')->all();
 
     expect($keys)->toEqual(['applications', 'user']);
+});
+test('field groups admin returns all populated groups without entity filter', function () {
+    $applications = group();
+    $units = FieldGroup::query()->create([
+        'key' => 'units',
+        'title' => 'Units',
+        'slug' => 'units',
+        'sort_order' => 10,
+        'status' => 'active',
+    ]);
+    $userGroup = FieldGroup::query()->create([
+        'key' => 'user',
+        'title' => 'User',
+        'slug' => 'user',
+        'sort_order' => 11,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $applications->id,
+        'entity' => 'lead',
+        'legacy_post_type' => 'application',
+        'key' => 'referral_notes',
+        'name' => 'Referral Notes',
+        'type' => 'text',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+    Field::query()->create([
+        'field_group_id' => $units->id,
+        'entity' => 'store',
+        'legacy_post_type' => 'store',
+        'key' => 'spa_id',
+        'name' => 'Spa ID',
+        'type' => 'text',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+    Field::query()->create([
+        'field_group_id' => $userGroup->id,
+        'entity' => 'contact',
+        'legacy_post_type' => 'user',
+        'key' => 'phone_alt',
+        'name' => 'Alt phone',
+        'type' => 'text',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $keys = collect(
+        $this->actingAs(fieldAdminUser())
+            ->getJson('/api/v1/field-groups')
+            ->assertOk()
+            ->json('data'),
+    )->pluck('key')->all();
+
+    expect($keys)->toContain('applications', 'units', 'user');
+});
+test('field groups admin excludes note repeater groups', function () {
+    $applications = group();
+    $notesGroup = FieldGroup::query()->create([
+        'key' => 'private-notes',
+        'title' => 'Private notes',
+        'slug' => 'private-notes',
+        'sort_order' => 20,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $applications->id,
+        'entity' => 'lead',
+        'legacy_post_type' => 'application',
+        'key' => 'referral_notes',
+        'name' => 'Referral Notes',
+        'type' => 'text',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+    Field::query()->create([
+        'field_group_id' => $notesGroup->id,
+        'entity' => 'lead',
+        'legacy_post_type' => 'application',
+        'key' => 'private_notes',
+        'name' => 'Private notes',
+        'type' => 'repeater',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $keys = collect(
+        $this->actingAs(fieldAdminUser())
+            ->getJson('/api/v1/field-groups')
+            ->assertOk()
+            ->json('data'),
+    )->pluck('key')->all();
+
+    expect($keys)->toContain('applications')
+        ->not->toContain('private-notes', 'administrative-notes');
 });

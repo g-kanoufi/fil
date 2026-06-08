@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\Fields;
 
-use App\Models\Field;
 use App\Models\FieldGroup;
 use App\Models\User;
 use App\Services\Auth\FieldAccessService;
-use Illuminate\Database\Eloquent\Builder;
+use App\Support\Fields\LegacyPostTypeFieldScope;
+use App\Support\Fields\NoteFieldCatalog;
 use Illuminate\Support\Collection;
 
 final class FieldSchemaService
@@ -45,20 +45,24 @@ final class FieldSchemaService
 
         $groups = FieldGroup::query()
             ->where('status', 'active')
+            ->whereNotIn('key', NoteFieldCatalog::excludedGroupKeys())
             ->whereHas('fields', function ($query) use ($entity, $access, $legacyPostType): void {
                 $query->where('entity', $entity)
                     ->where('status', 'active')
                     ->whereNotIn('key', $access['hidden_field_keys']);
-                $this->applyLegacyPostTypeScope($query, $legacyPostType);
+                NoteFieldCatalog::applyExcludedFieldScope($query);
+                LegacyPostTypeFieldScope::apply($query, $legacyPostType);
             })
             ->with(['fields' => function ($query) use ($entity, $access, $legacyPostType): void {
                 $query->where('entity', $entity)
                     ->where('status', 'active')
                     ->whereNotIn('key', $access['hidden_field_keys']);
-                $this->applyLegacyPostTypeScope($query, $legacyPostType);
-                $query->orderBy('sort_order');
+                NoteFieldCatalog::applyExcludedFieldScope($query);
+                LegacyPostTypeFieldScope::apply($query, $legacyPostType);
+                $query->orderBy('sort_order')->orderBy('id');
             }])
             ->orderBy('sort_order')
+            ->orderBy('id')
             ->get();
 
         return [
@@ -68,20 +72,5 @@ final class FieldSchemaService
             'hidden_field_keys' => $access['hidden_field_keys'],
             'readonly_field_keys' => $access['readonly_field_keys'],
         ];
-    }
-
-    /**
-     * @param  Builder<Field>  $query
-     */
-    private function applyLegacyPostTypeScope($query, ?string $legacyPostType): void
-    {
-        if ($legacyPostType === null || $legacyPostType === '') {
-            return;
-        }
-
-        $query->where(function ($scoped) use ($legacyPostType): void {
-            $scoped->where('legacy_post_type', '')
-                ->orWhere('legacy_post_type', $legacyPostType);
-        });
     }
 }

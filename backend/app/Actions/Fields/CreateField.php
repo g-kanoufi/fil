@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Actions\Fields;
 
 use App\Models\Field;
+use App\Models\FieldGroup;
 use App\Support\Fields\FieldConfigNormalizer;
+use App\Support\Fields\FieldGroupPostTypeResolver;
 
 final class CreateField
 {
@@ -21,9 +23,13 @@ final class CreateField
             ->where('field_group_id', $attributes['field_group_id'])
             ->max('sort_order');
 
+        $group = FieldGroup::query()->findOrFail($attributes['field_group_id']);
+        $legacyPostType = FieldGroupPostTypeResolver::resolveForEntity($group, $attributes['entity']) ?? '';
+
         return Field::query()->create([
             'field_group_id' => $attributes['field_group_id'],
             'entity' => $attributes['entity'],
+            'legacy_post_type' => $legacyPostType,
             'key' => $attributes['key'],
             'name' => $attributes['name'],
             'type' => $attributes['type'],

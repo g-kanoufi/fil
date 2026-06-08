@@ -5,7 +5,7 @@ use App\Services\Legacy\LegacyAcfFilePatternBuilder;
 
 test('builds store doctors license pattern', function () {
     $patterns = (new LegacyAcfFilePatternBuilder)->fromJsonFile(
-        base_path('resources/legacy-acf/store-client-fields.json'),
+        base_path('resources/legacy-acf/group_5f6adcab783f1.json'),
     );
 
     $doctorsLicense = collect($patterns)->firstWhere('role', 'doctors_license');
@@ -15,7 +15,7 @@ test('builds store doctors license pattern', function () {
 });
 test('builds location loi document pattern', function () {
     $patterns = (new LegacyAcfFilePatternBuilder)->fromJsonFile(
-        base_path('resources/legacy-acf/locations.json'),
+        base_path('resources/legacy-acf/group_570fc6f67d6f6.json'),
     );
 
     $loi = collect($patterns)->firstWhere('role', 'pre-lease_loi_documents');

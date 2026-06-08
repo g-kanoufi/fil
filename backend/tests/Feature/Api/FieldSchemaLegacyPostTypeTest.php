@@ -61,3 +61,36 @@ test('field schema filters by legacy_post_type', function () {
     expect($storeKeys)->toContain('unit_only_field')
         ->not->toContain('location_only_field');
 });
+
+test('field schema excludes note repeater groups', function () {
+    $notesGroup = FieldGroup::query()->create([
+        'key' => 'administrative-notes',
+        'title' => 'Administrative notes',
+        'sort_order' => 99,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $notesGroup->id,
+        'entity' => 'lead',
+        'legacy_post_type' => 'application',
+        'key' => 'administrative_notes',
+        'name' => 'Administrative notes',
+        'type' => 'repeater',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $user = User::factory()->create();
+    $user->assignRole('admin');
+
+    $groupKeys = collect(
+        $this->actingAs($user)
+            ->getJson('/api/v1/fields?entity=lead&legacy_post_type=application')
+            ->assertOk()
+            ->json('data.groups'),
+    )->pluck('key');
+
+    expect($groupKeys)->not->toContain('administrative-notes', 'private-notes');
+});

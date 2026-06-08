@@ -22,6 +22,7 @@ final class FieldResource extends JsonResource
             'name' => $this->name,
             'type' => $this->type,
             'entity' => $this->entity,
+            'legacy_post_type' => $this->legacy_post_type,
             'storage' => $this->storage,
             'maps_to_column' => $this->maps_to_column,
             'config' => $this->config ?? [],

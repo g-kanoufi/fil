@@ -10,6 +10,7 @@ use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
 use App\Services\Fields\EntityFieldValueReader;
+use App\Support\Legacy\LegacyPostTypeEntityMap;
 use Illuminate\Database\Eloquent\Model;
 
 final class LegacyImportBaselineCompareService
@@ -102,7 +103,16 @@ final class LegacyImportBaselineCompareService
         $expectedFields = is_array($case['field_values'] ?? null) ? $case['field_values'] : [];
 
         if ($expectedFields !== []) {
-            $actualFields = $this->fieldValues->forEntity($entity, (int) $record->getKey());
+            $fieldEntity = $entity === 'franchise_location' ? 'store' : $entity;
+            $legacyPostType = is_string($case['legacy_post_type'] ?? null) && $case['legacy_post_type'] !== ''
+                ? (string) $case['legacy_post_type']
+                : LegacyPostTypeEntityMap::defaultPostTypeForEntity($fieldEntity);
+
+            $actualFields = $this->fieldValues->forEntity(
+                $fieldEntity,
+                (int) $record->getKey(),
+                $legacyPostType,
+            );
 
             foreach ($expectedFields as $fieldKey => $expected) {
                 $actual = $actualFields[$fieldKey] ?? null;

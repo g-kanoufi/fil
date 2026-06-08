@@ -39,19 +39,43 @@ final class LegacyAcfCatalogCommand extends Command
             $legacyKey = (string) $json['key'];
             $title = (string) ($json['title'] ?? $legacyKey);
             $location = $json['location'] ?? [];
+            /** @var array<string, array<string, mixed>> $configured */
+            $configured = config('fil-legacy-acf.groups', []);
+            $variants = $configured[$legacyKey]['post_type_variants'] ?? null;
+
+            if (is_array($variants) && $variants !== []) {
+                foreach ($variants as $postType => $variant) {
+                    if (($variant['import'] ?? true) === false) {
+                        continue;
+                    }
+
+                    $meta = $registry->resolve($legacyKey, $title, $location, $postType, $variant);
+
+                    $manifest[] = $this->manifestRow(
+                        basename($file),
+                        $legacyKey,
+                        (string) ($variant['title'] ?? $title),
+                        $location,
+                        $postType,
+                        $meta,
+                    );
+                }
+
+                continue;
+            }
+
             $meta = $registry->resolve($legacyKey, $title, $location);
             $postTypes = $registry->postTypesFromLocation($location);
 
-            $manifest[] = [
-                'file' => basename($file),
-                'legacy_group_key' => $legacyKey,
-                'title' => $title,
-                'post_types' => $postTypes,
-                'import' => $meta !== null,
-                'fil_group_key' => $meta['key'] ?? null,
-                'entity' => $meta['entity'] ?? null,
-                'legacy_post_type' => $meta['legacy_post_type'] ?? null,
-            ];
+            $manifest[] = $this->manifestRow(
+                basename($file),
+                $legacyKey,
+                $title,
+                $location,
+                $postTypes[0] ?? null,
+                $meta,
+                $postTypes,
+            );
         }
 
         usort($manifest, fn (array $a, array $b) => strcmp((string) $a['title'], (string) $b['title']));
@@ -70,5 +94,32 @@ final class LegacyAcfCatalogCommand extends Command
         $this->info('Wrote '.count($manifest)." groups ({$imported} importable) to {$output}");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  list<list<array<string, mixed>>>  $location
+     * @param  list<string>|null  $postTypes
+     * @param  array{import: bool, key: string, title: string, entity: string, legacy_post_type: string, sort_order: int, merge_into?: string}|null  $meta
+     * @return array<string, mixed>
+     */
+    private function manifestRow(
+        string $file,
+        string $legacyKey,
+        string $title,
+        array $location,
+        ?string $variantPostType,
+        ?array $meta,
+        ?array $postTypes = null,
+    ): array {
+        return [
+            'file' => $file,
+            'legacy_group_key' => $legacyKey,
+            'title' => $title,
+            'post_types' => $postTypes ?? ($variantPostType !== null ? [$variantPostType] : []),
+            'import' => $meta !== null,
+            'fil_group_key' => $meta['key'] ?? null,
+            'entity' => $meta['entity'] ?? null,
+            'legacy_post_type' => $meta['legacy_post_type'] ?? $variantPostType,
+        ];
     }
 }

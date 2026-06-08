@@ -480,7 +480,7 @@ final class MvpStagingCheckCommand extends Command
      */
     private function checkLegacyDumpPath(): array
     {
-        $path = (string) config('fil-legacy.dump_path', env('FIL_LEGACY_DUMP_PATH', ''));
+        $path = (string) config('fil.legacy.dump_path', env('FIL_LEGACY_DUMP_PATH', ''));
 
         if ($path === '' || ! is_readable($path)) {
             return [

@@ -9,6 +9,7 @@ Audit and decisions for legacy postmeta keys that do not map cleanly to FIL tier
 ```bash
 php artisan legacy:mapping-gaps ../data/local.sql.gz              # store (default)
 php artisan legacy:mapping-gaps ../data/local.sql.gz --entity=lead
+php artisan legacy:mapping-gaps ../data/local.sql.gz --entity=store --post-type=franchise_location
 php artisan legacy:parity-report ../data/local.sql.gz --samples
 ```
 
@@ -18,14 +19,14 @@ Exit code **1** from `legacy:mapping-gaps` means unmapped keys remain above `--m
 
 ## Bundled ACF coverage
 
-| Source JSON | FIL field group | Entity |
-|-------------|-----------------|--------|
-| `units.json` | `units` | `store` |
-| `locations.json` | `locations` | `store` |
-| `store-client-fields.json` | `units` (merge) | `store` |
-| `areas.json` | `areas` | `area` |
+| Source JSON | FIL field group | Entity | Legacy post type |
+|-------------|-----------------|--------|------------------|
+| `group_5e55f6ed3094a.json` | `units` | `store` | `store` |
+| `group_570fc6f67d6f6.json` | `locations` | `store` | `franchise_location` |
+| `group_5f6adcab783f1.json` | `units-client-fields` | `store` | `store` |
+| `group_56b9dc28339ca.json` | `areas` | `area` | `area` |
 
-Compliance file fields classify as **document** patterns from `units.json` → `legacy:import-documents`. Remaining scalars drain via `legacy:import-acf` + postmeta drain. Lead financial subfields use `applications.json`; repeater container keys and legacy-only flags are discarded.
+Compliance file fields classify as **document** patterns from unit/location ACF groups → `legacy:import --only=documents`. Remaining scalars drain via `legacy:import-acf` + postmeta drain. Lead financial subfields use `group_5654f5590ab60.json`; repeater container keys and legacy-only flags are discarded.
 
 ---
 
@@ -46,7 +47,7 @@ Configuration: `config/fil-legacy-acf.php` → `extras_discard_prefixes` + `out_
 
 | Pattern | FIL destination |
 |---------|-------------------|
-| `*_license_*_file`, `medical_certification_*_file` | `documents` via `legacy:import-documents` |
+| `*_license_*_file`, `medical_certification_*_file` | `documents` via `legacy:import --only=documents` |
 | `store_status`, `spa_id`, `pos_*` | Typed columns on `stores` |
 | `area`, `area_cpt_store` | `stores.area_id` via postmeta import |
 

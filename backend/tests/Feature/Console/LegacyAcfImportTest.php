@@ -56,4 +56,7 @@ test('legacy acf import assigns locations group to store entity and skips locati
         ->where('field_group_id', $applications->id)
         ->where('key', 'lead_status')
         ->value('config'))->toMatchArray(['widget_eligible' => false]);
+
+    expect(Field::query()->where('field_group_id', $applications->id)->where('key', 'lead_status')->value('sort_order'))->toBe(1)
+        ->and(Field::query()->where('field_group_id', $applications->id)->where('key', 'referral_notes')->value('sort_order'))->toBe(2);
 });

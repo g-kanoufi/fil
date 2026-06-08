@@ -47,3 +47,34 @@ it('stores currency strings in value_number for number fields', function (): voi
     expect($stored)->not->toBeNull()
         ->and((float) $stored->value_number)->toBe(150000.0);
 });
+
+it('ignores note repeater keys when writing field values', function (): void {
+    $group = FieldGroup::query()->create([
+        'key' => 'private-notes',
+        'title' => 'Private notes',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $group->id,
+        'entity' => 'lead',
+        'key' => 'private_notes',
+        'name' => 'Private notes',
+        'type' => 'repeater',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    $lead = Lead::query()->create([
+        'title' => 'Test Lead',
+        'pipeline_phase' => 1,
+    ]);
+
+    app(FieldValueWriter::class)->write('lead', $lead->id, [
+        'private_notes' => [['note' => 'Should not persist as field_value']],
+    ]);
+
+    expect(FieldValue::query()->where('entity_type', 'lead')->where('entity_id', $lead->id)->count())->toBe(0);
+});

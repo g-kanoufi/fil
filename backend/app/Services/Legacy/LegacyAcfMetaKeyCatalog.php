@@ -99,7 +99,7 @@ final class LegacyAcfMetaKeyCatalog
      */
     private function legacyAcfJsonPaths(): array
     {
-        $paths = glob(base_path('resources/legacy-acf/*.json')) ?: [];
+        $paths = glob(base_path('resources/legacy-acf/group_*.json')) ?: [];
 
         return array_values(array_filter($paths, static fn (string $path): bool => is_readable($path)));
     }

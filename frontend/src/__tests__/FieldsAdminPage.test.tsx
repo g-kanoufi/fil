@@ -22,6 +22,7 @@ vi.mock('@/lib/api/fields', () => ({
           name: 'Referral Notes',
           type: 'text',
           entity: 'lead',
+          legacy_post_type: 'application',
           storage: 'field_value',
           maps_to_column: null,
           config: {},

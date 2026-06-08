@@ -35,7 +35,7 @@ final class StoreResource extends JsonResource
             'updated_at' => $this->updated_at?->toIso8601String(),
             'custom' => $this->when(
                 $request->routeIs('api.v1.stores.show', 'api.v1.stores.update', 'api.v1.stores.store'),
-                fn (): array => app(EntityFieldValueReader::class)->forEntity('store', $this->id),
+                fn (): array => app(EntityFieldValueReader::class)->forEntity('store', $this->id, 'store'),
             ),
             'franchise_location' => $this->when(
                 $request->routeIs('api.v1.stores.show', 'api.v1.stores.update'),
@@ -49,7 +49,7 @@ final class StoreResource extends JsonResource
                     return [
                         'id' => $location->id,
                         'name' => $location->name,
-                        'custom' => app(EntityFieldValueReader::class)->forEntity('store', $location->id),
+                        'custom' => app(EntityFieldValueReader::class)->forEntity('store', $location->id, 'franchise_location'),
                     ];
                 },
             ),

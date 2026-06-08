@@ -49,7 +49,7 @@ final class ProspectApplicationService
     {
         $lead = $this->activeLead($prospect);
         $fields = $this->portalFields();
-        $values = $this->fieldReader->forEntity('lead', $lead->id);
+        $values = $this->fieldReader->forEntity('lead', $lead->id, 'application');
 
         return [
             'lead' => [

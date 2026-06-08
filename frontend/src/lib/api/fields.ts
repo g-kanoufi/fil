@@ -27,6 +27,7 @@ export interface FieldDef {
   name: string;
   type: FieldType;
   entity: string;
+  legacy_post_type: string;
   storage: string;
   maps_to_column: string | null;
   config: FieldConfig;
@@ -66,15 +67,19 @@ export interface CreateFieldPayload {
 }
 
 export function fetchFieldGroups(
-  entity = 'lead',
-  options?: { context?: 'widget' },
+  options?: { entity?: string; context?: 'widget' },
 ): Promise<FieldGroupDef[]> {
-  const params = new URLSearchParams({ entity });
+  const params = new URLSearchParams();
+  if (options?.entity) {
+    params.set('entity', options.entity);
+  }
   if (options?.context) {
     params.set('context', options.context);
   }
 
-  return apiGet<{ data: FieldGroupDef[] }>(`/v1/field-groups?${params.toString()}`).then(
+  const query = params.toString();
+
+  return apiGet<{ data: FieldGroupDef[] }>(`/v1/field-groups${query ? `?${query}` : ''}`).then(
     (body) => body.data,
   );
 }

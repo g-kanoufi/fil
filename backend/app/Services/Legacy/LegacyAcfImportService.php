@@ -20,14 +20,51 @@ final class LegacyAcfImportService
     /**
      * @return array{groups: int, fields: int, skipped_groups: int}
      */
-    public function importDirectory(string $path, string $defaultEntity = 'lead'): array
+    public function importDirectory(string $path): array
     {
         $importedGroups = 0;
         $importedFields = 0;
         $skippedGroups = 0;
         $sortCounters = [];
+        $seenGroupKeys = [];
+        $touchedFieldIds = [];
 
-        foreach (glob($path.'/*.json') ?: [] as $file) {
+        foreach ($this->sortedImportPlans($path) as $plan) {
+            if ($plan['meta'] === null) {
+                $skippedGroups++;
+
+                continue;
+            }
+
+            [$importedGroups, $importedFields] = $this->importResolvedGroup(
+                $plan['json'],
+                $plan['legacyKey'],
+                $plan['meta'],
+                $sortCounters,
+                $seenGroupKeys,
+                $touchedFieldIds,
+                $importedGroups,
+                $importedFields,
+            );
+        }
+
+        $this->deactivateStaleImportedFields($seenGroupKeys, $touchedFieldIds);
+
+        return [
+            'groups' => $importedGroups,
+            'fields' => $importedFields,
+            'skipped_groups' => $skippedGroups,
+        ];
+    }
+
+    /**
+     * @return list<array{legacyKey: string, json: array<string, mixed>, meta: array{import: bool, key: string, title: string, entity: string, legacy_post_type: string, sort_order: int, merge_into?: string|null}|null}>
+     */
+    private function sortedImportPlans(string $path): array
+    {
+        $plans = [];
+
+        foreach (glob($path.'/group_*.json') ?: [] as $file) {
             $json = json_decode((string) file_get_contents($file), true);
 
             if (! is_array($json) || ! isset($json['key'], $json['title'])) {
@@ -54,14 +91,7 @@ final class LegacyAcfImportService
                         continue;
                     }
 
-                    [$importedGroups, $importedFields] = $this->importResolvedGroup(
-                        $json,
-                        $legacyKey,
-                        $meta,
-                        $sortCounters,
-                        $importedGroups,
-                        $importedFields,
-                    );
+                    $plans[] = ['legacyKey' => $legacyKey, 'json' => $json, 'meta' => $meta];
                 }
 
                 continue;
@@ -72,20 +102,7 @@ final class LegacyAcfImportService
             if (count($postTypes) <= 1) {
                 $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $location);
 
-                if ($meta === null) {
-                    $skippedGroups++;
-
-                    continue;
-                }
-
-                [$importedGroups, $importedFields] = $this->importResolvedGroup(
-                    $json,
-                    $legacyKey,
-                    $meta,
-                    $sortCounters,
-                    $importedGroups,
-                    $importedFields,
-                );
+                $plans[] = ['legacyKey' => $legacyKey, 'json' => $json, 'meta' => $meta];
 
                 continue;
             }
@@ -106,28 +123,53 @@ final class LegacyAcfImportService
                     $meta['title'] = $meta['title'].' ('.$postType.')';
                 }
 
-                [$importedGroups, $importedFields] = $this->importResolvedGroup(
-                    $json,
-                    $legacyKey,
-                    $meta,
-                    $sortCounters,
-                    $importedGroups,
-                    $importedFields,
-                );
+                $plans[] = ['legacyKey' => $legacyKey, 'json' => $json, 'meta' => $meta];
             }
         }
 
-        return [
-            'groups' => $importedGroups,
-            'fields' => $importedFields,
-            'skipped_groups' => $skippedGroups,
-        ];
+        usort(
+            $plans,
+            static function (array $left, array $right): int {
+                $leftMeta = $left['meta'];
+                $rightMeta = $right['meta'];
+
+                if ($leftMeta === null && $rightMeta === null) {
+                    return strcmp($left['legacyKey'], $right['legacyKey']);
+                }
+
+                if ($leftMeta === null) {
+                    return 1;
+                }
+
+                if ($rightMeta === null) {
+                    return -1;
+                }
+
+                $groupKeyCompare = strcmp($leftMeta['key'], $rightMeta['key']);
+
+                if ($groupKeyCompare !== 0) {
+                    return $groupKeyCompare;
+                }
+
+                $sortOrderCompare = $leftMeta['sort_order'] <=> $rightMeta['sort_order'];
+
+                if ($sortOrderCompare !== 0) {
+                    return $sortOrderCompare;
+                }
+
+                return strcmp($left['legacyKey'], $right['legacyKey']);
+            },
+        );
+
+        return $plans;
     }
 
     /**
      * @param  array<string, mixed>  $json
      * @param  array{import: bool, key: string, title: string, entity: string, legacy_post_type: string, sort_order: int, merge_into?: string|null}  $meta
      * @param  array<string, int>  $sortCounters
+     * @param  array<string, true>  $seenGroupKeys
+     * @param  list<int>  $touchedFieldIds
      * @return array{0: int, 1: int}
      */
     private function importResolvedGroup(
@@ -135,6 +177,8 @@ final class LegacyAcfImportService
         string $legacyKey,
         array $meta,
         array &$sortCounters,
+        array &$seenGroupKeys,
+        array &$touchedFieldIds,
         int $importedGroups,
         int $importedFields,
     ): array {
@@ -164,10 +208,12 @@ final class LegacyAcfImportService
             'status' => 'active',
         ])->save();
 
-        if (! isset($sortCounters[$groupKey])) {
-            $sortCounters[$groupKey] = (int) Field::query()->where('field_group_id', $group->id)->max('sort_order');
+        if (! isset($seenGroupKeys[$groupKey])) {
+            $seenGroupKeys[$groupKey] = true;
             $importedGroups++;
         }
+
+        $sortCounters[$groupKey] ??= 0;
 
         $importedFields += $this->importFieldTree(
             $json['fields'] ?? [],
@@ -176,6 +222,9 @@ final class LegacyAcfImportService
             (string) ($meta['legacy_post_type'] ?? ''),
             $sortCounters,
             $groupKey,
+            '',
+            0,
+            $touchedFieldIds,
         );
 
         return [$importedGroups, $importedFields];
@@ -194,6 +243,7 @@ final class LegacyAcfImportService
     /**
      * @param  list<array<string, mixed>>  $acfFields
      * @param  array<string, int>  $sortCounters
+     * @param  list<int>  $touchedFieldIds
      */
     private function importFieldTree(
         array $acfFields,
@@ -204,6 +254,7 @@ final class LegacyAcfImportService
         string $groupKey,
         string $keyPrefix = '',
         ?int $parentFieldId = 0,
+        array &$touchedFieldIds = [],
     ): int {
         $imported = 0;
 
@@ -229,6 +280,7 @@ final class LegacyAcfImportService
                     $groupKey,
                     $keyPrefix,
                     $parentFieldId,
+                    $touchedFieldIds,
                 );
 
                 continue;
@@ -268,6 +320,7 @@ final class LegacyAcfImportService
                     ],
                 );
 
+                $touchedFieldIds[] = $parent->id;
                 $imported++;
                 $imported += $this->importFieldTree(
                     $acfField['sub_fields'],
@@ -278,6 +331,7 @@ final class LegacyAcfImportService
                     $groupKey,
                     '',
                     $parent->id,
+                    $touchedFieldIds,
                 );
 
                 continue;
@@ -319,8 +373,11 @@ final class LegacyAcfImportService
             $existing = Field::query()
                 ->where('field_group_id', $group->id)
                 ->where('key', $fieldKey)
-                ->where('legacy_post_type', $legacyPostType)
                 ->where('parent_field_id', $scopedParentId)
+                ->where(function ($query) use ($legacyPostType): void {
+                    $query->where('legacy_post_type', $legacyPostType)
+                        ->orWhere('legacy_post_type', '');
+                })
                 ->first();
 
             if ($existing !== null) {
@@ -329,7 +386,16 @@ final class LegacyAcfImportService
                     : $this->mergeImportedFieldConfig($existing, $config);
             }
 
-            Field::query()->updateOrCreate(
+            if ($existing !== null && $existing->legacy_post_type === '' && $legacyPostType !== '') {
+                Field::query()
+                    ->where('field_group_id', $group->id)
+                    ->where('key', $fieldKey)
+                    ->where('parent_field_id', $scopedParentId)
+                    ->where('legacy_post_type', '')
+                    ->update(['legacy_post_type' => $legacyPostType]);
+            }
+
+            $field = Field::query()->updateOrCreate(
                 [
                     'field_group_id' => $group->id,
                     'key' => $fieldKey,
@@ -352,10 +418,54 @@ final class LegacyAcfImportService
                 ],
             );
 
+            $touchedFieldIds[] = $field->id;
             $imported++;
         }
 
         return $imported;
+    }
+
+    /**
+     * @param  array<string, true>  $seenGroupKeys
+     * @param  list<int>  $touchedFieldIds
+     */
+    private function deactivateStaleImportedFields(array $seenGroupKeys, array $touchedFieldIds): void
+    {
+        if ($seenGroupKeys === []) {
+            return;
+        }
+
+        $groupIds = FieldGroup::query()
+            ->whereIn('key', array_keys($seenGroupKeys))
+            ->pluck('id');
+
+        if ($groupIds->isEmpty()) {
+            return;
+        }
+
+        Field::query()
+            ->whereIn('field_group_id', $groupIds)
+            ->where('status', 'active')
+            ->whereNotIn('id', $touchedFieldIds)
+            ->whereNotIn('key', $this->protectedFieldKeys())
+            ->update(['status' => 'inactive']);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function protectedFieldKeys(): array
+    {
+        $keys = ['internal_margin_notes'];
+
+        /** @var array<string, array<string, mixed>> $defaults */
+        $defaults = config('fil-fields.defaults', []);
+
+        foreach ($defaults as $entityDefaults) {
+            $keys = array_merge($keys, array_keys($entityDefaults));
+        }
+
+        return array_values(array_unique($keys));
     }
 
     /**

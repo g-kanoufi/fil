@@ -7,6 +7,7 @@ namespace App\Services\Fields;
 use App\Models\Field;
 use App\Models\FieldGroup;
 use App\Support\Fields\FieldChoiceSet;
+use App\Support\Fields\FieldGroupPostTypeResolver;
 
 /**
  * Ensures tier-1 system fields exist with enriched choice catalogs.
@@ -65,6 +66,7 @@ final class SystemFieldService
             ],
             [
                 'entity' => $entity,
+                'legacy_post_type' => FieldGroupPostTypeResolver::resolveForEntity($group, $entity) ?? '',
                 'name' => (string) ($definition['name'] ?? $key),
                 'type' => (string) ($definition['type'] ?? 'select'),
                 'storage' => 'column',

@@ -14,6 +14,8 @@ use App\Models\Store;
 use App\Models\User;
 use App\Services\Fields\FieldValueWriter;
 use App\Services\Leads\LeadPipelineCatalog;
+use App\Support\Fields\LegacyPostTypeFieldScope;
+use App\Support\Legacy\LegacyPostTypeEntityMap;
 use Illuminate\Support\Collection;
 
 final class LegacyPostMetaImportService
@@ -105,7 +107,7 @@ final class LegacyPostMetaImportService
                 }
 
                 $legacyPostType = $this->postTypes->typeFor($legacyPostId) ?? '';
-                $entityType = $this->entityForLegacyPostType($legacyPostType);
+                $entityType = LegacyPostTypeEntityMap::entityFor($legacyPostType);
                 $indexKey = $entityType.'|'.$legacyPostType;
                 $fieldIndexes[$indexKey] ??= $this->scopedFieldIndex($entityType, $legacyPostType);
 
@@ -511,27 +513,14 @@ final class LegacyPostMetaImportService
         return $map;
     }
 
-    private function entityForLegacyPostType(string $legacyPostType): string
-    {
-        /** @var array<string, string> $map */
-        $map = config('fil-legacy-acf.post_type_entity', []);
-
-        return $map[$legacyPostType] ?? 'lead';
-    }
-
-    /**
-     * @return Collection<string, Field>
-     */
     private function scopedFieldIndex(string $entityType, string $legacyPostType): Collection
     {
-        return Field::query()
+        $query = Field::query()
             ->where('entity', $entityType)
-            ->where('status', 'active')
-            ->where(function ($query) use ($legacyPostType): void {
-                $query->where('legacy_post_type', '')
-                    ->orWhere('legacy_post_type', $legacyPostType);
-            })
-            ->get()
-            ->keyBy('key');
+            ->where('status', 'active');
+
+        LegacyPostTypeFieldScope::apply($query, $legacyPostType);
+
+        return $query->get()->keyBy('key');
     }
 }

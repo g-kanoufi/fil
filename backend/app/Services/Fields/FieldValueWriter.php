@@ -13,6 +13,7 @@ use App\Models\Organization;
 use App\Models\Store;
 use App\Support\Fields\FieldTypes;
 use App\Support\Fields\FieldValueCoercion;
+use App\Support\Fields\NoteFieldCatalog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -38,6 +39,7 @@ final class FieldValueWriter
             ->where('entity', $entityType)
             ->whereIn('key', array_keys($values))
             ->where('status', 'active')
+            ->whereNotIn('key', NoteFieldCatalog::excludedFieldKeys())
             ->get()
             ->keyBy('key');
 

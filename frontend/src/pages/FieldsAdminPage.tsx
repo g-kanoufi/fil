@@ -20,8 +20,28 @@ import {
 import { parseChoiceLines } from '@/lib/fields/fieldChoices';
 import { useAuth } from '@/providers/AuthProvider';
 
-const ENTITIES = ['lead', 'store', 'contact', 'area'] as const;
 const WIDGET_PALETTE_GROUP_KEYS = new Set(['applications', 'user']);
+
+/** Infer FIL entity when creating a field in an empty group. */
+const GROUP_ENTITY: Record<string, string> = {
+  applications: 'lead',
+  'applications-advanced': 'lead',
+  units: 'store',
+  'units-client-fields': 'store',
+  locations: 'store',
+  user: 'contact',
+  'user-client-fields': 'contact',
+  areas: 'area',
+  organizations: 'organization',
+};
+
+function entityForGroup(group: FieldGroupDef | undefined): string {
+  if (!group) {
+    return 'lead';
+  }
+
+  return group.fields[0]?.entity ?? GROUP_ENTITY[group.key] ?? 'lead';
+}
 
 interface NewFieldDraft {
   field_group_id: number | null;
@@ -63,7 +83,6 @@ export function FieldsAdminPage() {
   const { can } = useAuth();
   const canManage = can('fields.manage');
 
-  const [entity, setEntity] = useState<(typeof ENTITIES)[number]>('lead');
   const [groups, setGroups] = useState<FieldGroupDef[]>([]);
   const [catalogue, setCatalogue] = useState<RelatableCatalogue | null>(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +96,7 @@ export function FieldsAdminPage() {
     setError(null);
     try {
       const [loadedGroups, loadedCatalogue] = await Promise.all([
-        fetchFieldGroups(entity),
+        fetchFieldGroups(),
         fetchRelatableEntities(),
       ]);
       setGroups(loadedGroups);
@@ -91,7 +110,7 @@ export function FieldsAdminPage() {
     } finally {
       setLoading(false);
     }
-  }, [entity]);
+  }, []);
 
   useEffect(() => {
     if (canManage) {
@@ -117,9 +136,10 @@ export function FieldsAdminPage() {
     }
 
     try {
+      const group = groups.find((item) => item.id === draft.field_group_id);
       await createField({
         field_group_id: draft.field_group_id,
-        entity,
+        entity: entityForGroup(group),
         key: draft.key.trim(),
         name: draft.name.trim(),
         type: draft.type,
@@ -209,7 +229,7 @@ export function FieldsAdminPage() {
     <>
       <PageHeader
         title="Custom fields"
-        description="Define application and entity fields of any type, including relational ones."
+        description="All custom field groups in one place. Each field shows its legacy post type (application, store, user, area, franchise_location)."
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -219,20 +239,6 @@ export function FieldsAdminPage() {
         <Link to="/settings/widget" className="text-sm text-link hover:underline">
           Widget form builder →
         </Link>
-        <label className="ml-auto flex items-center gap-2 text-sm">
-          <span className="font-medium text-foreground">Entity</span>
-          <select
-            value={entity}
-            onChange={(event) => setEntity(event.target.value as (typeof ENTITIES)[number])}
-            className="rounded-lg border border-border bg-surface px-3 py-2"
-          >
-            {ENTITIES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       {error ? (
@@ -375,6 +381,7 @@ export function FieldsAdminPage() {
                         <div className="font-medium text-foreground">{field.name}</div>
                         <div className="text-xs text-muted">
                           {field.key} · {field.type}
+                          {field.legacy_post_type ? ` · ${field.legacy_post_type}` : ''}
                           {field.config?.related_entity ? ` → ${field.config.related_entity}` : ''}
                           {field.config?.widget_eligible ? ' · widget' : ''}
                           {field.status !== 'active' ? ` · ${field.status}` : ''}

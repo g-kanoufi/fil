@@ -12,8 +12,8 @@ final class LegacyMappingGapsCommand extends Command
     protected $signature = 'legacy:mapping-gaps
                             {dump? : Path to .sql.gz dump}
                             {--prefix=vnzokz0zw_9_ : Legacy dump table prefix}
-                            {--entity=store : FIL entity (store, lead, location, area, organization)}
-                            {--post-type= : Legacy post type override (application, store, franchise_location, area, organization)}
+                            {--entity=store : FIL entity (store, lead, area, organization, contact)}
+                            {--post-type= : Legacy post type override (application, store, franchise_location, area, organization, user)}
                             {--min=5 : Minimum postmeta row count to report a key}';
 
     protected $description = 'Report legacy postmeta keys not mapped to FIL fields, tier-1 columns, or documents.';

@@ -35,6 +35,7 @@ test('baseline compare passes after fixture import', function () {
         'key' => 'referral_notes',
         'name' => 'Referral notes',
         'type' => 'textarea',
+        'legacy_post_type' => 'application',
         'storage' => 'field_value',
         'sort_order' => 1,
         'status' => 'active',

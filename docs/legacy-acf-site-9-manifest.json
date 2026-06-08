@@ -1,20 +1,41 @@
 {
-    "generated_at": "2026-06-08T10:10:04+00:00",
+    "generated_at": "2026-06-08T12:19:58+00:00",
     "source_path": "/Users/mba/Projects/Cursor/fil/backend/resources/legacy-acf",
     "groups": [
         {
             "file": "group_58a1db94b0edc.json",
             "legacy_group_key": "group_58a1db94b0edc",
-            "title": "Administrative Notes",
+            "title": "Administrative notes (application)",
             "post_types": [
-                "store",
-                "application",
-                "franchise_location",
-                "user"
+                "application"
             ],
             "import": true,
-            "fil_group_key": "administrative-notes",
+            "fil_group_key": "admin-notes-application",
             "entity": "lead",
+            "legacy_post_type": "application"
+        },
+        {
+            "file": "group_58a1db94b0edc.json",
+            "legacy_group_key": "group_58a1db94b0edc",
+            "title": "Administrative notes (location)",
+            "post_types": [
+                "franchise_location"
+            ],
+            "import": true,
+            "fil_group_key": "admin-notes-location",
+            "entity": "store",
+            "legacy_post_type": "franchise_location"
+        },
+        {
+            "file": "group_58a1db94b0edc.json",
+            "legacy_group_key": "group_58a1db94b0edc",
+            "title": "Administrative notes (store)",
+            "post_types": [
+                "store"
+            ],
+            "import": true,
+            "fil_group_key": "admin-notes-store",
+            "entity": "store",
             "legacy_post_type": "store"
         },
         {
@@ -37,7 +58,7 @@
                 "application"
             ],
             "import": true,
-            "fil_group_key": "applications",
+            "fil_group_key": "applications-advanced",
             "entity": "lead",
             "legacy_post_type": "application"
         },
@@ -49,7 +70,7 @@
             "import": true,
             "fil_group_key": "applications",
             "entity": "lead",
-            "legacy_post_type": ""
+            "legacy_post_type": "application"
         },
         {
             "file": "group_56b9dc28339ca.json",
@@ -73,7 +94,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "invoice"
         },
         {
             "file": "group_5717a09892747.json",
@@ -97,7 +118,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "franchise_candidates"
         },
         {
             "file": "group_5f6adcab783f1.json",
@@ -107,7 +128,7 @@
                 "store"
             ],
             "import": true,
-            "fil_group_key": "units",
+            "fil_group_key": "units-client-fields",
             "entity": "store",
             "legacy_post_type": "store"
         },
@@ -119,7 +140,7 @@
                 "user"
             ],
             "import": true,
-            "fil_group_key": "user",
+            "fil_group_key": "user-client-fields",
             "entity": "contact",
             "legacy_post_type": "user"
         },
@@ -133,7 +154,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "franchise_feedback"
         },
         {
             "file": "group_603296bc61579.json",
@@ -145,7 +166,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "customer_entry"
         },
         {
             "file": "group_5c6397ff79839.json",
@@ -168,7 +189,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "grabbafdd"
         },
         {
             "file": "group_5624541241c2f.json",
@@ -190,7 +211,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "inspection_type"
         },
         {
             "file": "group_5be8e8a2b2172.json",
@@ -202,7 +223,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "inspection"
         },
         {
             "file": "group_57da7f9d9f47a.json",
@@ -214,7 +235,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "franchise_jobs"
         },
         {
             "file": "group_570fc6f67d6f6.json",
@@ -238,7 +259,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "fl_dashboard_note"
         },
         {
             "file": "group_5fce9d760925c.json",
@@ -253,16 +274,37 @@
         {
             "file": "group_59317c8b85cc7.json",
             "legacy_group_key": "group_59317c8b85cc7",
-            "title": "Private Notes",
+            "title": "Private notes (application)",
             "post_types": [
-                "store",
-                "application",
-                "franchise_location",
-                "user"
+                "application"
             ],
             "import": true,
-            "fil_group_key": "private-notes",
+            "fil_group_key": "private-notes-application",
             "entity": "lead",
+            "legacy_post_type": "application"
+        },
+        {
+            "file": "group_59317c8b85cc7.json",
+            "legacy_group_key": "group_59317c8b85cc7",
+            "title": "Private notes (location)",
+            "post_types": [
+                "franchise_location"
+            ],
+            "import": true,
+            "fil_group_key": "private-notes-location",
+            "entity": "store",
+            "legacy_post_type": "franchise_location"
+        },
+        {
+            "file": "group_59317c8b85cc7.json",
+            "legacy_group_key": "group_59317c8b85cc7",
+            "title": "Private notes (store)",
+            "post_types": [
+                "store"
+            ],
+            "import": true,
+            "fil_group_key": "private-notes-store",
+            "entity": "store",
             "legacy_post_type": "store"
         },
         {
@@ -285,7 +327,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "franchise_operation"
         },
         {
             "file": "group_644756352226d.json",
@@ -297,7 +339,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "z_territory"
         },
         {
             "file": "group_5b154cc14535e.json",
@@ -309,7 +351,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "page"
         },
         {
             "file": "group_5e33f7593eab2.json",
@@ -321,7 +363,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "page"
         },
         {
             "file": "group_5b1161b9bead4.json",
@@ -333,7 +375,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "page"
         },
         {
             "file": "group_5c3e17a843a14.json",
@@ -347,7 +389,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "post"
         },
         {
             "file": "group_575586713f2ff.json",
@@ -369,7 +411,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "page"
         },
         {
             "file": "group_5e55f6ed3094a.json",
@@ -391,7 +433,7 @@
             "import": true,
             "fil_group_key": "user",
             "entity": "contact",
-            "legacy_post_type": ""
+            "legacy_post_type": "user"
         },
         {
             "file": "group_578ea6513978c.json",
@@ -403,7 +445,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "fl-signature-tpl"
         },
         {
             "file": "group_578e4f8b6a6a6.json",
@@ -415,7 +457,7 @@
             "import": false,
             "fil_group_key": null,
             "entity": null,
-            "legacy_post_type": null
+            "legacy_post_type": "fl-signature"
         }
     ]
 }

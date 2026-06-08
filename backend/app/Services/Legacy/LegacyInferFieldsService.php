@@ -6,7 +6,7 @@ namespace App\Services\Legacy;
 
 use App\Models\Field;
 use App\Support\Legacy\LegacyBundledAcfFieldCatalog;
-use Illuminate\Support\Collection;
+use App\Support\Legacy\LegacyPostTypeEntityMap;
 
 final class LegacyInferFieldsService
 {
@@ -28,9 +28,7 @@ final class LegacyInferFieldsService
     {
         $this->postTypes->build($dumpPath, $prefix);
 
-        /** @var array<string, string> $map */
-        $map = config('fil-legacy-acf.post_type_entity', []);
-        $entity = $map[$legacyPostType] ?? 'lead';
+        $entity = LegacyPostTypeEntityMap::entityFor($legacyPostType);
 
         $registered = $this->registeredKeysForPostType($legacyPostType, $entity);
         $postIds = $this->postIdsForType($dumpPath, $prefix, $legacyPostType);

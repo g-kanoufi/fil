@@ -31,6 +31,34 @@ test('zorzees acf parity imports core CRM field groups', function () {
         ->and(count($keys))->toBeGreaterThanOrEqual(12);
 });
 
+test('applications fields follow bundled acf order after import', function () {
+    $group = FieldGroup::query()->where('key', 'applications')->firstOrFail();
+
+    $ordered = Field::query()
+        ->where('field_group_id', $group->id)
+        ->where('parent_field_id', 0)
+        ->where('legacy_post_type', 'application')
+        ->where('status', 'active')
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->limit(5)
+        ->pluck('key')
+        ->all();
+
+    expect($ordered[0] ?? null)->toBe('lead_stage')
+        ->and($ordered[1] ?? null)->toBe('lead_status')
+        ->and($ordered[2] ?? null)->toBe('lead_progress');
+
+    $advanced = FieldGroup::query()->where('key', 'applications-advanced')->firstOrFail();
+
+    expect(Field::query()
+        ->where('field_group_id', $advanced->id)
+        ->where('parent_field_id', 0)
+        ->where('status', 'active')
+        ->orderBy('sort_order')
+        ->value('key'))->toBe('show_advanced');
+});
+
 test('applications group has zorzees lead status and not store location status fields', function () {
     $group = FieldGroup::query()->where('key', 'applications')->firstOrFail();
 

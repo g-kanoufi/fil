@@ -13,6 +13,8 @@ use App\Models\Organization;
 use App\Models\Store;
 use App\Models\User;
 use App\Support\Fields\FieldTypes;
+use App\Support\Fields\LegacyPostTypeFieldScope;
+use App\Support\Fields\NoteFieldCatalog;
 use Illuminate\Database\Eloquent\Model;
 
 final class EntityFieldValueReader
@@ -24,15 +26,20 @@ final class EntityFieldValueReader
     /**
      * @return array<string, mixed> keyed by field key
      */
-    public function forEntity(string $entityType, int $entityId): array
+    public function forEntity(string $entityType, int $entityId, ?string $legacyPostType = null): array
     {
-        $fields = Field::query()
+        $fieldsQuery = Field::query()
             ->where('entity', $entityType)
             ->where('parent_field_id', 0)
             ->where('status', 'active')
             ->where('storage', 'field_value')
             ->orderBy('sort_order')
-            ->get();
+            ->orderBy('id');
+
+        NoteFieldCatalog::applyExcludedFieldScope($fieldsQuery);
+        LegacyPostTypeFieldScope::apply($fieldsQuery, $legacyPostType);
+
+        $fields = $fieldsQuery->get();
 
         if ($fields->isEmpty()) {
             return [];

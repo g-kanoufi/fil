@@ -9,6 +9,7 @@ use App\Models\FieldGroup;
 use App\Models\FieldRoleRule;
 use App\Services\Fields\SystemFieldService;
 use App\Support\Fields\ApplicationFieldCatalog;
+use App\Support\Fields\NoteFieldCatalog;
 use Illuminate\Database\Seeder;
 
 final class FieldSchemaSeeder extends Seeder
@@ -40,12 +41,12 @@ final class FieldSchemaSeeder extends Seeder
             [
                 'field_group_id' => $applications->id,
                 'key' => 'internal_margin_notes',
-                'legacy_post_type' => '',
+                'legacy_post_type' => 'application',
                 'parent_field_id' => 0,
             ],
             [
                 'entity' => 'lead',
-                'legacy_post_type' => '',
+                'legacy_post_type' => 'application',
                 'parent_field_id' => 0,
                 'name' => 'Internal Margin Notes',
                 'type' => 'textarea',
@@ -86,6 +87,21 @@ final class FieldSchemaSeeder extends Seeder
             ->whereIn('key', $excluded)
             ->update(['status' => 'inactive']);
 
+        $noteGroupKeys = NoteFieldCatalog::excludedGroupKeys();
+        $noteFieldKeys = NoteFieldCatalog::excludedFieldKeys();
+
+        if ($noteGroupKeys !== []) {
+            $noteGroupIds = FieldGroup::query()->whereIn('key', $noteGroupKeys)->pluck('id');
+            if ($noteGroupIds->isNotEmpty()) {
+                Field::query()->whereIn('field_group_id', $noteGroupIds)->update(['status' => 'inactive']);
+                FieldGroup::query()->whereIn('id', $noteGroupIds)->update(['status' => 'inactive']);
+            }
+        }
+
+        if ($noteFieldKeys !== []) {
+            Field::query()->whereIn('key', $noteFieldKeys)->update(['status' => 'inactive']);
+        }
+
         $allowedGroupKeys = [
             'applications',
             'applications-advanced',
@@ -96,12 +112,6 @@ final class FieldSchemaSeeder extends Seeder
             'locations',
             'areas',
             'organizations',
-            'private-notes-application',
-            'private-notes-store',
-            'private-notes-location',
-            'admin-notes-application',
-            'admin-notes-store',
-            'admin-notes-location',
             'contact_profile',
         ];
 

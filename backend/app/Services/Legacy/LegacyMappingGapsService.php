@@ -5,29 +5,13 @@ declare(strict_types=1);
 namespace App\Services\Legacy;
 
 use App\Models\Field;
+use App\Support\Fields\LegacyPostTypeFieldScope;
 use App\Support\Legacy\LegacyBundledAcfFieldCatalog;
+use App\Support\Legacy\LegacyPostTypeEntityMap;
 use Illuminate\Support\Collection;
 
 final class LegacyMappingGapsService
 {
-    /** @var array<string, string> */
-    private const ENTITY_POST_TYPES = [
-        'lead' => 'application',
-        'store' => 'store',
-        'location' => 'franchise_location',
-        'area' => 'area',
-        'organization' => 'organization',
-    ];
-
-    /** @var array<string, string> */
-    private const POST_TYPE_ENTITIES = [
-        'application' => 'lead',
-        'store' => 'store',
-        'franchise_location' => 'location',
-        'area' => 'area',
-        'organization' => 'organization',
-    ];
-
     public function __construct(
         private readonly LegacyExtrasKeyResolver $resolver,
         private readonly LegacyAcfFilePatternBuilder $filePatterns,
@@ -50,25 +34,19 @@ final class LegacyMappingGapsService
         int $minCount = 5,
         ?string $legacyPostType = null,
     ): array {
-        $postType = $legacyPostType ?? self::ENTITY_POST_TYPES[$entity] ?? null;
+        $postType = $legacyPostType ?? LegacyPostTypeEntityMap::defaultPostTypeForEntity($entity);
 
         if ($postType === null) {
             throw new \InvalidArgumentException("Unknown entity: {$entity}");
         }
 
         if ($legacyPostType !== null) {
-            $inferredEntity = self::POST_TYPE_ENTITIES[$legacyPostType] ?? null;
-
-            if ($inferredEntity !== null && $inferredEntity !== $entity) {
-                throw new \InvalidArgumentException(
-                    "Entity {$entity} does not match legacy post type {$legacyPostType} (expected {$inferredEntity}).",
-                );
-            }
+            LegacyPostTypeEntityMap::assertEntityMatchesPostType($entity, $legacyPostType);
         }
 
         $postIds = $this->collectPostIds($dumpPath, $prefix.'posts', $postType);
-        $fieldIndex = $this->fieldIndex($entity);
-        $documentPatterns = $this->documentPatternsForEntity($entity);
+        $fieldIndex = $this->fieldIndex($entity, $postType);
+        $documentPatterns = $this->documentPatternsForEntity($entity, $postType);
 
         /** @var array<string, int> $keyCounts */
         $keyCounts = [];
@@ -210,15 +188,18 @@ final class LegacyMappingGapsService
         return $ids;
     }
 
-    private function fieldIndex(string $entity): Collection
+    private function fieldIndex(string $entity, string $legacyPostType): Collection
     {
-        $index = Field::query()
+        $query = Field::query()
             ->where('entity', $entity)
-            ->where('status', 'active')
-            ->get()
-            ->keyBy('key');
+            ->where('status', 'active');
 
-        foreach ($this->bundledFields->fieldIndexForEntity($entity) as $key => $field) {
+        LegacyPostTypeFieldScope::apply($query, $legacyPostType);
+
+        /** @var Collection<string, Field> $index */
+        $index = $query->get()->keyBy('key');
+
+        foreach ($this->bundledFields->fieldIndexForEntity($entity, $legacyPostType) as $key => $field) {
             if (! $index->has($key)) {
                 $index->put($key, $field);
             }
@@ -230,13 +211,13 @@ final class LegacyMappingGapsService
     /**
      * @return list<array{role: string, label: string, regex: string}>
      */
-    private function documentPatternsForEntity(string $entity): array
+    private function documentPatternsForEntity(string $entity, string $legacyPostType): array
     {
         /** @var array<string, string|list<string>> $acfGroups */
         $acfGroups = config('fil-documents.acf_field_groups', []);
         $patterns = [];
 
-        foreach ($this->acfJsonPathsForEntity($entity, $acfGroups) as $path) {
+        foreach ($this->acfJsonPathsForPostType($entity, $legacyPostType, $acfGroups) as $path) {
             $patterns = array_merge($patterns, $this->filePatterns->fromJsonFile($path));
         }
 
@@ -247,16 +228,14 @@ final class LegacyMappingGapsService
      * @param  array<string, string|list<string>>  $acfGroups
      * @return list<string>
      */
-    private function acfJsonPathsForEntity(string $entity, array $acfGroups): array
+    private function acfJsonPathsForPostType(string $entity, string $legacyPostType, array $acfGroups): array
     {
         $paths = [];
 
-        if ($entity === 'store' && isset($acfGroups['store'])) {
-            $paths = array_merge($paths, $this->normalizeJsonPaths($acfGroups['store']));
-        }
-
-        if (in_array($entity, ['store', 'location'], true) && isset($acfGroups['franchise_location'])) {
+        if ($legacyPostType === 'franchise_location' && isset($acfGroups['franchise_location'])) {
             $paths = array_merge($paths, $this->normalizeJsonPaths($acfGroups['franchise_location']));
+        } elseif ($entity === 'store' && isset($acfGroups['store'])) {
+            $paths = array_merge($paths, $this->normalizeJsonPaths($acfGroups['store']));
         }
 
         return array_values(array_filter(array_map(

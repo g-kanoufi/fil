@@ -68,7 +68,7 @@ final class LeadResource extends JsonResource
                     'api.v1.leads.store',
                     'api.v1.leads.convert',
                 ),
-                fn (): array => app(EntityFieldValueReader::class)->forEntity('lead', $this->id),
+                fn (): array => app(EntityFieldValueReader::class)->forEntity('lead', $this->id, 'application'),
             ),
         ];
     }

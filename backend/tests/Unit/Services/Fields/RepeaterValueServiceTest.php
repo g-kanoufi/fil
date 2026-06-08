@@ -103,7 +103,7 @@ test('entity field value reader exposes repeater rows by field key', function ()
         ['next_step_description' => 'Call back'],
     ]);
 
-    $custom = app(EntityFieldValueReader::class)->forEntity('lead', $lead->id);
+    $custom = app(EntityFieldValueReader::class)->forEntity('lead', $lead->id, 'application');
 
     expect($custom['next_steps'])->toBe([
         ['next_step_description' => 'Call back'],

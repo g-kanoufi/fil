@@ -94,7 +94,7 @@ export function WidgetFormBuilderPage() {
     try {
       const [loadedForms, groups] = await Promise.all([
         fetchWidgetForms(),
-        fetchFieldGroups('lead', { context: 'widget' }),
+        fetchFieldGroups({ entity: 'lead', context: 'widget' }),
       ]);
       setForms(loadedForms);
       setLeadFields(groups.flatMap((group) => group.fields));

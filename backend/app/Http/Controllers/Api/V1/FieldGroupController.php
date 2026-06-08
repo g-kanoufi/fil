@@ -11,6 +11,7 @@ use App\Http\Resources\Api\V1\FieldGroupResource;
 use App\Models\FieldGroup;
 use App\Services\Activity\ActivityRecorder;
 use App\Support\Api\ApiResponse;
+use App\Support\Fields\NoteFieldCatalog;
 use App\Support\Widget\WidgetFieldCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,10 @@ final class FieldGroupController extends Controller
                 $context === 'widget',
                 fn ($query) => $query->whereIn('key', WidgetFieldCatalog::allowedGroupKeys()),
             )
+            ->when(
+                $context !== 'widget',
+                fn ($query) => NoteFieldCatalog::applyExcludedGroupScope($query),
+            )
             ->with(['fields' => function ($query) use ($entity, $context): void {
                 if ($context === 'widget') {
                     WidgetFieldCatalog::applyWidgetFieldScope($query);
@@ -37,10 +42,14 @@ final class FieldGroupController extends Controller
                     $query->where('entity', $entity);
                 }
 
-                $query->where('status', 'active')->orderBy('sort_order');
+                NoteFieldCatalog::applyExcludedFieldScope($query);
+                $query->where('status', 'active')->orderBy('sort_order')->orderBy('id');
             }])
             ->orderBy('sort_order')
-            ->get();
+            ->orderBy('id')
+            ->get()
+            ->filter(fn (FieldGroup $group): bool => $context === 'widget' || $group->fields->isNotEmpty())
+            ->values();
 
         return ApiResponse::collection(FieldGroupResource::collection($groups));
     }
