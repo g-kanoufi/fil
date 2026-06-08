@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NPM="$ROOT/scripts/npm.sh"
 
 echo "==> Pint"
 cd "$ROOT/backend"
@@ -29,8 +30,8 @@ php artisan openapi:audit --fail-on-drift
 
 echo "==> Frontend"
 cd "$ROOT/frontend"
-npm run test:run --silent
-npm run build --silent
+"$NPM" run test:run --silent
+"$NPM" run build --silent
 
 echo "==> E2E smoke (optional — needs Playwright browsers)"
 if [[ "${SKIP_E2E:-}" != "1" ]]; then

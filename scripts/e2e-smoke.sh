@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NPM="$ROOT/scripts/npm.sh"
 E2E_DB="$ROOT/backend/database/e2e.sqlite"
 BASE_URL="${E2E_BASE_URL:-http://127.0.0.1:8000}"
 PORT="${E2E_PORT:-8000}"
@@ -30,7 +31,7 @@ php artisan migrate:fresh --seed --force --no-interaction
 
 echo "==> Build frontend assets"
 cd "$ROOT/frontend"
-npm run build --silent
+"$NPM" run build --silent
 
 echo "==> Start Laravel on :$PORT"
 cd "$ROOT/backend"
@@ -53,8 +54,8 @@ fi
 echo "==> Playwright smoke (MVP + auth + Plan 3 platform)"
 cd "$ROOT/e2e"
 export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-0}"
-npm ci --no-audit --no-fund
-npx playwright install chromium
-E2E_BASE_URL="$BASE_URL" npm test
+"$NPM" ci --no-audit --no-fund
+"$NPM" npx playwright install chromium
+E2E_BASE_URL="$BASE_URL" "$NPM" test
 
 echo "==> E2E smoke passed"

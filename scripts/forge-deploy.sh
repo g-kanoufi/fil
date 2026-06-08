@@ -4,6 +4,7 @@
 set -euo pipefail
 
 ROOT="${FORGE_SITE_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+NPM="$ROOT/scripts/npm.sh"
 cd "$ROOT"
 
 echo "==> FIL deploy @ $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -21,8 +22,8 @@ php artisan legacy:import-access --execute
 echo "==> Frontend build"
 cd ../frontend
 if command -v npm >/dev/null 2>&1; then
-  npm ci --no-audit --no-fund
-  npm run build
+  "$NPM" ci --no-audit --no-fund
+  "$NPM" run build
 else
   echo "WARN: npm not found — skip frontend build (ensure assets committed or build in CI)"
 fi
@@ -30,8 +31,8 @@ fi
 echo "==> Widget build"
 cd widget
 if command -v npm >/dev/null 2>&1; then
-  npm ci --no-audit --no-fund
-  npm run build
+  "$NPM" ci --no-audit --no-fund
+  "$NPM" run build
 else
   echo "WARN: npm not found — skip widget build"
 fi

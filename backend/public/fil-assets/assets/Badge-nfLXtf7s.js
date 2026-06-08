@@ -1,0 +1,1 @@
+import{r as e}from"./dwolla-BnZOg9Te.js";import{n as t}from"./Alert-CCGxD1PT.js";import{r as n}from"./Card-DznYVH3G.js";var r=e();function i({children:e,variant:i=`default`,className:a}){return(0,r.jsx)(`span`,{className:n(`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium`,t[i],a),children:e})}export{i as t};

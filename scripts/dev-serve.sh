@@ -4,6 +4,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NPM="$ROOT/scripts/npm.sh"
 BACKEND="$ROOT/backend"
 PID_FILE="${FIL_DEV_PID_FILE:-/tmp/fil-dev-serve.pid}"
 LOG_FILE="${FIL_DEV_LOG_FILE:-/tmp/fil-dev-serve.log}"
@@ -88,7 +89,7 @@ start_server() {
 
   if [[ ! -f "$BACKEND/public/fil-assets/.vite/manifest.json" ]]; then
     echo "==> Building frontend (first run)"
-    (cd "$ROOT/frontend" && npm run build --silent)
+    (cd "$ROOT/frontend" && "$NPM" run build --silent)
   fi
 
   echo "==> Starting Laravel dev server at ${BASE_URL}"

@@ -7,6 +7,6 @@
     "test:ui": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test --ui"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.60.0"
   }
 }
