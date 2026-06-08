@@ -13,6 +13,7 @@ use App\Models\Organization;
 use App\Models\Store;
 use App\Models\User;
 use App\Services\Fields\FieldValueWriter;
+use App\Support\Fields\FieldTypes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -23,6 +24,7 @@ final class LegacyExtrasDrainService
         private readonly FieldValueWriter $fieldValues,
         private readonly LegacyExtrasKeyResolver $keyResolver,
         private readonly LegacyAcfMetaKeyCatalog $metaKeyCatalog,
+        private readonly LegacyRepeaterMetaAggregator $repeaterMeta,
     ) {}
 
     /**
@@ -85,7 +87,7 @@ final class LegacyExtrasDrainService
 
                 $stats['entities']++;
 
-                [$toWrite, $remaining, $promoted, $relationUpdates] = $this->partitionExtras($extras, $fieldIndex, $entityType, $record);
+                [$toWrite, $remaining, $promoted, $relationUpdates, $repeaterRows] = $this->partitionExtras($extras, $fieldIndex, $entityType, $record);
                 $stats['promoted'] += $promoted;
                 $stats['remaining_keys'] += count($remaining);
 
@@ -98,6 +100,8 @@ final class LegacyExtrasDrainService
                         ->whereKey($update['id'])
                         ->update([$update['column'] => $update['value']]);
                 }
+
+                $this->repeaterMeta->writeRows($entityType, (int) $record->getKey(), $repeaterRows, $fieldIndex);
 
                 if ($toWrite !== []) {
                     $this->fieldValues->write($entityType, (int) $record->getKey(), $this->normalizeFieldValues($toWrite, $fieldIndex));
@@ -141,7 +145,7 @@ final class LegacyExtrasDrainService
     /**
      * @param  array<string, mixed>  $extras
      * @param  Collection<string, Field>  $fieldIndex
-     * @return array{array<string, mixed>, array<string, mixed>, int, list<array{model: class-string, id: int, column: string, value: mixed}>}
+     * @return array{array<string, mixed>, array<string, mixed>, int, list<array{model: class-string, id: int, column: string, value: mixed}>, array<string, array<int, array<string, mixed>>>}
      */
     private function partitionExtras(array $extras, Collection $fieldIndex, string $entityType, Model $record): array
     {
@@ -216,12 +220,7 @@ final class LegacyExtrasDrainService
             $remaining[$metaKey] = $value;
         }
 
-        $toWrite = $scalars;
-
-        foreach ($repeaterRows as $fieldKey => $rows) {
-            ksort($rows);
-            $toWrite[$fieldKey] = json_encode(array_values($rows), JSON_THROW_ON_ERROR);
-        }
+        $toWrite = array_merge($scalars, $this->repeaterMeta->jsonFallbackPayloads($repeaterRows, $fieldIndex));
 
         foreach ($nestedRepeaterRows as $fieldKey => $nestedGroups) {
             $payload = [];
@@ -234,7 +233,7 @@ final class LegacyExtrasDrainService
             $toWrite[$fieldKey] = json_encode($payload, JSON_THROW_ON_ERROR);
         }
 
-        return [$toWrite, $remaining, $promoted, $relationUpdates];
+        return [$toWrite, $remaining, $promoted, $relationUpdates, $repeaterRows];
     }
 
     /**
@@ -255,7 +254,8 @@ final class LegacyExtrasDrainService
         /** @var array<string, mixed>|null $config */
         $config = $field->config;
 
-        return ($config['legacy_acf_type'] ?? null) === 'repeater';
+        return ($config['legacy_acf_type'] ?? null) === 'repeater'
+            || FieldTypes::isRepeater((string) $field->type);
     }
 
     /**

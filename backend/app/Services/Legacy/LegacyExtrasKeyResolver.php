@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Legacy;
 
 use App\Models\Field;
+use App\Support\Fields\FieldTypes;
 use Illuminate\Support\Collection;
 
 final class LegacyExtrasKeyResolver
@@ -107,7 +108,8 @@ final class LegacyExtrasKeyResolver
                 /** @var array<string, mixed>|null $config */
                 $config = $field->config;
 
-                return ($config['legacy_acf_type'] ?? null) === 'repeater';
+                return ($config['legacy_acf_type'] ?? null) === 'repeater'
+                    || FieldTypes::isRepeater((string) $field->type);
             })
             ->keys()
             ->sortByDesc(static fn (string $key): int => strlen($key))

@@ -99,7 +99,7 @@ return [
         'wysiwyg' => 'textarea',
         'oembed' => 'url',
         'color_picker' => 'text',
-        'repeater' => 'textarea',
+        'repeater' => 'repeater',
         'file' => 'textarea',
         'image' => 'textarea',
         'gallery' => 'textarea',

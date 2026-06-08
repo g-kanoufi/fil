@@ -15,6 +15,7 @@ final class Field extends Model
      */
     protected $fillable = [
         'field_group_id',
+        'parent_field_id',
         'entity',
         'legacy_post_type',
         'key',
@@ -50,6 +51,16 @@ final class Field extends Model
     public function fieldGroup(): BelongsTo
     {
         return $this->belongsTo(FieldGroup::class);
+    }
+
+    public function parentField(): BelongsTo
+    {
+        return $this->belongsTo(Field::class, 'parent_field_id');
+    }
+
+    public function subFields(): HasMany
+    {
+        return $this->hasMany(Field::class, 'parent_field_id')->orderBy('sort_order');
     }
 
     public function roleRules(): HasMany

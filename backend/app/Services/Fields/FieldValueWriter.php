@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\DB;
 
 final class FieldValueWriter
 {
+    public function __construct(
+        private readonly RepeaterValueWriter $repeaterValues,
+    ) {}
+
     /**
      * Persist a map of field key => value for an entity. Relational fields write
      * to field_relation_links; scalar fields write typed slots in field_values.
@@ -47,6 +51,14 @@ final class FieldValueWriter
 
                 if (FieldTypes::isRelation($field->type)) {
                     $this->writeRelation($field, $entityType, $entityId, $value);
+
+                    continue;
+                }
+
+                if (FieldTypes::isRepeater($field->type) && is_array($value)) {
+                    /** @var list<array<string, mixed>> $rows */
+                    $rows = array_values($value);
+                    $this->repeaterValues->write($entityType, $entityId, $field, $rows);
 
                     continue;
                 }

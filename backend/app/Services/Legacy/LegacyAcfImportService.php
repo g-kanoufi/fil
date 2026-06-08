@@ -6,6 +6,7 @@ namespace App\Services\Legacy;
 
 use App\Models\Field;
 use App\Models\FieldGroup;
+use App\Support\Fields\FieldTypes;
 use App\Support\Legacy\LegacyAcfGroupRegistry;
 use App\Support\Widget\WidgetFieldEligibility;
 use Illuminate\Support\Str;
@@ -102,6 +103,7 @@ final class LegacyAcfImportService
         array &$sortCounters,
         string $groupKey,
         string $keyPrefix = '',
+        ?int $parentFieldId = 0,
     ): int {
         $imported = 0;
 
@@ -126,16 +128,62 @@ final class LegacyAcfImportService
                     $sortCounters,
                     $groupKey,
                     $keyPrefix,
+                    $parentFieldId,
+                );
+
+                continue;
+            }
+
+            if ($type === 'repeater' && $name !== '' && is_array($acfField['sub_fields'] ?? null)) {
+                $fieldKey = $this->normalizeFieldKey($keyPrefix !== '' ? $keyPrefix.$name : $name);
+
+                if ($this->shouldSkipField($fieldKey, $entity) || ! $this->validFieldKey($fieldKey)) {
+                    continue;
+                }
+
+                $sortCounters[$groupKey] = ($sortCounters[$groupKey] ?? 0) + 1;
+                $scopedParentId = $parentFieldId ?? 0;
+
+                $parent = Field::query()->updateOrCreate(
+                    [
+                        'field_group_id' => $group->id,
+                        'key' => $fieldKey,
+                        'legacy_post_type' => $legacyPostType,
+                        'parent_field_id' => $scopedParentId,
+                    ],
+                    [
+                        'entity' => $entity,
+                        'legacy_post_type' => $legacyPostType,
+                        'name' => (string) ($acfField['label'] ?? $name),
+                        'type' => FieldTypes::REPEATER,
+                        'storage' => 'field_value',
+                        'config' => array_filter([
+                            'legacy_field_key' => $acfField['key'] ?? null,
+                            'legacy_acf_type' => 'repeater',
+                        ]),
+                        'sort_order' => $sortCounters[$groupKey],
+                        'is_filterable' => false,
+                        'status' => 'active',
+                        'legacy_field_key' => $acfField['key'] ?? null,
+                    ],
+                );
+
+                $imported++;
+                $imported += $this->importFieldTree(
+                    $acfField['sub_fields'],
+                    $group,
+                    $entity,
+                    $legacyPostType,
+                    $sortCounters,
+                    $groupKey,
+                    '',
+                    $parent->id,
                 );
 
                 continue;
             }
 
             if ($name === '') {
-                if ($type === 'repeater' && is_array($acfField['sub_fields'] ?? null)) {
-                    continue;
-                }
-
                 continue;
             }
 
@@ -166,10 +214,13 @@ final class LegacyAcfImportService
                 $acfField['fl-react-app-column-default'] ?? 0,
             );
 
+            $scopedParentId = $parentFieldId ?? 0;
+
             $existing = Field::query()
                 ->where('field_group_id', $group->id)
                 ->where('key', $fieldKey)
                 ->where('legacy_post_type', $legacyPostType)
+                ->where('parent_field_id', $scopedParentId)
                 ->first();
 
             if ($existing !== null) {
@@ -183,10 +234,12 @@ final class LegacyAcfImportService
                     'field_group_id' => $group->id,
                     'key' => $fieldKey,
                     'legacy_post_type' => $legacyPostType,
+                    'parent_field_id' => $scopedParentId,
                 ],
                 [
                     'entity' => $entity,
                     'legacy_post_type' => $legacyPostType,
+                    'parent_field_id' => $scopedParentId,
                     'name' => (string) ($acfField['label'] ?? $name),
                     'type' => $filType,
                     'storage' => $tierOne !== null ? 'column' : 'field_value',

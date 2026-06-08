@@ -17,6 +17,10 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EntityFieldValueReader
 {
+    public function __construct(
+        private readonly RepeaterValueReader $repeaterValues,
+    ) {}
+
     /**
      * @return array<string, mixed> keyed by field key
      */
@@ -24,6 +28,7 @@ final class EntityFieldValueReader
     {
         $fields = Field::query()
             ->where('entity', $entityType)
+            ->where('parent_field_id', 0)
             ->where('status', 'active')
             ->where('storage', 'field_value')
             ->orderBy('sort_order')
@@ -55,6 +60,12 @@ final class EntityFieldValueReader
                 $links = $relations->get($field->id, collect());
                 $ids = $links->pluck('related_id')->all();
                 $result[$field->key] = $field->type === FieldTypes::RELATION_MANY ? $ids : ($ids[0] ?? null);
+
+                continue;
+            }
+
+            if (FieldTypes::isRepeater($field->type)) {
+                $result[$field->key] = $this->repeaterValues->read($entityType, $entityId, $field);
 
                 continue;
             }

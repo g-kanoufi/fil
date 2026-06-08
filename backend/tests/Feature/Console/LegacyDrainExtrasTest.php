@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Field;
 use App\Models\FieldGroup;
+use App\Models\FieldRepeaterRow;
 use App\Models\FieldValue;
 use App\Models\Lead;
+use App\Services\Fields\RepeaterValueReader;
 use App\Services\Legacy\LegacyExtrasKeyResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -145,7 +147,7 @@ test('extras key resolver maps group flattened keys to subfields', function () {
     expect($resolved?->fieldKey)->toBe('application_google_ad_campaign');
 });
 
-test('drain extras aggregates repeater rows into json field_values', function () {
+test('drain extras aggregates repeater rows into normalized repeater tables', function () {
     $group = FieldGroup::query()->create([
         'key' => 'applications',
         'title' => 'Applications',
@@ -158,10 +160,33 @@ test('drain extras aggregates repeater rows into json field_values', function ()
         'entity' => 'lead',
         'key' => 'next_steps',
         'name' => 'Next steps',
+        'type' => 'repeater',
+        'storage' => 'field_value',
+        'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $group->id,
+        'parent_field_id' => $field->id,
+        'entity' => 'lead',
+        'key' => 'next_step_description',
+        'name' => 'Description',
         'type' => 'textarea',
         'storage' => 'field_value',
-        'config' => ['legacy_acf_type' => 'repeater'],
         'sort_order' => 1,
+        'status' => 'active',
+    ]);
+
+    Field::query()->create([
+        'field_group_id' => $group->id,
+        'parent_field_id' => $field->id,
+        'entity' => 'lead',
+        'key' => 'next_step_date',
+        'name' => 'Date',
+        'type' => 'date',
+        'storage' => 'field_value',
+        'sort_order' => 2,
         'status' => 'active',
     ]);
 
@@ -179,14 +204,11 @@ test('drain extras aggregates repeater rows into json field_values', function ()
     $this->artisan('legacy:drain-extras', ['--entity' => 'leads', '--execute' => true])
         ->assertSuccessful();
 
-    $value = FieldValue::query()
-        ->where('entity_type', 'lead')
-        ->where('entity_id', $lead->id)
-        ->where('field_id', $field->id)
-        ->value('value_text');
+    expect(FieldRepeaterRow::query()->where('field_id', $field->id)->count())->toBe(1);
 
-    expect($value)->toBeJson();
-    expect(json_decode((string) $value, true))->toBe([
+    $rows = app(RepeaterValueReader::class)->read('lead', $lead->id, $field);
+
+    expect($rows)->toBe([
         [
             'next_step_description' => 'Call back',
             'next_step_date' => '2024-01-02',

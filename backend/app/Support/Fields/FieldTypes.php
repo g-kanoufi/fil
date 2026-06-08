@@ -35,6 +35,8 @@ final class FieldTypes
 
     public const RELATION_MANY = 'relation_many';
 
+    public const REPEATER = 'repeater';
+
     /**
      * @return list<string>
      */
@@ -54,6 +56,7 @@ final class FieldTypes
             self::URL,
             self::RELATION_ONE,
             self::RELATION_MANY,
+            self::REPEATER,
         ];
     }
 
@@ -76,6 +79,11 @@ final class FieldTypes
     public static function isRelation(string $type): bool
     {
         return in_array($type, self::relationTypes(), true);
+    }
+
+    public static function isRepeater(string $type): bool
+    {
+        return $type === self::REPEATER;
     }
 
     public static function requiresChoices(string $type): bool
