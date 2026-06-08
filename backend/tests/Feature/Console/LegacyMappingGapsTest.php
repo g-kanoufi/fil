@@ -22,6 +22,7 @@ test('legacy mapping gaps classifies store postmeta buckets', function () {
     $report = $service->analyze($fixture, 'fil_', 'store', 1);
 
     expect($report['legacy_posts'])->toBe(1)
+        ->and($report['post_type'])->toBe('store')
         ->and(collect($report['buckets']['tier1'])->pluck('key'))->toContain('store_status')
         ->and(collect($report['buckets']['field'])->pluck('key'))->toContain('store_number')
         ->and(collect($report['buckets']['document'])->pluck('key'))->toContain('doctors_license_0_file')
@@ -29,6 +30,16 @@ test('legacy mapping gaps classifies store postmeta buckets', function () {
         ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('checklist_0_item')
         ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('square_access_token')
         ->and(collect($report['buckets']['discard'])->pluck('key'))->toContain('history_table')
+        ->and($report['buckets']['gap'])->toBe([]);
+});
+
+test('legacy mapping gaps accepts post type override', function () {
+    $fixture = base_path('tests/fixtures/legacy-mapping-gaps-store.sql');
+    $service = app(LegacyMappingGapsService::class);
+
+    $report = $service->analyze($fixture, 'fil_', 'store', 1, 'store');
+
+    expect($report['post_type'])->toBe('store')
         ->and($report['buckets']['gap'])->toBe([]);
 });
 

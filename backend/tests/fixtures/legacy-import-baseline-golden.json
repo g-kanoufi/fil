@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "legacy_post_id": 101,
+      "entity": "lead",
+      "tier1": {
+        "lead_status": "active",
+        "lead_temp": "hot",
+        "lead_source": "widget"
+      },
+      "field_values": {
+        "referral_notes": "Met at expo"
+      }
+    }
+  ]
+}

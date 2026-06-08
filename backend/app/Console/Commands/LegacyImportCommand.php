@@ -8,6 +8,7 @@ use App\Services\Activity\ActivityRecorder;
 use App\Services\Legacy\LegacyAchEnrollmentImportService;
 use App\Services\Legacy\LegacyAchImportService;
 use App\Services\Legacy\LegacyAiThreadImportService;
+use App\Services\Legacy\LegacyClientOptionsImportService;
 use App\Services\Legacy\LegacyCommunicationImportService;
 use App\Services\Legacy\LegacyDocumentImportService;
 use App\Services\Legacy\LegacyInterestRegionTermSyncService;
@@ -34,7 +35,7 @@ final class LegacyImportCommand extends Command
     private const ALL_ENTITIES = [
         'leads', 'stores', 'areas', 'organizations', 'franchise_locations', 'fdds', 'closings',
         'users', 'communications', 'notifications', 'postmeta', 'ai_threads',
-        'royalties', 'ach', 'ach_enrollment', 'documents',
+        'royalties', 'ach', 'ach_enrollment', 'documents', 'options',
     ];
 
     private const POST_ENTITIES = [
@@ -52,6 +53,7 @@ final class LegacyImportCommand extends Command
         LegacyAchImportService $achImporter,
         LegacyAchEnrollmentImportService $achEnrollmentImporter,
         LegacyDocumentImportService $documentImporter,
+        LegacyClientOptionsImportService $clientOptionsImporter,
         LegacyInterestRegionTermSyncService $interestRegionTermSync,
         ActivityRecorder $activity,
     ): int {
@@ -153,6 +155,7 @@ final class LegacyImportCommand extends Command
             $metaStats = $postMetaImporter->import($dump, $prefix, $execute);
             $rows[] = ['postmeta applied to columns', $metaStats['applied']];
             $rows[] = ['postmeta promoted to field_values', $metaStats['field_values']];
+            $rows[] = ['postmeta repeater rows', $metaStats['repeaters'] ?? 0];
             $rows[] = ['postmeta staged in extras', $metaStats['extras']];
             $rows[] = ['skipped postmeta', $metaStats['skipped']];
         }
@@ -189,6 +192,12 @@ final class LegacyImportCommand extends Command
             $rows[] = ['documents', $documentStats['documents']];
             $rows[] = ['document_links', $documentStats['links']];
             $rows[] = ['skipped documents', $documentStats['skipped']];
+        }
+
+        if (in_array('options', $only, true)) {
+            $optionsStats = $clientOptionsImporter->import($dump, $prefix, $execute);
+            $rows[] = ['client_settings', $optionsStats['applied']];
+            $rows[] = ['skipped client_settings', $optionsStats['skipped']];
         }
 
         $this->table(['Entity', 'Matched'], $rows);

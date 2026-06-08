@@ -40,7 +40,7 @@ final class LegacyAcfCatalogCommand extends Command
             $title = (string) ($json['title'] ?? $legacyKey);
             $location = $json['location'] ?? [];
             $meta = $registry->resolve($legacyKey, $title, $location);
-            $postTypes = $this->postTypesFromLocation($location);
+            $postTypes = $registry->postTypesFromLocation($location);
 
             $manifest[] = [
                 'file' => basename($file),
@@ -70,34 +70,5 @@ final class LegacyAcfCatalogCommand extends Command
         $this->info('Wrote '.count($manifest)." groups ({$imported} importable) to {$output}");
 
         return self::SUCCESS;
-    }
-
-    /**
-     * @param  list<list<array<string, mixed>>>  $locationRules
-     * @return list<string>
-     */
-    private function postTypesFromLocation(array $locationRules): array
-    {
-        $types = [];
-
-        foreach ($locationRules as $ruleSet) {
-            foreach ($ruleSet as $rule) {
-                $param = (string) ($rule['param'] ?? '');
-
-                if ($param === 'post_type') {
-                    $value = (string) ($rule['value'] ?? '');
-
-                    if ($value !== '') {
-                        $types[] = $value;
-                    }
-                }
-
-                if ($param === 'user_form') {
-                    $types[] = 'user';
-                }
-            }
-        }
-
-        return array_values(array_unique($types));
     }
 }

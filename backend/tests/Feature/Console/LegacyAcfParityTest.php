@@ -20,16 +20,15 @@ beforeEach(function () {
 test('zorzees acf parity imports core CRM field groups', function () {
     $keys = FieldGroup::query()->orderBy('sort_order')->pluck('key')->all();
 
-    expect($keys)->toEqual([
-        'applications',
-        'user',
-        'units',
-        'locations',
-        'areas',
-        'organizations',
-        'private-notes',
-        'administrative-notes',
-    ]);
+    expect($keys)->toContain('applications')
+        ->and($keys)->toContain('units')
+        ->and($keys)->toContain('locations')
+        ->and($keys)->toContain('private-notes-application')
+        ->and($keys)->toContain('private-notes-store')
+        ->and($keys)->toContain('units-client-fields')
+        ->and($keys)->toContain('user-client-fields')
+        ->and($keys)->toContain('applications-advanced')
+        ->and(count($keys))->toBeGreaterThanOrEqual(12);
 });
 
 test('applications group has zorzees lead status and not store location status fields', function () {

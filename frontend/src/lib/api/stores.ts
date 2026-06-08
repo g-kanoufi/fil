@@ -11,6 +11,11 @@ export interface Store {
   expected_opening_at?: string | null;
   opened_at?: string | null;
   custom?: Record<string, unknown>;
+  franchise_location?: {
+    id: number;
+    name: string;
+    custom?: Record<string, unknown>;
+  } | null;
 }
 
 export interface StoreOpeningChecklistItem {

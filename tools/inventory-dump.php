@@ -57,6 +57,14 @@ while (($line = $readLine()) !== false) {
         $customTables[] = $m[1];
     }
 
+    if (preg_match('/INSERT INTO `([^`]+)`/', $line, $networkMatch)) {
+        $fullTable = $networkMatch[1];
+
+        if (preg_match('/^(.+?)(?:_\d+_)(users|usermeta|options)$/', $fullTable, $networkParts)) {
+            $tableRowCounts['network:'.$networkParts[2]] = ($tableRowCounts['network:'.$networkParts[2]] ?? 0) + substr_count($line, '),(') + 1;
+        }
+    }
+
     if (preg_match('/INSERT INTO `' . preg_quote($prefix, '/') . '([^`]+)`/', $line, $m)) {
         $tableRowCounts[$m[1]] = ($tableRowCounts[$m[1]] ?? 0) + substr_count($line, '),(') + 1;
     }

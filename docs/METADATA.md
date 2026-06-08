@@ -130,17 +130,24 @@ Detail API returns structured objects:
 
 `custom` is built from `field_values` + schema — not a flat bag of 200 meta keys.
 
-## ACF import rules (`legacy:import-acf-fields`)
+## ACF import rules (`legacy:import-acf`)
 
-1. Parse bundled or configured ACF JSON (`resources/legacy-acf/*.json`).
-2. Skip UI-only types: `tab`, `message`, `accordion`.
-3. For each field, set `entity` from location rules (`application` → `lead`, `store` → `store`, …).
-4. Classify storage:
-   - In grid default columns or aggregation list → `storage=column`, create/migrate column if missing.
-   - User/post reference → `storage=foreign_key`.
-   - Repeater/group → `storage=relation` or `value_json` with documented shape.
+1. Sync JSON from Zorzees: `php artisan legacy:sync-acf-json` (optional path via `FIL_LEGACY_ACF_PATH`).
+2. Parse bundled or synced ACF JSON (`resources/legacy-acf/group_*.json`).
+3. Skip UI-only types: `tab`, `message`, `accordion`, `hidden`.
+4. For each field, set `entity` from location rules and **`legacy_post_type`** from ACF `post_type` (e.g. `application`, `store`, `franchise_location`).
+5. Multi-CPT groups (private/admin notes) import as separate FIL groups per post type (`private-notes-store`, etc.).
+6. Classify storage:
+   - In grid default columns or aggregation list → `storage=column`.
+   - User/post reference → `storage=foreign_key` or relation links.
+   - Repeater → `field_repeater_rows` / `field_repeater_values` (normalized); sub-fields use `parent_field_id`.
+   - ACF `group` containers are unwrapped (no `FieldTypes::GROUP`).
    - Else → `storage=field_value`.
-5. Copy choices into `fields.config` for selects.
+7. Copy choices into `fields.config` for selects.
+
+Field schema API: `GET /api/v1/fields?entity=store&legacy_post_type=franchise_location` returns only fields tagged for that legacy post type.
+
+Meta hygiene (`legacy:meta-hygiene`) and mapping gaps (`legacy:mapping-gaps --post-type=`) run per CPT before postmeta `--execute`. Orphan keys discovered via `legacy:infer-fields --post-type=`.
 
 ## What we explicitly avoid
 

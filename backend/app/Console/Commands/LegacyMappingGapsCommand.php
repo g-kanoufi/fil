@@ -13,6 +13,7 @@ final class LegacyMappingGapsCommand extends Command
                             {dump? : Path to .sql.gz dump}
                             {--prefix=vnzokz0zw_9_ : Legacy dump table prefix}
                             {--entity=store : FIL entity (store, lead, location, area, organization)}
+                            {--post-type= : Legacy post type override (application, store, franchise_location, area, organization)}
                             {--min=5 : Minimum postmeta row count to report a key}';
 
     protected $description = 'Report legacy postmeta keys not mapped to FIL fields, tier-1 columns, or documents.';
@@ -32,7 +33,18 @@ final class LegacyMappingGapsCommand extends Command
 
         $this->info("Analyzing {$entity} postmeta in {$dump} (min count {$min})…");
 
-        $report = $service->analyze($dump, (string) $this->option('prefix'), $entity, $min);
+        $postTypeOption = $this->option('post-type');
+        $legacyPostType = is_string($postTypeOption) && $postTypeOption !== ''
+            ? $postTypeOption
+            : null;
+
+        $report = $service->analyze(
+            $dump,
+            (string) $this->option('prefix'),
+            $entity,
+            $min,
+            $legacyPostType,
+        );
 
         $this->line(sprintf(
             'Legacy %s posts: %d · postmeta rows scanned: %d',

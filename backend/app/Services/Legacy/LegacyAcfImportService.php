@@ -35,53 +35,86 @@ final class LegacyAcfImportService
             }
 
             $legacyKey = (string) $json['key'];
-            $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $json['location'] ?? []);
+            $location = $json['location'] ?? [];
+            /** @var array<string, array<string, mixed>> $configuredGroups */
+            $configuredGroups = config('fil-legacy-acf.groups', []);
+            $groupConfig = $configuredGroups[$legacyKey] ?? [];
+            /** @var array<string, array<string, mixed>>|null $variants */
+            $variants = $groupConfig['post_type_variants'] ?? null;
 
-            if ($meta === null) {
-                $skippedGroups++;
+            if (is_array($variants) && $variants !== []) {
+                foreach ($variants as $postType => $variant) {
+                    if (($variant['import'] ?? true) === false) {
+                        continue;
+                    }
+
+                    $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $location, (string) $postType, $variant);
+
+                    if ($meta === null) {
+                        continue;
+                    }
+
+                    [$importedGroups, $importedFields] = $this->importResolvedGroup(
+                        $json,
+                        $legacyKey,
+                        $meta,
+                        $sortCounters,
+                        $importedGroups,
+                        $importedFields,
+                    );
+                }
 
                 continue;
             }
 
-            $entity = $meta['entity'] ?: $defaultEntity;
-            $groupKey = $meta['key'];
+            $postTypes = $this->groups->postTypesFromLocation($location);
 
-            $group = FieldGroup::query()->firstOrCreate(
-                ['key' => $groupKey],
-                [
-                    'legacy_group_key' => $legacyKey,
-                    'title' => $meta['title'],
-                    'slug' => $groupKey,
-                    'sort_order' => $meta['sort_order'],
-                    'location_rules' => $json['location'] ?? null,
-                    'status' => 'active',
-                ],
-            );
+            if (count($postTypes) <= 1) {
+                $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $location);
 
-            if ($group->legacy_group_key === null) {
-                $group->legacy_group_key = $legacyKey;
+                if ($meta === null) {
+                    $skippedGroups++;
+
+                    continue;
+                }
+
+                [$importedGroups, $importedFields] = $this->importResolvedGroup(
+                    $json,
+                    $legacyKey,
+                    $meta,
+                    $sortCounters,
+                    $importedGroups,
+                    $importedFields,
+                );
+
+                continue;
             }
 
-            $group->fill([
-                'title' => $meta['title'],
-                'sort_order' => min($group->sort_order ?: 999, $meta['sort_order']),
-                'location_rules' => $json['location'] ?? $group->location_rules,
-                'status' => 'active',
-            ])->save();
+            foreach ($postTypes as $postType) {
+                $meta = $this->groups->resolve($legacyKey, (string) $json['title'], $location, $postType);
 
-            if (! isset($sortCounters[$groupKey])) {
-                $sortCounters[$groupKey] = (int) Field::query()->where('field_group_id', $group->id)->max('sort_order');
-                $importedGroups++;
+                if ($meta === null) {
+                    continue;
+                }
+
+                if ($meta['legacy_post_type'] === '') {
+                    $meta['legacy_post_type'] = $postType;
+                }
+
+                if (! isset($groupConfig['key']) && ! isset($groupConfig['merge_into'])) {
+                    $meta['key'] = $meta['key'].'-'.str_replace('_', '-', $postType);
+                    $meta['title'] = $meta['title'].' ('.$postType.')';
+                }
+
+                [$importedGroups, $importedFields] = $this->importResolvedGroup(
+                    $json,
+                    $legacyKey,
+                    $meta,
+                    $sortCounters,
+                    $importedGroups,
+                    $importedFields,
+                );
             }
-
-            $importedFields += $this->importFieldTree(
-                $json['fields'] ?? [],
-                $group,
-                $entity,
-                (string) ($meta['legacy_post_type'] ?? ''),
-                $sortCounters,
-                $groupKey,
-            );
         }
 
         return [
@@ -89,6 +122,73 @@ final class LegacyAcfImportService
             'fields' => $importedFields,
             'skipped_groups' => $skippedGroups,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $json
+     * @param  array{import: bool, key: string, title: string, entity: string, legacy_post_type: string, sort_order: int, merge_into?: string|null}  $meta
+     * @param  array<string, int>  $sortCounters
+     * @return array{0: int, 1: int}
+     */
+    private function importResolvedGroup(
+        array $json,
+        string $legacyKey,
+        array $meta,
+        array &$sortCounters,
+        int $importedGroups,
+        int $importedFields,
+    ): array {
+        $entity = $meta['entity'] ?: 'lead';
+        $groupKey = $meta['key'];
+
+        $group = FieldGroup::query()->firstOrCreate(
+            ['key' => $groupKey],
+            [
+                'legacy_group_key' => $this->uniqueLegacyGroupKey($legacyKey, $groupKey),
+                'title' => $meta['title'],
+                'slug' => $groupKey,
+                'sort_order' => $meta['sort_order'],
+                'location_rules' => $json['location'] ?? null,
+                'status' => 'active',
+            ],
+        );
+
+        if ($group->legacy_group_key === null) {
+            $group->legacy_group_key = $this->uniqueLegacyGroupKey($legacyKey, $groupKey);
+        }
+
+        $group->fill([
+            'title' => $meta['title'],
+            'sort_order' => min($group->sort_order ?: 999, $meta['sort_order']),
+            'location_rules' => $json['location'] ?? $group->location_rules,
+            'status' => 'active',
+        ])->save();
+
+        if (! isset($sortCounters[$groupKey])) {
+            $sortCounters[$groupKey] = (int) Field::query()->where('field_group_id', $group->id)->max('sort_order');
+            $importedGroups++;
+        }
+
+        $importedFields += $this->importFieldTree(
+            $json['fields'] ?? [],
+            $group,
+            $entity,
+            (string) ($meta['legacy_post_type'] ?? ''),
+            $sortCounters,
+            $groupKey,
+        );
+
+        return [$importedGroups, $importedFields];
+    }
+
+    private function uniqueLegacyGroupKey(string $legacyKey, string $groupKey): ?string
+    {
+        $claimed = FieldGroup::query()
+            ->where('legacy_group_key', $legacyKey)
+            ->where('key', '!=', $groupKey)
+            ->exists();
+
+        return $claimed ? null : $legacyKey;
     }
 
     /**

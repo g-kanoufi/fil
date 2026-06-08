@@ -9,12 +9,16 @@ final class LegacyPostTypeIndex
     /** @var array<int, string> */
     private array $typesByLegacyPostId = [];
 
+    /** @var array<int, string> */
+    private array $statusByLegacyPostId = [];
+
     /**
      * @return array<int, string>
      */
     public function build(string $dumpPath, string $prefix): array
     {
         $this->typesByLegacyPostId = [];
+        $this->statusByLegacyPostId = [];
         $tableNeedle = 'INSERT INTO `'.$prefix.'posts`';
 
         foreach (LegacySqlInsertReader::statements($dumpPath, $tableNeedle) as $statement) {
@@ -34,10 +38,12 @@ final class LegacyPostTypeIndex
                 }
 
                 $legacyPostId = (int) ($fields[0] ?? 0);
+                $postStatus = (string) ($fields[7] ?? '');
                 $postType = (string) ($fields[20] ?? '');
 
                 if ($legacyPostId > 0 && $postType !== '') {
                     $this->typesByLegacyPostId[$legacyPostId] = $postType;
+                    $this->statusByLegacyPostId[$legacyPostId] = $postStatus;
                 }
             }
         }
@@ -45,8 +51,38 @@ final class LegacyPostTypeIndex
         return $this->typesByLegacyPostId;
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function typesByLegacyPostId(): array
+    {
+        return $this->typesByLegacyPostId;
+    }
+
     public function typeFor(int $legacyPostId): ?string
     {
         return $this->typesByLegacyPostId[$legacyPostId] ?? null;
+    }
+
+    public function isEligible(int $legacyPostId): bool
+    {
+        $postType = $this->typeFor($legacyPostId);
+
+        if ($postType === null) {
+            return true;
+        }
+
+        $status = $this->statusByLegacyPostId[$legacyPostId] ?? '';
+
+        if (in_array($status, ['trash', 'auto-draft', 'inherit'], true)) {
+            return false;
+        }
+
+        /** @var list<string> $importable */
+        $importable = config('fil-legacy-acf.importable_post_types', [
+            'application', 'store', 'franchise_location', 'area', 'organization',
+        ]);
+
+        return in_array($postType, $importable, true);
     }
 }

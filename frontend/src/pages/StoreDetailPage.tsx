@@ -187,6 +187,18 @@ export function StoreDetailPage({
               setStore(updated);
             }}
           />
+
+          {store.franchise_location ? (
+            <EntityCustomFieldsPanel
+              entity="store"
+              legacyPostType="franchise_location"
+              panelTitle="Franchise location fields"
+              panelDescription="Location-scoped fields from the legacy franchise_location post type."
+              values={store.franchise_location.custom ?? {}}
+              canEdit={false}
+              onSave={async () => undefined}
+            />
+          ) : null}
         </Card>
 
         <StoreOpeningChecklistCard storeId={store.id} canEdit={canEditStore} />

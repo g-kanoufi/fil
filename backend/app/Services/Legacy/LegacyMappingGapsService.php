@@ -19,6 +19,15 @@ final class LegacyMappingGapsService
         'organization' => 'organization',
     ];
 
+    /** @var array<string, string> */
+    private const POST_TYPE_ENTITIES = [
+        'application' => 'lead',
+        'store' => 'store',
+        'franchise_location' => 'location',
+        'area' => 'area',
+        'organization' => 'organization',
+    ];
+
     public function __construct(
         private readonly LegacyExtrasKeyResolver $resolver,
         private readonly LegacyAcfFilePatternBuilder $filePatterns,
@@ -34,12 +43,27 @@ final class LegacyMappingGapsService
      *     buckets: array<string, list<array{key: string, count: int, note?: string}>>
      * }
      */
-    public function analyze(string $dumpPath, string $prefix, string $entity, int $minCount = 5): array
-    {
-        $postType = self::ENTITY_POST_TYPES[$entity] ?? null;
+    public function analyze(
+        string $dumpPath,
+        string $prefix,
+        string $entity,
+        int $minCount = 5,
+        ?string $legacyPostType = null,
+    ): array {
+        $postType = $legacyPostType ?? self::ENTITY_POST_TYPES[$entity] ?? null;
 
         if ($postType === null) {
             throw new \InvalidArgumentException("Unknown entity: {$entity}");
+        }
+
+        if ($legacyPostType !== null) {
+            $inferredEntity = self::POST_TYPE_ENTITIES[$legacyPostType] ?? null;
+
+            if ($inferredEntity !== null && $inferredEntity !== $entity) {
+                throw new \InvalidArgumentException(
+                    "Entity {$entity} does not match legacy post type {$legacyPostType} (expected {$inferredEntity}).",
+                );
+            }
         }
 
         $postIds = $this->collectPostIds($dumpPath, $prefix.'posts', $postType);

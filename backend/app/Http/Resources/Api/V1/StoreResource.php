@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Models\FranchiseLocation;
 use App\Models\Store;
 use App\Services\Fields\EntityFieldValueReader;
 use Illuminate\Http\Request;
@@ -35,6 +36,22 @@ final class StoreResource extends JsonResource
             'custom' => $this->when(
                 $request->routeIs('api.v1.stores.show', 'api.v1.stores.update', 'api.v1.stores.store'),
                 fn (): array => app(EntityFieldValueReader::class)->forEntity('store', $this->id),
+            ),
+            'franchise_location' => $this->when(
+                $request->routeIs('api.v1.stores.show', 'api.v1.stores.update'),
+                function (): ?array {
+                    $location = FranchiseLocation::query()->where('store_id', $this->id)->orderBy('id')->first();
+
+                    if ($location === null) {
+                        return null;
+                    }
+
+                    return [
+                        'id' => $location->id,
+                        'name' => $location->name,
+                        'custom' => app(EntityFieldValueReader::class)->forEntity('store', $location->id),
+                    ];
+                },
             ),
         ];
     }

@@ -51,7 +51,23 @@ SKIP_E2E=1 ./scripts/phase4-prep-local.sh
 
 ---
 
-## Slim dump from full production export
+## Pre-import (Z dump parity)
+
+Before postmeta `--execute` on a client dump:
+
+```bash
+cd backend
+php artisan legacy:sync-acf-json                    # refresh resources/legacy-acf from z-acf-sync
+php artisan legacy:acf-catalog                      # manifest → docs/legacy-acf-site-9-manifest.json
+php artisan legacy:meta-hygiene ../data/client.sql.gz --post-type=store
+php artisan legacy:mapping-gaps ../data/client.sql.gz --entity=store --post-type=store
+php artisan legacy:infer-fields ../data/client.sql.gz --post-type=store
+php artisan legacy:import-baseline-compare            # golden JSON regression (CI)
+```
+
+After schema import: `legacy:import-acf` then entity/postmeta/options imports per [PHASE4_PROD_DATA.md](./PHASE4_PROD_DATA.md).
+
+---
 
 Full multisite exports are often multi-GB. Keep only **site 9** (`vnzokz0zw_9_*`) plus network tables (`users`, `usermeta`, `site`, `sitemeta`, `blogs`, `blogmeta`):
 

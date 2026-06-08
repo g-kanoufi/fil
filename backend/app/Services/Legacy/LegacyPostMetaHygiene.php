@@ -15,7 +15,32 @@ final class LegacyPostMetaHygiene
 {
     public function __construct(
         private readonly LegacyExtrasKeyResolver $keyResolver,
+        private readonly LegacyPostTypeIndex $postTypes,
     ) {}
+
+    public function isEligiblePost(int $legacyPostId): bool
+    {
+        return $this->postTypes->isEligible($legacyPostId);
+    }
+
+    public function isEmptyValue(mixed $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+
+        if (! is_string($value)) {
+            return false;
+        }
+
+        $trimmed = trim($value);
+
+        if ($trimmed === '') {
+            return true;
+        }
+
+        return in_array($trimmed, ['a:0:{}', 'N;', 'b:0;', '[]', '{}', '0'], true);
+    }
 
     /**
      * @param  Collection<string, Field>  $fieldIndex
@@ -26,7 +51,11 @@ final class LegacyPostMetaHygiene
         Collection $fieldIndex,
         bool $hasDirectTarget,
         ?array $fieldValueTarget,
+        int $legacyPostId = 0,
     ): bool {
+        if ($legacyPostId > 0 && ! $this->isEligiblePost($legacyPostId)) {
+            return false;
+        }
         if ($hasDirectTarget || $fieldValueTarget !== null) {
             return true;
         }

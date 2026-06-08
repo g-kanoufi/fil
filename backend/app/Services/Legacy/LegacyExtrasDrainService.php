@@ -7,7 +7,6 @@ namespace App\Services\Legacy;
 use App\Models\Area;
 use App\Models\Field;
 use App\Models\FieldGroup;
-use App\Models\FranchiseLocation;
 use App\Models\Lead;
 use App\Models\Organization;
 use App\Models\Store;
@@ -25,6 +24,7 @@ final class LegacyExtrasDrainService
         private readonly LegacyExtrasKeyResolver $keyResolver,
         private readonly LegacyAcfMetaKeyCatalog $metaKeyCatalog,
         private readonly LegacyRepeaterMetaAggregator $repeaterMeta,
+        private readonly LegacyEntityRecordResolver $entityRecords,
     ) {}
 
     /**
@@ -128,7 +128,7 @@ final class LegacyExtrasDrainService
             return null;
         }
 
-        $entityId = $this->resolveEntityId($field->entity, $legacyPostId);
+        $entityId = $this->entityRecords->resolveRecordId($field->entity, $legacyPostId, $legacyPostType);
 
         if ($entityId === null) {
             return null;
@@ -406,16 +406,6 @@ final class LegacyExtrasDrainService
 
     private function resolveEntityId(string $entity, int $legacyPostId): ?int
     {
-        $id = match ($entity) {
-            'lead' => Lead::query()->where('legacy_post_id', $legacyPostId)->value('id'),
-            'store' => Store::query()->where('legacy_post_id', $legacyPostId)->value('id'),
-            'area' => Area::query()->where('legacy_post_id', $legacyPostId)->value('id'),
-            'organization' => Organization::query()->where('legacy_post_id', $legacyPostId)->value('id'),
-            'contact' => User::query()->where('legacy_user_id', $legacyPostId)->value('id'),
-            'franchise_location' => FranchiseLocation::query()->where('legacy_post_id', $legacyPostId)->value('id'),
-            default => null,
-        };
-
-        return $id !== null ? (int) $id : null;
+        return $this->entityRecords->resolveRecordId($entity, $legacyPostId);
     }
 }

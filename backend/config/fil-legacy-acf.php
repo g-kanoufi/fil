@@ -13,6 +13,15 @@ return [
     /** Skip unregistered postmeta orphans during import (delegates to LegacyExtrasKeyResolver). */
     'meta_hygiene' => env('FIL_LEGACY_META_HYGIENE', true),
 
+    /** Legacy post types eligible for postmeta import. */
+    'importable_post_types' => [
+        'application',
+        'store',
+        'franchise_location',
+        'area',
+        'organization',
+    ],
+
     /** Legacy post_type (or user_form:edit) → FIL field entity. */
     'post_type_entity' => [
         'application' => 'lead',
@@ -33,18 +42,34 @@ return [
      * import: false skips the entire group (theme, CMS, out-of-scope CPTs).
      */
     'groups' => [
-        'group_5654f5590ab60' => ['key' => 'applications', 'title' => 'Applications', 'entity' => 'lead', 'sort_order' => 1, 'import' => true],
-        'group_567601fc21316' => ['key' => 'applications', 'title' => 'Applications', 'entity' => 'lead', 'sort_order' => 1, 'import' => true, 'merge_into' => 'applications'],
-        'group_6189e128256d8' => ['key' => 'applications', 'title' => 'Applications', 'entity' => 'lead', 'sort_order' => 1, 'import' => true, 'merge_into' => 'applications'],
-        'group_565feadf7950b' => ['key' => 'user', 'title' => 'User', 'entity' => 'contact', 'sort_order' => 2, 'import' => true],
-        'group_5f70df9415de8' => ['key' => 'user', 'title' => 'User', 'entity' => 'contact', 'sort_order' => 2, 'import' => true, 'merge_into' => 'user'],
-        'group_5e55f6ed3094a' => ['key' => 'units', 'title' => 'Units', 'entity' => 'store', 'sort_order' => 10, 'import' => true],
-        'group_5f6adcab783f1' => ['key' => 'units', 'title' => 'Units', 'entity' => 'store', 'sort_order' => 10, 'import' => true, 'merge_into' => 'units'],
-        'group_570fc6f67d6f6' => ['key' => 'locations', 'title' => 'Locations', 'entity' => 'store', 'sort_order' => 11, 'import' => true],
-        'group_56b9dc28339ca' => ['key' => 'areas', 'title' => 'Areas', 'entity' => 'area', 'sort_order' => 20, 'import' => true],
-        'group_5717a09892747' => ['key' => 'organizations', 'title' => 'Organizations', 'entity' => 'organization', 'sort_order' => 21, 'import' => true],
-        'group_59317c8b85cc7' => ['key' => 'private-notes', 'title' => 'Private notes', 'entity' => 'lead', 'sort_order' => 30, 'import' => true],
-        'group_58a1db94b0edc' => ['key' => 'administrative-notes', 'title' => 'Administrative notes', 'entity' => 'lead', 'sort_order' => 31, 'import' => true],
+        'group_5654f5590ab60' => ['key' => 'applications', 'title' => 'Applications', 'entity' => 'lead', 'sort_order' => 1, 'import' => true, 'legacy_post_type' => 'application'],
+        'group_567601fc21316' => ['key' => 'applications-advanced', 'title' => 'Applications advanced', 'entity' => 'lead', 'sort_order' => 2, 'import' => true, 'legacy_post_type' => 'application'],
+        'group_6189e128256d8' => ['key' => 'applications', 'title' => 'Applications', 'entity' => 'lead', 'sort_order' => 1, 'import' => true, 'merge_into' => 'applications', 'legacy_post_type' => 'application'],
+        'group_565feadf7950b' => ['key' => 'user', 'title' => 'User', 'entity' => 'contact', 'sort_order' => 2, 'import' => true, 'legacy_post_type' => 'user'],
+        'group_5f70df9415de8' => ['key' => 'user-client-fields', 'title' => 'Client fields (user)', 'entity' => 'contact', 'sort_order' => 3, 'import' => true, 'legacy_post_type' => 'user'],
+        'group_5e55f6ed3094a' => ['key' => 'units', 'title' => 'Units', 'entity' => 'store', 'sort_order' => 10, 'import' => true, 'legacy_post_type' => 'store'],
+        'group_5f6adcab783f1' => ['key' => 'units-client-fields', 'title' => 'Client fields (store)', 'entity' => 'store', 'sort_order' => 12, 'import' => true, 'legacy_post_type' => 'store'],
+        'group_570fc6f67d6f6' => ['key' => 'locations', 'title' => 'Locations', 'entity' => 'store', 'sort_order' => 11, 'import' => true, 'legacy_post_type' => 'franchise_location'],
+        'group_56b9dc28339ca' => ['key' => 'areas', 'title' => 'Areas', 'entity' => 'area', 'sort_order' => 20, 'import' => true, 'legacy_post_type' => 'area'],
+        'group_5717a09892747' => ['key' => 'organizations', 'title' => 'Organizations', 'entity' => 'organization', 'sort_order' => 21, 'import' => true, 'legacy_post_type' => 'organization'],
+        'group_59317c8b85cc7' => [
+            'import' => true,
+            'post_type_variants' => [
+                'application' => ['key' => 'private-notes-application', 'title' => 'Private notes (application)', 'entity' => 'lead', 'sort_order' => 30],
+                'store' => ['key' => 'private-notes-store', 'title' => 'Private notes (store)', 'entity' => 'store', 'sort_order' => 30],
+                'franchise_location' => ['key' => 'private-notes-location', 'title' => 'Private notes (location)', 'entity' => 'store', 'sort_order' => 30],
+                'user' => ['import' => false],
+            ],
+        ],
+        'group_58a1db94b0edc' => [
+            'import' => true,
+            'post_type_variants' => [
+                'application' => ['key' => 'admin-notes-application', 'title' => 'Administrative notes (application)', 'entity' => 'lead', 'sort_order' => 31],
+                'store' => ['key' => 'admin-notes-store', 'title' => 'Administrative notes (store)', 'entity' => 'store', 'sort_order' => 31],
+                'franchise_location' => ['key' => 'admin-notes-location', 'title' => 'Administrative notes (location)', 'entity' => 'store', 'sort_order' => 31],
+                'user' => ['import' => false],
+            ],
+        ],
         // Out of FIL MVP scope — never import as CRM custom fields.
         'group_5a1eee3abc04f' => ['import' => false], // React App options
         'group_5624541241c2f' => ['import' => false], // Franchise options
@@ -269,5 +294,23 @@ return [
         'history_table' => 'Legacy inline history grid — use activity timeline instead',
         'private_notes' => 'Legacy private-notes repeater on store — import via lead notes / activity',
         'contact_group' => 'Legacy flat contact fields — superseded by prospect user + lead columns',
+    ],
+
+    /**
+     * Legacy wp_options (ACF options pages + WP core) → FIL client_settings keys.
+     * Values are read from the network options table as options_{acf_field_name}.
+     */
+    'client_settings' => [
+        'brandName' => ['brand_name', 'short_brand_name'],
+        'logoUrl' => ['logo_react_app', 'logo_main_brand'],
+        'faviconUrl' => ['logo_mark'],
+        'highlightColor' => ['react_top_bar_color'],
+        'linkColor' => ['react_link_color'],
+        'topBarColor' => ['react_top_bar_color'],
+        'menuColor' => ['menu_color'],
+        'textColor' => ['text_color'],
+        'clientBranding' => ['client_branding'],
+        'enable_zai' => ['fo_enable_zai'],
+        'timeZone' => ['timezone_string'],
     ],
 ];

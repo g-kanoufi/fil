@@ -88,13 +88,20 @@ final class FieldSchemaSeeder extends Seeder
 
         $allowedGroupKeys = [
             'applications',
+            'applications-advanced',
             'user',
+            'user-client-fields',
             'units',
+            'units-client-fields',
             'locations',
             'areas',
             'organizations',
-            'private-notes',
-            'administrative-notes',
+            'private-notes-application',
+            'private-notes-store',
+            'private-notes-location',
+            'admin-notes-application',
+            'admin-notes-store',
+            'admin-notes-location',
             'contact_profile',
         ];
 

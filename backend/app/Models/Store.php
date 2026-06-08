@@ -74,4 +74,9 @@ final class Store extends Model
     {
         return $this->hasMany(StoreOpeningChecklistItem::class);
     }
+
+    public function franchiseLocations(): HasMany
+    {
+        return $this->hasMany(FranchiseLocation::class);
+    }
 }

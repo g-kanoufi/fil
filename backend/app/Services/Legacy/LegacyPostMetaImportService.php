@@ -53,6 +53,7 @@ final class LegacyPostMetaImportService
         private readonly FieldValueWriter $fieldValues,
         private readonly LegacyPostTypeIndex $postTypes,
         private readonly LegacyPostMetaHygiene $metaHygiene,
+        private readonly LegacyPostMetaRepeaterBuffer $repeaterBuffer,
     ) {}
 
     /**
@@ -60,7 +61,7 @@ final class LegacyPostMetaImportService
      */
     public function import(string $dumpPath, string $prefix, bool $execute): array
     {
-        $stats = ['applied' => 0, 'field_values' => 0, 'extras' => 0, 'skipped' => 0];
+        $stats = ['applied' => 0, 'field_values' => 0, 'extras' => 0, 'skipped' => 0, 'repeaters' => 0];
         $fieldColumnMap = $this->fieldColumnMap();
         $this->postTypes->build($dumpPath, $prefix);
         /** @var array<string, Collection<string, Field>> $fieldIndexes */
@@ -81,7 +82,13 @@ final class LegacyPostMetaImportService
                     return;
                 }
 
-                if ($metaValue === null || $metaValue === '') {
+                if ($metaValue === null || $this->metaHygiene->isEmptyValue($metaValue)) {
+                    $stats['skipped']++;
+
+                    return;
+                }
+
+                if (! $this->metaHygiene->isEligiblePost($legacyPostId)) {
                     $stats['skipped']++;
 
                     return;
@@ -99,6 +106,22 @@ final class LegacyPostMetaImportService
 
                 $legacyPostType = $this->postTypes->typeFor($legacyPostId) ?? '';
                 $entityType = $this->entityForLegacyPostType($legacyPostType);
+                $indexKey = $entityType.'|'.$legacyPostType;
+                $fieldIndexes[$indexKey] ??= $this->scopedFieldIndex($entityType, $legacyPostType);
+
+                if ($this->repeaterBuffer->absorb(
+                    $legacyPostId,
+                    $entityType,
+                    $legacyPostType,
+                    $metaKey,
+                    $metaValue,
+                    $fieldIndexes[$indexKey],
+                )) {
+                    $stats['repeaters']++;
+
+                    return;
+                }
+
                 $target = $this->resolveTarget($legacyPostId, $metaKey, (string) $metaValue, $fieldColumnMap);
 
                 if ($target === null) {
@@ -110,15 +133,13 @@ final class LegacyPostMetaImportService
                     );
 
                     if ($metaHygieneEnabled) {
-                        $indexKey = $entityType.'|'.$legacyPostType;
-                        $fieldIndexes[$indexKey] ??= $this->scopedFieldIndex($entityType, $legacyPostType);
-
                         if (! $this->metaHygiene->shouldImport(
                             $metaKey,
                             $entityType,
                             $fieldIndexes[$indexKey],
                             false,
                             $fieldValue,
+                            $legacyPostId,
                         )) {
                             $stats['skipped']++;
 
@@ -161,6 +182,15 @@ final class LegacyPostMetaImportService
         );
 
         $stats['skipped'] += $result['skipped'];
+
+        if ($execute) {
+            $repeaterStats = $this->repeaterBuffer->flush(true);
+        } else {
+            $repeaterStats = $this->repeaterBuffer->flush(false);
+        }
+
+        $stats['repeaters'] = $repeaterStats['written'];
+        $stats['skipped'] += $repeaterStats['skipped'];
 
         return $stats;
     }

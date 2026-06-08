@@ -24,6 +24,8 @@ interface EntityCustomFieldsPanelProps {
   entity: 'lead' | 'store' | 'contact';
   /** Legacy WordPress post_type for schema scoping (e.g. application, store). */
   legacyPostType?: string;
+  panelTitle?: string;
+  panelDescription?: string;
   values: Record<string, unknown>;
   canEdit: boolean;
   onSave: (custom: Record<string, unknown>) => Promise<void>;
@@ -89,6 +91,20 @@ function renderFieldInput(
     );
   }
 
+  if (field.type === 'repeater') {
+    const rows = Array.isArray(value) ? value : [];
+
+    return (
+      <div className="mt-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted">
+        {rows.length === 0 ? (
+          <span>—</span>
+        ) : (
+          <pre className="overflow-x-auto whitespace-pre-wrap">{JSON.stringify(rows, null, 2)}</pre>
+        )}
+      </div>
+    );
+  }
+
   const inputType =
     field.type === 'number' || field.type === 'range'
       ? 'number'
@@ -116,6 +132,8 @@ function renderFieldInput(
 export function EntityCustomFieldsPanel({
   entity,
   legacyPostType,
+  panelTitle = 'Custom fields',
+  panelDescription = 'Schema-driven values for this record.',
   values,
   canEdit,
   onSave,
@@ -156,7 +174,7 @@ export function EntityCustomFieldsPanel({
         group.fields.filter(
           (field) =>
             field.status === 'active'
-            && SCALAR_TYPES.has(field.type)
+            && (SCALAR_TYPES.has(field.type) || field.type === 'repeater')
             && field.storage === 'field_value'
             && !isFieldHidden(field.key),
         ),
@@ -177,6 +195,10 @@ export function EntityCustomFieldsPanel({
       const payload: Record<string, unknown> = {};
 
       for (const field of editableFields) {
+        if (field.type === 'repeater') {
+          continue;
+        }
+
         if (field.key in draft) {
           payload[field.key] = draft[field.key];
         }
@@ -192,7 +214,7 @@ export function EntityCustomFieldsPanel({
 
   return (
     <div className="mt-6 space-y-4 border-t border-border pt-4">
-      <CardHeader title="Custom fields" description="Schema-driven values for this record." />
+      <CardHeader title={panelTitle} description={panelDescription} />
       <AsyncSection
         status={status}
         loadingLabel="Loading custom fields…"
@@ -204,7 +226,7 @@ export function EntityCustomFieldsPanel({
         <form onSubmit={(event) => void onSubmit(event)} className="space-y-4">
           <div className="space-y-4">
             {editableFields.map((field) => {
-              const readOnly = !canEdit || isFieldReadonly(field.key);
+              const readOnly = !canEdit || isFieldReadonly(field.key) || field.type === 'repeater';
 
               return (
                 <div key={field.id}>
