@@ -7,7 +7,7 @@ namespace App\Http\Resources\Api\V1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin array{entity: string, groups: mixed, hidden_field_keys: list<string>, readonly_field_keys: list<string>} */
+/** @mixin array{entity: string, legacy_post_type: ?string, groups: mixed, hidden_field_keys: list<string>, readonly_field_keys: list<string>} */
 final class FieldSchemaResource extends JsonResource
 {
     /**
@@ -17,6 +17,7 @@ final class FieldSchemaResource extends JsonResource
     {
         return [
             'entity' => $this->resource['entity'],
+            'legacy_post_type' => $this->resource['legacy_post_type'] ?? null,
             'groups' => FieldGroupResource::collection($this->resource['groups']),
             'hidden_field_keys' => $this->resource['hidden_field_keys'],
             'readonly_field_keys' => $this->resource['readonly_field_keys'],

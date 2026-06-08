@@ -52,6 +52,7 @@ return [
         'dump_path' => env('FIL_LEGACY_DUMP_PATH', '../data/local.sql.gz'),
         'table_prefix' => env('FIL_LEGACY_TABLE_PREFIX', 'vnzokz0zw_9_'),
         'acf_path' => env('FIL_LEGACY_ACF_PATH', base_path('resources/legacy-acf')),
+        'acf_source_path' => env('FIL_LEGACY_ACF_SOURCE', ''),
         'role_map' => [
             'administrator' => 'admin',
             'franchiseadmin' => 'franchisor',

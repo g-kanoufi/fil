@@ -58,7 +58,7 @@ export function LeadEditForm({ lead, canEdit, onUpdated, onError }: LeadEditForm
   useEffect(() => {
     let cancelled = false;
 
-    void fetchFieldSchema('lead')
+    void fetchFieldSchema('lead', 'application')
       .then((groups) => {
         if (!cancelled) {
           setSchemaFields(tierOneFieldMap(groups, [...TIER_ONE_KEYS]));

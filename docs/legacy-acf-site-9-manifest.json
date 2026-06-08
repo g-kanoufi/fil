@@ -1,0 +1,421 @@
+{
+    "generated_at": "2026-06-08T10:10:04+00:00",
+    "source_path": "/Users/mba/Projects/Cursor/fil/backend/resources/legacy-acf",
+    "groups": [
+        {
+            "file": "group_58a1db94b0edc.json",
+            "legacy_group_key": "group_58a1db94b0edc",
+            "title": "Administrative Notes",
+            "post_types": [
+                "store",
+                "application",
+                "franchise_location",
+                "user"
+            ],
+            "import": true,
+            "fil_group_key": "administrative-notes",
+            "entity": "lead",
+            "legacy_post_type": "store"
+        },
+        {
+            "file": "group_5654f5590ab60.json",
+            "legacy_group_key": "group_5654f5590ab60",
+            "title": "Applications",
+            "post_types": [
+                "application"
+            ],
+            "import": true,
+            "fil_group_key": "applications",
+            "entity": "lead",
+            "legacy_post_type": "application"
+        },
+        {
+            "file": "group_567601fc21316.json",
+            "legacy_group_key": "group_567601fc21316",
+            "title": "Applications - Advanced",
+            "post_types": [
+                "application"
+            ],
+            "import": true,
+            "fil_group_key": "applications",
+            "entity": "lead",
+            "legacy_post_type": "application"
+        },
+        {
+            "file": "group_6189e128256d8.json",
+            "legacy_group_key": "group_6189e128256d8",
+            "title": "Applications - Frontend",
+            "post_types": [],
+            "import": true,
+            "fil_group_key": "applications",
+            "entity": "lead",
+            "legacy_post_type": ""
+        },
+        {
+            "file": "group_56b9dc28339ca.json",
+            "legacy_group_key": "group_56b9dc28339ca",
+            "title": "Areas",
+            "post_types": [
+                "area"
+            ],
+            "import": true,
+            "fil_group_key": "areas",
+            "entity": "area",
+            "legacy_post_type": "area"
+        },
+        {
+            "file": "group_63b3805654209.json",
+            "legacy_group_key": "group_63b3805654209",
+            "title": "Billing",
+            "post_types": [
+                "invoice"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5717a09892747.json",
+            "legacy_group_key": "group_5717a09892747",
+            "title": "Business",
+            "post_types": [
+                "organization"
+            ],
+            "import": true,
+            "fil_group_key": "organizations",
+            "entity": "organization",
+            "legacy_post_type": "organization"
+        },
+        {
+            "file": "group_57e105b8d6286.json",
+            "legacy_group_key": "group_57e105b8d6286",
+            "title": "Candidates",
+            "post_types": [
+                "franchise_candidates"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5f6adcab783f1.json",
+            "legacy_group_key": "group_5f6adcab783f1",
+            "title": "Client Fields - Prime IV - Store CPT",
+            "post_types": [
+                "store"
+            ],
+            "import": true,
+            "fil_group_key": "units",
+            "entity": "store",
+            "legacy_post_type": "store"
+        },
+        {
+            "file": "group_5f70df9415de8.json",
+            "legacy_group_key": "group_5f70df9415de8",
+            "title": "Client Fields - Prime IV - Users",
+            "post_types": [
+                "user"
+            ],
+            "import": true,
+            "fil_group_key": "user",
+            "entity": "contact",
+            "legacy_post_type": "user"
+        },
+        {
+            "file": "group_58ff2d7671206.json",
+            "legacy_group_key": "group_58ff2d7671206",
+            "title": "Customer Feedback",
+            "post_types": [
+                "franchise_feedback"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_603296bc61579.json",
+            "legacy_group_key": "group_603296bc61579",
+            "title": "Customer Inquiry",
+            "post_types": [
+                "customer_entry"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5c6397ff79839.json",
+            "legacy_group_key": "group_5c6397ff79839",
+            "title": "Dashboard Alerts",
+            "post_types": [],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5621b13996297.json",
+            "legacy_group_key": "group_5621b13996297",
+            "title": "FDDs",
+            "post_types": [
+                "grabbafdd",
+                "areafdd"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5624541241c2f.json",
+            "legacy_group_key": "group_5624541241c2f",
+            "title": "Franchise Options",
+            "post_types": [],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5be8d65f79b0d.json",
+            "legacy_group_key": "group_5be8d65f79b0d",
+            "title": "Inspection Types",
+            "post_types": [
+                "inspection_type"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5be8e8a2b2172.json",
+            "legacy_group_key": "group_5be8e8a2b2172",
+            "title": "Inspections",
+            "post_types": [
+                "inspection"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_57da7f9d9f47a.json",
+            "legacy_group_key": "group_57da7f9d9f47a",
+            "title": "Jobs",
+            "post_types": [
+                "franchise_jobs"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_570fc6f67d6f6.json",
+            "legacy_group_key": "group_570fc6f67d6f6",
+            "title": "Locations",
+            "post_types": [
+                "franchise_location"
+            ],
+            "import": true,
+            "fil_group_key": "locations",
+            "entity": "store",
+            "legacy_post_type": "franchise_location"
+        },
+        {
+            "file": "group_5e8c2f8688a25.json",
+            "legacy_group_key": "group_5e8c2f8688a25",
+            "title": "News",
+            "post_types": [
+                "fl_dashboard_note"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5fce9d760925c.json",
+            "legacy_group_key": "group_5fce9d760925c",
+            "title": "Payments",
+            "post_types": [],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_59317c8b85cc7.json",
+            "legacy_group_key": "group_59317c8b85cc7",
+            "title": "Private Notes",
+            "post_types": [
+                "store",
+                "application",
+                "franchise_location",
+                "user"
+            ],
+            "import": true,
+            "fil_group_key": "private-notes",
+            "entity": "lead",
+            "legacy_post_type": "store"
+        },
+        {
+            "file": "group_5a1eee3abc04f.json",
+            "legacy_group_key": "group_5a1eee3abc04f",
+            "title": "React App",
+            "post_types": [],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_58df2ebeb265d.json",
+            "legacy_group_key": "group_58df2ebeb265d",
+            "title": "Resources",
+            "post_types": [
+                "franchise_operation"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_644756352226d.json",
+            "legacy_group_key": "group_644756352226d",
+            "title": "Territories",
+            "post_types": [
+                "z_territory"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5b154cc14535e.json",
+            "legacy_group_key": "group_5b154cc14535e",
+            "title": "Theme - Featured Image Caption",
+            "post_types": [
+                "page"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5e33f7593eab2.json",
+            "legacy_group_key": "group_5e33f7593eab2",
+            "title": "Theme - Featured Images Slider",
+            "post_types": [
+                "page"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5b1161b9bead4.json",
+            "legacy_group_key": "group_5b1161b9bead4",
+            "title": "Theme - Slider",
+            "post_types": [
+                "page"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5c3e17a843a14.json",
+            "legacy_group_key": "group_5c3e17a843a14",
+            "title": "Theme - Validators",
+            "post_types": [
+                "post",
+                "page",
+                "franchise_location"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_575586713f2ff.json",
+            "legacy_group_key": "group_575586713f2ff",
+            "title": "Theme - faq",
+            "post_types": [],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_574fffefa31f8.json",
+            "legacy_group_key": "group_574fffefa31f8",
+            "title": "Theme - menu",
+            "post_types": [
+                "page"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_5e55f6ed3094a.json",
+            "legacy_group_key": "group_5e55f6ed3094a",
+            "title": "Units",
+            "post_types": [
+                "store"
+            ],
+            "import": true,
+            "fil_group_key": "units",
+            "entity": "store",
+            "legacy_post_type": "store"
+        },
+        {
+            "file": "group_565feadf7950b.json",
+            "legacy_group_key": "group_565feadf7950b",
+            "title": "Users",
+            "post_types": [],
+            "import": true,
+            "fil_group_key": "user",
+            "entity": "contact",
+            "legacy_post_type": ""
+        },
+        {
+            "file": "group_578ea6513978c.json",
+            "legacy_group_key": "group_578ea6513978c",
+            "title": "eSignature Templates",
+            "post_types": [
+                "fl-signature-tpl"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        },
+        {
+            "file": "group_578e4f8b6a6a6.json",
+            "legacy_group_key": "group_578e4f8b6a6a6",
+            "title": "eSignatures",
+            "post_types": [
+                "fl-signature"
+            ],
+            "import": false,
+            "fil_group_key": null,
+            "entity": null,
+            "legacy_post_type": null
+        }
+    ]
+}

@@ -10,6 +10,9 @@ use App\Support\Fields\FieldTypes;
  * Run `php artisan legacy:import-acf` after changing bundled JSON or this map.
  */
 return [
+    /** Skip unregistered postmeta orphans during import (delegates to LegacyExtrasKeyResolver). */
+    'meta_hygiene' => env('FIL_LEGACY_META_HYGIENE', true),
+
     /** Legacy post_type (or user_form:edit) → FIL field entity. */
     'post_type_entity' => [
         'application' => 'lead',
@@ -17,6 +20,7 @@ return [
         'franchise_location' => 'store',
         'area' => 'area',
         'organization' => 'organization',
+        'user' => 'contact',
         'user_form:edit' => 'contact',
         'user_form:register' => 'contact',
         'user_form:add' => 'contact',
@@ -46,6 +50,12 @@ return [
         'group_5624541241c2f' => ['import' => false], // Franchise options
         'group_5621b13996297' => ['import' => false], // FDD CPT (native fdds table)
         'group_644756352226d' => ['import' => false], // Territories plugin
+        'group_5c3e17a843a14' => ['import' => false], // Theme - Validators (CMS; not CRM)
+        'group_5b154cc14535e' => ['import' => false], // Theme - Featured Image Caption
+        'group_5e33f7593eab2' => ['import' => false], // Theme - Featured Images Slider
+        'group_5b1161b9bead4' => ['import' => false], // Theme - Slider
+        'group_575586713f2ff' => ['import' => false], // Theme - faq
+        'group_574fffefa31f8' => ['import' => false], // Theme - menu
     ],
 
     /** Never imported — helper keys, grid UI, or derived status fields. */

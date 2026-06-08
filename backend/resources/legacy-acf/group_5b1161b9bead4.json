@@ -1,0 +1,114 @@
+{
+    "key": "group_5b1161b9bead4",
+    "title": "Theme - Slider",
+    "fields": [
+        {
+            "key": "field_5b1165acb1a5e",
+            "label": "Slides",
+            "name": "slides",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl_acf_override_master": 0,
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "row",
+            "button_label": "Add Slide",
+            "sub_fields": [
+                {
+                    "key": "field_5b1165bdb1a5f",
+                    "label": "Image",
+                    "name": "slide-image",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_master": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "return_format": "id",
+                    "preview_size": "medium",
+                    "library": "uploadedTo",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": ""
+                },
+                {
+                    "key": "field_5b1166a268b39",
+                    "label": "Caption",
+                    "name": "slide-caption",
+                    "type": "wysiwyg",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_master": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "default_value": "",
+                    "tabs": "text",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 0
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "page"
+            },
+            {
+                "param": "page",
+                "operator": "==",
+                "value": "1359"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "featured_image"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "modified": 1644597245
+}

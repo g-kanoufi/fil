@@ -1,0 +1,281 @@
+{
+    "key": "group_57da7f9d9f47a",
+    "title": "Jobs",
+    "fields": [
+        {
+            "key": "field_57da7fa48940a",
+            "label": "Job Visibility",
+            "name": "job_visibility",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "choices": {
+                "All Stores": "All Stores",
+                "Select Area": "Select Area",
+                "Select Stores": "Select Stores"
+            },
+            "default_value": false,
+            "return_format": "array",
+            "multiple": 0,
+            "max": "",
+            "prepend": "",
+            "append": "",
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "allow_custom": 0,
+            "search_placeholder": "",
+            "min": ""
+        },
+        {
+            "key": "field_60804b59435a8",
+            "label": "Area CPT",
+            "name": "area_cpt_job",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_57da7fa48940a",
+                        "operator": "==",
+                        "value": "Select Area"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "post_type": [
+                "area"
+            ],
+            "taxonomy": "",
+            "allow_null": 1,
+            "multiple": 0,
+            "return_format": "object",
+            "ui": 1,
+            "bidirectional_target": [],
+            "save_custom": 0,
+            "save_post_type": "",
+            "save_post_status": "",
+            "acfe_add_post": 0,
+            "acfe_edit_post": 0,
+            "min": "",
+            "max": ""
+        },
+        {
+            "key": "field_57da7fe48940b",
+            "label": "Area",
+            "name": "states",
+            "aria-label": "",
+            "type": "taxonomy",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_57da7fa48940a",
+                        "operator": "==",
+                        "value": "Select Area"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "taxonomy": "grabba_tax_area",
+            "field_type": "multi_select",
+            "allow_null": 0,
+            "add_term": 1,
+            "save_terms": 1,
+            "load_terms": 1,
+            "return_format": "object",
+            "multiple": 0,
+            "bidirectional_target": [],
+            "min": "",
+            "max": ""
+        },
+        {
+            "key": "field_57da80518940d",
+            "label": "Stores",
+            "name": "stores",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_57da7fa48940a",
+                        "operator": "==",
+                        "value": "Select Stores"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl_acf_override_master": 0,
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "post_type": [
+                "store"
+            ],
+            "taxonomy": "",
+            "allow_null": 0,
+            "multiple": 1,
+            "return_format": "object",
+            "ui": 1,
+            "bidirectional_target": [],
+            "save_custom": 0,
+            "save_post_type": "",
+            "save_post_status": "",
+            "acfe_add_post": 0,
+            "acfe_edit_post": 0,
+            "min": "",
+            "max": ""
+        },
+        {
+            "key": "field_63ebaa33a23b5",
+            "label": "Job Summary",
+            "name": "job_summary",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "default_value": "",
+            "maxlength": 500,
+            "rows": 5,
+            "placeholder": "",
+            "new_lines": "",
+            "acfe_textarea_code": 0
+        },
+        {
+            "key": "field_63ebaa83a23b6",
+            "label": "Responsibilities and Duties",
+            "name": "responsibilities_and_duties",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "default_value": "",
+            "maxlength": "",
+            "rows": 10,
+            "placeholder": "",
+            "new_lines": "",
+            "acfe_textarea_code": 0
+        },
+        {
+            "key": "field_63ebbf74d1bda",
+            "label": "Qualifications and Skills",
+            "name": "qualifications_skills",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "default_value": "",
+            "maxlength": "",
+            "rows": 10,
+            "placeholder": "",
+            "new_lines": "",
+            "acfe_textarea_code": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "franchise_jobs"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "excerpt",
+        "featured_image",
+        "page_attributes",
+        "permalink"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 1,
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_display_title": "",
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1712199330
+}

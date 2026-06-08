@@ -24,11 +24,19 @@ final class ListFieldsRequest extends FormRequest
     {
         return [
             'entity' => ['sometimes', 'string', Rule::in(['lead', 'store', 'area', 'contact', 'user', 'organization'])],
+            'legacy_post_type' => ['sometimes', 'nullable', 'string', 'max:64'],
         ];
     }
 
     public function entity(): string
     {
         return (string) $this->validated('entity', 'lead');
+    }
+
+    public function legacyPostType(): ?string
+    {
+        $value = $this->validated('legacy_post_type');
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }

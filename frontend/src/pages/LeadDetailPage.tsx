@@ -309,6 +309,7 @@ export function LeadDetailPage({
 
           <EntityCustomFieldsPanel
             entity="lead"
+            legacyPostType="application"
             values={lead.custom ?? {}}
             canEdit={canEditLead}
             onSave={async (custom) => {

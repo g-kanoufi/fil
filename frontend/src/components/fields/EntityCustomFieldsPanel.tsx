@@ -22,6 +22,8 @@ const SCALAR_TYPES = new Set([
 
 interface EntityCustomFieldsPanelProps {
   entity: 'lead' | 'store' | 'contact';
+  /** Legacy WordPress post_type for schema scoping (e.g. application, store). */
+  legacyPostType?: string;
   values: Record<string, unknown>;
   canEdit: boolean;
   onSave: (custom: Record<string, unknown>) => Promise<void>;
@@ -113,6 +115,7 @@ function renderFieldInput(
 
 export function EntityCustomFieldsPanel({
   entity,
+  legacyPostType,
   values,
   canEdit,
   onSave,
@@ -133,7 +136,7 @@ export function EntityCustomFieldsPanel({
     setError(null);
 
     try {
-      const loaded = await fetchFieldSchema(entity);
+      const loaded = await fetchFieldSchema(entity, legacyPostType);
       setGroups(loaded);
     } catch (loadError: unknown) {
       setError(loadError instanceof Error ? loadError.message : 'Failed to load custom fields');
@@ -141,7 +144,7 @@ export function EntityCustomFieldsPanel({
     } finally {
       setLoading(false);
     }
-  }, [entity]);
+  }, [entity, legacyPostType]);
 
   useEffect(() => {
     void loadSchema();

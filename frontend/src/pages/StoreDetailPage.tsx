@@ -179,6 +179,7 @@ export function StoreDetailPage({
 
           <EntityCustomFieldsPanel
             entity="store"
+            legacyPostType="store"
             values={store.custom ?? {}}
             canEdit={canEditStore}
             onSave={async (custom) => {

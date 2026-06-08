@@ -1,0 +1,472 @@
+{
+    "key": "group_5e33f7593eab2",
+    "title": "Theme - Featured Images Slider",
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "page"
+            },
+            {
+                "param": "page",
+                "operator": "==",
+                "value": "0"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content",
+        "featured_image"
+    ],
+    "active": true,
+    "description": "",
+    "fields": [
+        {
+            "key": "field_5e33f789d473b",
+            "label": "Slides",
+            "name": "slides",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl_acf_override_client": 0,
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "block",
+            "button_label": "Add  Slide",
+            "sub_fields": [
+                {
+                    "key": "field_5e33f7d1d473c",
+                    "label": "Picture",
+                    "name": "slide_picture",
+                    "type": "file",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "return_format": "array",
+                    "library": "all",
+                    "min_size": "",
+                    "max_size": "",
+                    "mime_types": ""
+                },
+                {
+                    "key": "field_5e33f7fed473d",
+                    "label": "Text",
+                    "name": "slide_text",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "66",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "default_value": "",
+                    "placeholder": "",
+                    "maxlength": "",
+                    "rows": 6,
+                    "new_lines": "wpautop"
+                },
+                {
+                    "key": "field_5e33f845d473e",
+                    "label": "Text Style",
+                    "name": "text_style",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "33",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "choices": {
+                        "white-shadow": "White text with shadow - Default",
+                        "white-noshadow": "White text - no shadow",
+                        "grey": "Grey Text",
+                        "grey-noshadow": "Grey Text - no shadow",
+                        "main-color": "Public Main Color Text",
+                        "main-color-noshadow": "Public Main Color Text - no shadow"
+                    },
+                    "default_value": [],
+                    "allow_null": 0,
+                    "multiple": 0,
+                    "ui": 0,
+                    "return_format": "value",
+                    "ajax": 0,
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_5e33f956d473f",
+                    "label": "Start publishing date",
+                    "name": "start_publishing_date",
+                    "type": "date_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "display_format": "m\/d\/Y",
+                    "return_format": "Ymd",
+                    "first_day": 1
+                },
+                {
+                    "key": "field_5e33f98fd4740",
+                    "label": "Stop publishing date",
+                    "name": "stop_publishing_date",
+                    "type": "date_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "display_format": "m\/d\/Y",
+                    "return_format": "Ymd",
+                    "first_day": 1
+                },
+                {
+                    "key": "field_5e33f9abd4741",
+                    "label": "Enable Slider",
+                    "name": "is_enabled",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "33",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 1,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33f9f01ba5f",
+                    "label": "Show newsletter form",
+                    "name": "newsletter_form",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "33",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 1,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33fa151ba60",
+                    "label": "Show Order and App Buttons",
+                    "name": "order_app_button",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "33",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33fa3e1ba61",
+                    "label": "White Background",
+                    "name": "white_background",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33fa581ba62",
+                    "label": "Holiday Slider",
+                    "name": "holiday",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33fa721ba63",
+                    "label": "Promo Slider",
+                    "name": "promo_slider",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "25",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 0,
+                    "ui_on_text": "",
+                    "ui_off_text": ""
+                },
+                {
+                    "key": "field_5e33fa961ba64",
+                    "label": "Promo Slider Content",
+                    "name": "promo_slider_content",
+                    "type": "repeater",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_5e33fa721ba63",
+                                "operator": "==",
+                                "value": "1"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "collapsed": "",
+                    "min": 1,
+                    "max": 1,
+                    "layout": "block",
+                    "button_label": "",
+                    "sub_fields": [
+                        {
+                            "key": "field_5e33faf81ba65",
+                            "label": "Title",
+                            "name": "box_title",
+                            "type": "textarea",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "fl_acf_override_client": 0,
+                            "fl-react-app-column": 0,
+                            "fl-react-app-column-default": 0,
+                            "fl-react-app-column-label": "",
+                            "fl-react-app-label": "",
+                            "fl-react-app-mobile-label": "",
+                            "default_value": "",
+                            "placeholder": "",
+                            "maxlength": "",
+                            "rows": 2,
+                            "new_lines": "br"
+                        },
+                        {
+                            "key": "field_5e33fb2d1ba66",
+                            "label": "Sub Title",
+                            "name": "box_sub_title",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "fl_acf_override_client": 0,
+                            "fl-react-app-column": 0,
+                            "fl-react-app-column-default": 0,
+                            "fl-react-app-column-label": "",
+                            "fl-react-app-label": "",
+                            "fl-react-app-mobile-label": "",
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        },
+                        {
+                            "key": "field_5e33fb411ba67",
+                            "label": "Details",
+                            "name": "box_details",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "fl_acf_override_client": 0,
+                            "fl-react-app-column": 0,
+                            "fl-react-app-column-default": 0,
+                            "fl-react-app-column-label": "",
+                            "fl-react-app-label": "",
+                            "fl-react-app-mobile-label": "",
+                            "default_value": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": "",
+                            "maxlength": ""
+                        },
+                        {
+                            "key": "field_5e33fb541ba68",
+                            "label": "Link",
+                            "name": "box_link",
+                            "type": "url",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "fl_acf_override_client": 0,
+                            "fl-react-app-column": 0,
+                            "fl-react-app-column-default": 0,
+                            "fl-react-app-column-label": "",
+                            "fl-react-app-label": "",
+                            "fl-react-app-mobile-label": "",
+                            "default_value": "",
+                            "placeholder": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "modified": 1606588211
+}

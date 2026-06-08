@@ -3,6 +3,7 @@
 .env.local
 *.log
 *.sql
+!backend/tests/fixtures/*.sql
 *.sql.gz
 node_modules/
 backend/vendor/

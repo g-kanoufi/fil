@@ -1,0 +1,64 @@
+{
+    "key": "group_5c3e17a843a14",
+    "title": "Theme - Validators",
+    "fields": [
+        {
+            "key": "field_5c3e17b138e60",
+            "label": "AChecker ADA ID",
+            "name": "achecker_ada_id",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl_acf_override_master": 0,
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "default_value": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "page"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "franchise_location"
+            }
+        ]
+    ],
+    "menu_order": 10000,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": false,
+    "modified": 1644596780
+}

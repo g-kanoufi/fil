@@ -10,6 +10,7 @@ use App\Models\FranchiseLocation;
 use App\Models\Lead;
 use App\Models\Store;
 use App\Models\User;
+use App\Support\Legacy\LegacyTableNames;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -134,7 +135,7 @@ final class LegacyDocumentImportService
 
         $this->importer->import(
             $dumpPath,
-            $prefix.'usermeta',
+            LegacyTableNames::fromSitePrefix($prefix)->networkTable('usermeta'),
             function (array $row, bool $execute) use (&$stats, $userPatterns): void {
                 $metaKey = (string) ($row['meta_key'] ?? '');
                 $metaValue = trim((string) ($row['meta_value'] ?? ''));

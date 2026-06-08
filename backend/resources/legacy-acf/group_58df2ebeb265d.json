@@ -1,0 +1,1099 @@
+{
+    "key": "group_58df2ebeb265d",
+    "title": "Resources",
+    "fields": [
+        {
+            "key": "field_65ff2d78a1d03",
+            "label": "Resource Category Image",
+            "name": "resource_image",
+            "aria-label": "",
+            "type": "font-awesome",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "icon_sets": [
+                "solid",
+                "regular",
+                "light",
+                "thin",
+                "duotone",
+                "fak",
+                "brands"
+            ],
+            "custom_icon_set": "",
+            "default_label": "",
+            "default_value": "",
+            "save_format": "class",
+            "allow_null": 0,
+            "show_preview": 1,
+            "enqueue_fa": 0,
+            "fa_live_preview": "",
+            "choices": []
+        },
+        {
+            "key": "field_65ff2deaa1d04",
+            "label": "Resource Category Description",
+            "name": "resource_description",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "default_value": "",
+            "acfe_textarea_code": 0,
+            "maxlength": "",
+            "rows": 2,
+            "placeholder": "",
+            "new_lines": ""
+        },
+        {
+            "key": "field_67b37598222fc",
+            "label": "Include Resources in Zai Index",
+            "name": "index_resource",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "message": "",
+            "default_value": 1,
+            "allow_in_bindings": 0,
+            "ui_on_text": "",
+            "ui_off_text": "",
+            "ui": 1,
+            "style": "rounded"
+        },
+        {
+            "key": "field_67b37708850e4",
+            "label": "Resource Permissions",
+            "name": "resource_permissions",
+            "aria-label": "",
+            "type": "acfe_user_roles",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "user_role": "",
+            "field_type": "select",
+            "min": "",
+            "max": "",
+            "default_value": [],
+            "allow_null": 0,
+            "multiple": 1,
+            "ui": 1,
+            "ajax": 0,
+            "placeholder": "",
+            "allow_custom": 0,
+            "allow_in_bindings": 0,
+            "choices": [],
+            "search_placeholder": "",
+            "layout": "",
+            "toggle": 0
+        },
+        {
+            "key": "field_64b57fc9ea269",
+            "label": "Left Column",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "message": "",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_64b93b59e6cf3",
+            "label": "Left Column Fields",
+            "name": "left_column_fields",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "acfe_repeater_stylised_button": 0,
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_64b93b59e6cf4",
+            "button_label": "Add Field",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_64b93b59e6cf4",
+                    "label": "Field Label",
+                    "name": "left_column_field_label",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "required_message": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93b59e6cf5",
+                    "label": "What Type of Field?",
+                    "name": "left_column_what_type_of_field",
+                    "aria-label": "",
+                    "type": "radio",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "40",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "choices": {
+                        "file": "File",
+                        "link": "URL",
+                        "googleform": "Google Form",
+                        "heading": "Heading",
+                        "subheading": "Subheading"
+                    },
+                    "default_value": "",
+                    "return_format": "array",
+                    "allow_null": 0,
+                    "other_choice": 0,
+                    "allow_in_bindings": 1,
+                    "layout": "horizontal",
+                    "save_other_choice": 0,
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93b59e6cf6",
+                    "label": "File",
+                    "name": "left_column_file",
+                    "aria-label": "",
+                    "type": "file",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "file"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "uploader": "",
+                    "return_format": "url",
+                    "upload_folder": "",
+                    "multiple": 0,
+                    "min_size": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "library": "all",
+                    "preview_style": "default",
+                    "placeholder": "Select",
+                    "button_label": "Add File",
+                    "stylised_button": 0,
+                    "file_count": 0,
+                    "min": "",
+                    "max": "",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93b59e6cf7",
+                    "label": "URL",
+                    "name": "left_column_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "link"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_684993249fd85",
+                    "label": "Google Form \"Edit\" URL",
+                    "name": "left_column_google_form_edit_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "googleform"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_684993499fd86",
+                    "label": "Google Form \"View\" URL",
+                    "name": "left_column_google_form_view_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "googleform"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93b59e6cf8",
+                    "label": "Heading",
+                    "name": "left_column_heading",
+                    "aria-label": "",
+                    "type": "acfe_hidden",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "heading"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93b59e6cf9",
+                    "label": "Sub-Heading",
+                    "name": "left_column_sub_heading",
+                    "aria-label": "",
+                    "type": "acfe_hidden",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93b59e6cf5",
+                                "operator": "==",
+                                "value": "subheading"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                },
+                {
+                    "key": "field_64b93c62fbfee",
+                    "label": "Description",
+                    "name": "left_column_description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "acfe_textarea_code": 0,
+                    "maxlength": "",
+                    "rows": 2,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_64b93b59e6cf3"
+                }
+            ]
+        },
+        {
+            "key": "field_64b57fd8ea26a",
+            "label": "Right Column",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "message": "",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_64b93890e6cec",
+            "label": "Right Column Fields",
+            "name": "right_column_fields",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "acfe_repeater_stylised_button": 0,
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_64b938dce6ced",
+            "button_label": "Add Field",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_64b938dce6ced",
+                    "label": "Field Label",
+                    "name": "right_column_field_label",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "required_message": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93948e6cee",
+                    "label": "What Type of Field?",
+                    "name": "right_column_what_type_of_field",
+                    "aria-label": "",
+                    "type": "radio",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "40",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "choices": {
+                        "file": "File",
+                        "link": "URL",
+                        "googleform": "Google Form",
+                        "heading": "Heading",
+                        "subheading": "Subheading"
+                    },
+                    "default_value": "",
+                    "return_format": "array",
+                    "allow_null": 0,
+                    "other_choice": 0,
+                    "allow_in_bindings": 1,
+                    "layout": "horizontal",
+                    "save_other_choice": 0,
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93996e6cef",
+                    "label": "File",
+                    "name": "right_column_file",
+                    "aria-label": "",
+                    "type": "file",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "file"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "uploader": "",
+                    "return_format": "url",
+                    "upload_folder": "",
+                    "multiple": 0,
+                    "max": "",
+                    "min_size": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "library": "all",
+                    "preview_style": "default",
+                    "placeholder": "Select",
+                    "button_label": "Add File",
+                    "stylised_button": 0,
+                    "file_count": 0,
+                    "min": "",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93a11e6cf0",
+                    "label": "URL",
+                    "name": "right_column_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "link"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_6849947f9fd87",
+                    "label": "Google Form \"Edit\" URL",
+                    "name": "right_column_google_form_edit_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "googleform"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_684994a09fd88",
+                    "label": "Google Form \"View\" URL",
+                    "name": "right_column_google_form_view_url",
+                    "aria-label": "",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "googleform"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "allow_in_bindings": 1,
+                    "placeholder": "https:\/\/your-url-here",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93a86e6cf1",
+                    "label": "Heading",
+                    "name": "right_column_heading",
+                    "aria-label": "",
+                    "type": "acfe_hidden",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "heading"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93acae6cf2",
+                    "label": "Sub-Heading",
+                    "name": "right_column_sub_heading",
+                    "aria-label": "",
+                    "type": "acfe_hidden",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_64b93948e6cee",
+                                "operator": "==",
+                                "value": "subheading"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "30",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "parent_repeater": "field_64b93890e6cec"
+                },
+                {
+                    "key": "field_64b93c91fbfef",
+                    "label": "Description",
+                    "name": "right_column_description",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "100",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "default_value": "",
+                    "acfe_textarea_code": 0,
+                    "maxlength": "",
+                    "rows": 2,
+                    "placeholder": "",
+                    "new_lines": "",
+                    "parent_repeater": "field_64b93890e6cec"
+                }
+            ]
+        },
+        {
+            "key": "field_5abcee06ba697",
+            "label": "Resource Update",
+            "name": "operation_update",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "fl_acf_override_master": 0,
+            "acfe_repeater_stylised_button": 0,
+            "layout": "block",
+            "pagination": 0,
+            "min": 1,
+            "max": 1,
+            "collapsed": "",
+            "button_label": "Add Row",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_5abcee40ba698",
+                    "label": "Do you want to send an email alert for this update?",
+                    "name": "alert_update",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_master": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "message": "",
+                    "default_value": 0,
+                    "ui": 1,
+                    "ui_on_text": "",
+                    "ui_off_text": "",
+                    "parent_repeater": "field_5abcee06ba697",
+                    "style": ""
+                },
+                {
+                    "key": "field_5abcf2dbba699",
+                    "label": "Alert Message",
+                    "name": "alert_message",
+                    "aria-label": "",
+                    "type": "wysiwyg",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_5abcee40ba698",
+                                "operator": "==",
+                                "value": "1"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_master": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "default_value": "",
+                    "tabs": "visual",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 0,
+                    "parent_repeater": "field_5abcee06ba697",
+                    "acfe_wysiwyg_auto_init": 0,
+                    "acfe_wysiwyg_height": 300,
+                    "acfe_wysiwyg_min_height": 300,
+                    "acfe_wysiwyg_max_height": "",
+                    "acfe_wysiwyg_valid_elements": "",
+                    "acfe_wysiwyg_custom_style": "",
+                    "acfe_wysiwyg_disable_wp_style": 0,
+                    "acfe_wysiwyg_autoresize": 0,
+                    "acfe_wysiwyg_disable_resize": 0,
+                    "acfe_wysiwyg_remove_path": 0,
+                    "acfe_wysiwyg_menubar": 0,
+                    "acfe_wysiwyg_transparent": 0,
+                    "acfe_wysiwyg_merge_toolbar": 0,
+                    "acfe_wysiwyg_custom_toolbar": 0,
+                    "acfe_wysiwyg_toolbar_buttons": []
+                },
+                {
+                    "key": "field_5ecd1a0b60cba",
+                    "label": "Select Roles to Receive Alert",
+                    "name": "to_by_role",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_5abcee40ba698",
+                                "operator": "==",
+                                "value": "1"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "fl_acf_override_master": 0,
+                    "choices": {
+                        "area_rep": "Area Developer",
+                        "corp-trainer": "Corporate Trainer",
+                        "employee": "Employee",
+                        "franchisee": "Franchisee",
+                        "franchiseadmin": "Franchisor",
+                        "marketing": "Marketing",
+                        "operations": "Operations",
+                        "partner": "Partner",
+                        "real-estate-agent": "Real Estate Agent",
+                        "storemanager": "Spa Manager",
+                        "spouse": "Spouse",
+                        "terminated-franchisee": "Terminated",
+                        "group_leader": "Trainer"
+                    },
+                    "default_value": [],
+                    "return_format": "array",
+                    "multiple": 1,
+                    "min": "",
+                    "max": "",
+                    "allow_custom": 0,
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "allow_null": 1,
+                    "ui": 1,
+                    "ajax": 0,
+                    "search_placeholder": "",
+                    "parent_repeater": "field_5abcee06ba697"
+                },
+                {
+                    "key": "field_5ecd1a8760cbb",
+                    "label": "<Platform Name> Users",
+                    "name": "platform_name_users",
+                    "aria-label": "",
+                    "type": "user",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": [
+                        [
+                            {
+                                "field": "field_5abcee40ba698",
+                                "operator": "==",
+                                "value": "1"
+                            }
+                        ]
+                    ],
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_master": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "role": [
+                        "area_rep",
+                        "franchisee",
+                        "franchiseadmin",
+                        "employee"
+                    ],
+                    "allow_null": 0,
+                    "multiple": 1,
+                    "return_format": "array",
+                    "parent_repeater": "field_5abcee06ba697",
+                    "min": "",
+                    "max": "",
+                    "bidirectional_target": []
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page",
+                "operator": "==",
+                "value": "885"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "franchise_operation"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "author",
+        "categories",
+        "comments",
+        "discussion",
+        "excerpt",
+        "featured_image",
+        "format",
+        "page_attributes",
+        "permalink",
+        "revisions",
+        "send-trackbacks",
+        "slug",
+        "tags"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 1,
+    "acfe_autosync": [
+        "json"
+    ],
+    "acfe_form": 0,
+    "acfe_display_title": "",
+    "acfe_meta": "",
+    "acfe_note": "",
+    "modified": 1750335758
+}

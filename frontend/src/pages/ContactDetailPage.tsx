@@ -113,6 +113,7 @@ export function ContactDetailPage({
 
         <EntityCustomFieldsPanel
           entity="contact"
+          legacyPostType="user"
           values={contact.custom ?? {}}
           canEdit={canEditContact}
           onSave={async (custom) => {

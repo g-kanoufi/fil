@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Legacy;
 
 use App\Services\Legacy\Concerns\ReadsLegacyDump;
+use App\Support\Legacy\LegacyTableNames;
 
 /**
  * Pre-scans wp_usermeta for profile fields and site capabilities.
@@ -22,10 +23,8 @@ final class LegacyUserProfileResolver
      */
     public function resolve(string $dumpPath, string $sitePrefix): array
     {
-        $networkPrefix = preg_match('/^(.+?)(?:_\d+_)$/', $sitePrefix, $matches)
-            ? $matches[1].'_'
-            : $sitePrefix;
-        $table = $networkPrefix.'usermeta';
+        $tables = LegacyTableNames::fromSitePrefix($sitePrefix);
+        $table = $tables->networkTable('usermeta');
         $capabilitiesKey = $sitePrefix.'capabilities';
         $profiles = [];
 

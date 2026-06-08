@@ -19,7 +19,11 @@ final class FieldSchemaController extends Controller
 
     public function index(ListFieldsRequest $request): JsonResponse
     {
-        $payload = $this->schema->forEntity($request->user(), $request->entity());
+        $payload = $this->schema->forRecord(
+            $request->user(),
+            $request->entity(),
+            $request->legacyPostType(),
+        );
 
         return ApiResponse::resource(new FieldSchemaResource($payload));
     }

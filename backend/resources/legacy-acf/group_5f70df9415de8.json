@@ -1,0 +1,99 @@
+{
+    "key": "group_5f70df9415de8",
+    "title": "Client Fields - Prime IV - Users",
+    "fields": [
+        {
+            "key": "field_5f70dfac11bd6",
+            "label": "Medical Certification",
+            "name": "medical_certification",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "fl_acf_override_client": 0,
+            "fl-react-app-column": 0,
+            "fl-react-app-column-default": 0,
+            "fl-react-app-column-label": "",
+            "fl-react-app-label": "",
+            "fl-react-app-mobile-label": "",
+            "collapsed": "field_5f70dfcc11bd7",
+            "min": 1,
+            "max": 0,
+            "layout": "table",
+            "button_label": "",
+            "sub_fields": [
+                {
+                    "key": "field_5f70dfcc11bd7",
+                    "label": "File",
+                    "name": "file",
+                    "type": "file",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "return_format": "array",
+                    "library": "all",
+                    "min_size": "",
+                    "max_size": "",
+                    "mime_types": ""
+                },
+                {
+                    "key": "field_5f70dfda11bd8",
+                    "label": "Expiration Date",
+                    "name": "expiration_date",
+                    "type": "date_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "fl_acf_override_client": 0,
+                    "fl-react-app-column": 0,
+                    "fl-react-app-column-default": 0,
+                    "fl-react-app-column-label": "",
+                    "fl-react-app-label": "",
+                    "fl-react-app-mobile-label": "",
+                    "display_format": "m\/d\/Y",
+                    "return_format": "Ymd",
+                    "first_day": 0
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "user_form",
+                "operator": "==",
+                "value": "edit"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "modified": 1606588211
+}

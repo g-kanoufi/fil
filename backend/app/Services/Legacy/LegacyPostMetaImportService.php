@@ -14,6 +14,7 @@ use App\Models\Store;
 use App\Models\User;
 use App\Services\Fields\FieldValueWriter;
 use App\Services\Leads\LeadPipelineCatalog;
+use Illuminate\Support\Collection;
 
 final class LegacyPostMetaImportService
 {
@@ -50,6 +51,8 @@ final class LegacyPostMetaImportService
         private readonly LeadPipelineCatalog $pipelineCatalog,
         private readonly LegacyExtrasDrainService $extrasDrain,
         private readonly FieldValueWriter $fieldValues,
+        private readonly LegacyPostTypeIndex $postTypes,
+        private readonly LegacyPostMetaHygiene $metaHygiene,
     ) {}
 
     /**
@@ -59,11 +62,15 @@ final class LegacyPostMetaImportService
     {
         $stats = ['applied' => 0, 'field_values' => 0, 'extras' => 0, 'skipped' => 0];
         $fieldColumnMap = $this->fieldColumnMap();
+        $this->postTypes->build($dumpPath, $prefix);
+        /** @var array<string, Collection<string, Field>> $fieldIndexes */
+        $fieldIndexes = [];
+        $metaHygieneEnabled = (bool) config('fil-legacy-acf.meta_hygiene', true);
 
         $result = $this->importer->import(
             $dumpPath,
             $prefix.'postmeta',
-            function (array $row, bool $execute) use (&$stats, $fieldColumnMap): void {
+            function (array $row, bool $execute) use (&$stats, $fieldColumnMap, &$fieldIndexes, $metaHygieneEnabled): void {
                 $metaKey = (string) ($row['meta_key'] ?? '');
                 $metaValue = $row['meta_value'] ?? null;
                 $legacyPostId = (int) ($row['post_id'] ?? 0);
@@ -90,6 +97,8 @@ final class LegacyPostMetaImportService
                     return;
                 }
 
+                $legacyPostType = $this->postTypes->typeFor($legacyPostId) ?? '';
+                $entityType = $this->entityForLegacyPostType($legacyPostType);
                 $target = $this->resolveTarget($legacyPostId, $metaKey, (string) $metaValue, $fieldColumnMap);
 
                 if ($target === null) {
@@ -97,7 +106,25 @@ final class LegacyPostMetaImportService
                         $legacyPostId,
                         $metaKey,
                         (string) $metaValue,
+                        $legacyPostType,
                     );
+
+                    if ($metaHygieneEnabled) {
+                        $indexKey = $entityType.'|'.$legacyPostType;
+                        $fieldIndexes[$indexKey] ??= $this->scopedFieldIndex($entityType, $legacyPostType);
+
+                        if (! $this->metaHygiene->shouldImport(
+                            $metaKey,
+                            $entityType,
+                            $fieldIndexes[$indexKey],
+                            false,
+                            $fieldValue,
+                        )) {
+                            $stats['skipped']++;
+
+                            return;
+                        }
+                    }
 
                     if ($fieldValue !== null) {
                         $stats['field_values']++;
@@ -452,5 +479,29 @@ final class LegacyPostMetaImportService
         }
 
         return $map;
+    }
+
+    private function entityForLegacyPostType(string $legacyPostType): string
+    {
+        /** @var array<string, string> $map */
+        $map = config('fil-legacy-acf.post_type_entity', []);
+
+        return $map[$legacyPostType] ?? 'lead';
+    }
+
+    /**
+     * @return Collection<string, Field>
+     */
+    private function scopedFieldIndex(string $entityType, string $legacyPostType): Collection
+    {
+        return Field::query()
+            ->where('entity', $entityType)
+            ->where('status', 'active')
+            ->where(function ($query) use ($legacyPostType): void {
+                $query->where('legacy_post_type', '')
+                    ->orWhere('legacy_post_type', $legacyPostType);
+            })
+            ->get()
+            ->keyBy('key');
     }
 }

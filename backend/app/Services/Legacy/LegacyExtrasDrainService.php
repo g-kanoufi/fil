@@ -112,9 +112,13 @@ final class LegacyExtrasDrainService
     /**
      * @return array{entity: string, entity_id: int, key: string, value: string}|null
      */
-    public function resolveFieldValueTarget(int $legacyPostId, string $metaKey, string $metaValue): ?array
-    {
-        $field = $this->resolveScalarField($metaKey);
+    public function resolveFieldValueTarget(
+        int $legacyPostId,
+        string $metaKey,
+        string $metaValue,
+        ?string $legacyPostType = null,
+    ): ?array {
+        $field = $this->resolveScalarField($metaKey, $legacyPostType);
 
         if ($field === null) {
             return null;
@@ -374,11 +378,18 @@ final class LegacyExtrasDrainService
         }
     }
 
-    private function resolveScalarField(string $metaKey): ?Field
+    private function resolveScalarField(string $metaKey, ?string $legacyPostType = null): ?Field
     {
         $fields = Field::query()
             ->where('storage', 'field_value')
             ->where('status', 'active')
+            ->when(
+                $legacyPostType !== null && $legacyPostType !== '',
+                fn ($query) => $query->where(function ($scoped) use ($legacyPostType): void {
+                    $scoped->where('legacy_post_type', '')
+                        ->orWhere('legacy_post_type', $legacyPostType);
+                }),
+            )
             ->get()
             ->keyBy('key');
 

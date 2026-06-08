@@ -80,10 +80,18 @@ export function fetchFieldGroups(
 }
 
 /** Role-aware schema for entity detail forms (not admin field-groups). */
-export function fetchFieldSchema(entity: string): Promise<FieldGroupDef[]> {
-  return apiGet<{ data: { groups: FieldGroupDef[] } }>(
-    `/v1/fields?entity=${encodeURIComponent(entity)}`,
-  ).then((body) => body.data.groups);
+export function fetchFieldSchema(
+  entity: string,
+  legacyPostType?: string,
+): Promise<FieldGroupDef[]> {
+  const params = new URLSearchParams({ entity });
+  if (legacyPostType) {
+    params.set('legacy_post_type', legacyPostType);
+  }
+
+  return apiGet<{ data: { groups: FieldGroupDef[] } }>(`/v1/fields?${params.toString()}`).then(
+    (body) => body.data.groups,
+  );
 }
 
 export function fetchRelatableEntities(): Promise<RelatableCatalogue> {

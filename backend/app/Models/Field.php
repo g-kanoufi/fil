@@ -16,6 +16,7 @@ final class Field extends Model
     protected $fillable = [
         'field_group_id',
         'entity',
+        'legacy_post_type',
         'key',
         'name',
         'type',

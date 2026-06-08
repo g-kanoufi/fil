@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Services\Legacy;
 
 use App\Models\User;
-use App\Services\Legacy\Concerns\ReadsLegacyDump;
+use App\Support\Legacy\LegacyTableNames;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 final class LegacyUserImportService
 {
-    use ReadsLegacyDump;
-
     public function __construct(
         private readonly LegacyNamedTableImporter $importer,
         private readonly LegacyUserProfileResolver $profileResolver,
@@ -27,7 +25,7 @@ final class LegacyUserImportService
         $this->ensureRolesExist();
 
         $profiles = $this->profileResolver->resolve($dumpPath, $sitePrefix);
-        $table = $this->networkPrefix($sitePrefix).'users';
+        $table = LegacyTableNames::fromSitePrefix($sitePrefix)->networkTable('users');
         $stats = [
             'users' => 0,
             'staff' => 0,

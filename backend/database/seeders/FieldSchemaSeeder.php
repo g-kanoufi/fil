@@ -40,9 +40,11 @@ final class FieldSchemaSeeder extends Seeder
             [
                 'field_group_id' => $applications->id,
                 'key' => 'internal_margin_notes',
+                'legacy_post_type' => '',
             ],
             [
                 'entity' => 'lead',
+                'legacy_post_type' => '',
                 'name' => 'Internal Margin Notes',
                 'type' => 'textarea',
                 'storage' => 'field_value',

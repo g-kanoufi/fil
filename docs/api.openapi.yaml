@@ -27,6 +27,18 @@ paths:
   /v1/fields:
     get:
       summary: Field schema for entity (staff; fields.view)
+      parameters:
+        - name: entity
+          in: query
+          schema:
+            type: string
+            enum: [lead, store, area, contact, user, organization]
+        - name: legacy_post_type
+          in: query
+          description: Legacy WordPress post_type context (e.g. application, store, franchise_location)
+          schema:
+            type: string
+            maxLength: 64
     post:
       summary: Create a configurable field (admin; fields.manage)
   /v1/fields/{field}:

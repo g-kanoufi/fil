@@ -1,0 +1,177 @@
+{
+  "key": "group_58a1db94b0edc",
+  "title": "Administrative Notes",
+  "fields": [
+	{
+	  "key": "field_58a1dc36d4fe8",
+	  "label": "Notes",
+	  "name": "administrative_notes",
+	  "type": "repeater",
+	  "instructions": "",
+	  "required": 0,
+	  "conditional_logic": 0,
+	  "wrapper": {
+		"width": "",
+		"class": "",
+		"id": ""
+	  },
+	  "collapsed": "",
+	  "min": 0,
+	  "max": 0,
+	  "layout": "block",
+	  "button_label": "Add Note",
+	  "fl_acf_override_master": 0,
+	  "sub_fields": [
+		{
+		  "key": "field_58a1dc47d4fe9",
+		  "label": "Note",
+		  "name": "note",
+		  "type": "textarea",
+		  "instructions": "",
+		  "required": 0,
+		  "conditional_logic": 0,
+		  "wrapper": {
+			"width": "",
+			"class": "",
+			"id": ""
+		  },
+		  "default_value": "",
+		  "placeholder": "",
+		  "maxlength": "",
+		  "rows": 4,
+		  "new_lines": "",
+		  "readonly": 0,
+		  "disabled": 0
+		},
+		{
+		  "key": "field_58a2c0f2bab3b",
+		  "label": "User ID",
+		  "name": "user_id",
+		  "type": "hidden",
+		  "instructions": "",
+		  "required": "",
+		  "conditional_logic": "",
+		  "wrapper": {
+			"width": "",
+			"class": "",
+			"id": ""
+		  },
+		  "default_value": 670
+		},
+		{
+		  "key": "field_58a2c10fbab3c",
+		  "label": "Created By",
+		  "name": "created_by",
+		  "type": "text",
+		  "instructions": "",
+		  "required": 0,
+		  "conditional_logic": 0,
+		  "wrapper": {
+			"width": 33,
+			"class": "",
+			"id": ""
+		  },
+		  "default_value": "David Glines",
+		  "placeholder": "",
+		  "prepend": "",
+		  "append": "",
+		  "maxlength": "",
+		  "readonly": 0,
+		  "disabled": 0
+		},
+		{
+		  "key": "field_58a328dc40dbe",
+		  "label": "Created At",
+		  "name": "created_at",
+		  "type": "timestamp",
+		  "instructions": "",
+		  "required": 0,
+		  "conditional_logic": 0,
+		  "wrapper": {
+			"width": 33,
+			"class": "",
+			"id": ""
+		  },
+		  "updateable": 0,
+		  "default_value": "02\/11\/2022 09:32:17 am"
+		},
+		{
+		  "key": "field_58a2c152bab3e",
+		  "label": "Modified At",
+		  "name": "modified_at",
+		  "type": "timestamp",
+		  "instructions": "",
+		  "required": "",
+		  "conditional_logic": "",
+		  "wrapper": {
+			"width": 33,
+			"class": "",
+			"id": ""
+		  },
+		  "updateable": 1,
+		  "default_value": "11\/23\/2022 07:22:42 am"
+		}
+	  ]
+	}
+  ],
+  "location": [
+	[
+	  {
+		"param": "post_type",
+		"operator": "==",
+		"value": "store"
+	  },
+	  {
+		"param": "user_roles_multiple",
+		"operator": "in",
+		"value": "user_roles_condition"
+	  }
+	],
+	[
+	  {
+		"param": "post_type",
+		"operator": "==",
+		"value": "application"
+	  },
+	  {
+		"param": "user_roles_multiple",
+		"operator": "in",
+		"value": "user_roles_condition"
+	  }
+	],
+	[
+	  {
+		"param": "post_type",
+		"operator": "==",
+		"value": "franchise_location"
+	  },
+	  {
+		"param": "user_roles_multiple",
+		"operator": "in",
+		"value": "user_roles_condition"
+	  }
+	],
+	[
+	  {
+		"param": "user_form",
+		"operator": "==",
+		"value": "edit"
+	  },
+	  {
+		"param": "user_roles_multiple",
+		"operator": "in",
+		"value": "user_roles_condition"
+	  }
+	]
+  ],
+  "menu_order": 99,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "hide_on_screen": "",
+  "active": true,
+  "description": "",
+  "show_in_rest": 1,
+  "modified": 1669213362
+}

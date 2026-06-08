@@ -77,6 +77,7 @@ final class LegacyAcfImportService
                 $json['fields'] ?? [],
                 $group,
                 $entity,
+                (string) ($meta['legacy_post_type'] ?? ''),
                 $sortCounters,
                 $groupKey,
             );
@@ -97,6 +98,7 @@ final class LegacyAcfImportService
         array $acfFields,
         FieldGroup $group,
         string $entity,
+        string $legacyPostType,
         array &$sortCounters,
         string $groupKey,
         string $keyPrefix = '',
@@ -120,6 +122,7 @@ final class LegacyAcfImportService
                     $acfField['sub_fields'],
                     $group,
                     $entity,
+                    $legacyPostType,
                     $sortCounters,
                     $groupKey,
                     $keyPrefix,
@@ -166,6 +169,7 @@ final class LegacyAcfImportService
             $existing = Field::query()
                 ->where('field_group_id', $group->id)
                 ->where('key', $fieldKey)
+                ->where('legacy_post_type', $legacyPostType)
                 ->first();
 
             if ($existing !== null) {
@@ -178,9 +182,11 @@ final class LegacyAcfImportService
                 [
                     'field_group_id' => $group->id,
                     'key' => $fieldKey,
+                    'legacy_post_type' => $legacyPostType,
                 ],
                 [
                     'entity' => $entity,
+                    'legacy_post_type' => $legacyPostType,
                     'name' => (string) ($acfField['label'] ?? $name),
                     'type' => $filType,
                     'storage' => $tierOne !== null ? 'column' : 'field_value',
